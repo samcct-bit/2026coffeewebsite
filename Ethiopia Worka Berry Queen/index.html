@@ -42,21 +42,17 @@
         <div class="fade-in-section is-visible flex flex-col items-center z-10 w-full max-w-4xl mx-auto">
             
             <!-- 【強制 Logo 設定】(已修正原提供代碼中導致破圖的 markdown []() 語法) -->
-            <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-85 transition-opacity duration-300 z-30" title="返回首頁"><div class="w-32 h-32 mb-4 relative flex items-center justify-center">
-                <img src="../7204.png" 
-                     alt="金成淬 Logo" 
-                     class="w-full h-full object-contain mix-blend-multiply brightness-110 contrast-125 grayscale"
-                     onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
-                     
-                <div id="logo-fallback" class="hidden w-28 h-28 rounded-full border-2 border-gray-800 flex-col items-center justify-center relative">
-                    <div class="absolute inset-1 rounded-full border border-gray-800 opacity-30"></div>
-                    <div class="text-center leading-tight mt-1">
-                        <span class="block text-xs font-bold tracking-widest text-gray-800">金成</span>
-                        <span class="block text-3xl font-bold my-1 text-gray-800">淬</span>
-                        <span class="block text-xs font-bold tracking-widest text-gray-800">成金</span>
-                    </div>
-                </div>
-            </div></a>
+            <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-90 transition-opacity duration-300 z-30 mx-auto" title="返回首頁">
+            <div class="w-24 h-24 md:w-28 md:h-28 mb-8 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_30px_rgba(255,255,255,0.2)] backdrop-blur-sm group transition-all duration-500 hover:scale-105 mx-auto flex items-center justify-center">
+                <img 
+                    src="../7204.png" 
+                    alt="金成淬 Logo" 
+                    class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" 
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                >
+                <div style="display: none;" class="w-full h-full flex items-center justify-center text-gray-800 font-serif font-bold text-lg">金成淬</div>
+            </div>
+        </a>
 
             <div class="w-[1px] h-12 bg-gold/50 my-6"></div>
 
@@ -165,9 +161,17 @@
 
     <footer class="bg-paper py-16 mt-12 text-center flex flex-col items-center">
         <!-- 頁尾 Logo 呼應 -->
-        <div class="w-14 h-14 mb-6 opacity-50 hover:opacity-100 transition-opacity duration-500">
-            <img src="../7204.png" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply">
-        </div>
+        <!-- Footer Logo -->
+        <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-4" title="返回首頁">
+            <div class="w-16 h-16 mb-4 opacity-80 hover:opacity-100 transition-opacity duration-300 mix-blend-multiply mx-auto">
+                 <img 
+                     src="../7204.png" 
+                     alt="金成淬 Logo" 
+                     class="w-full h-full object-contain" 
+                     onerror="this.style.opacity='0';"
+                 >
+            </div>
+        </a>
         <p class="text-ink font-medium tracking-[0.3em] mb-3 text-sm">金成淬 · 淬成金</p>
         <p class="text-ink/40 text-[10px] tracking-[0.2em] font-light uppercase">Alchemy of Refinement</p>
         <div class="w-8 h-px bg-ink/20 my-6"></div>

@@ -33,9 +33,17 @@
         <div class="relative z-10 text-center px-6 max-w-4xl mx-auto fade-in-section is-visible flex flex-col items-center">
             
             <!-- 完美去背去雜訊的 Logo -->
-            <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-85 transition-opacity duration-300 z-30" title="返回首頁"><div class="w-24 h-24 md:w-32 md:h-32 mb-6 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.4)] flex items-center justify-center hover:scale-105 transition-transform duration-500 overflow-hidden">
-                <img src="../7204.png alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale">
-            </div></a>
+            <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-90 transition-opacity duration-300 z-30 mx-auto" title="返回首頁">
+            <div class="w-24 h-24 md:w-28 md:h-28 mb-8 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_30px_rgba(255,255,255,0.2)] backdrop-blur-sm group transition-all duration-500 hover:scale-105 mx-auto flex items-center justify-center">
+                <img 
+                    src="../7204.png" 
+                    alt="金成淬 Logo" 
+                    class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" 
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                >
+                <div style="display: none;" class="w-full h-full flex items-center justify-center text-gray-800 font-serif font-bold text-lg">金成淬</div>
+            </div>
+        </a>
 
             <span class="block text-tiffany-light tracking-[0.3em] text-sm md:text-base mb-4 font-medium uppercase drop-shadow-md">金成淬精選</span>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6 leading-tight drop-shadow-lg">
@@ -141,6 +149,17 @@
     </main>
 
     <footer class="bg-white py-12 text-center border-t border-tiffany-dark/20 flex flex-col items-center">
+        <!-- Footer Logo -->
+        <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-4" title="返回首頁">
+            <div class="w-16 h-16 mb-4 opacity-80 hover:opacity-100 transition-opacity duration-300 mix-blend-multiply mx-auto">
+                 <img 
+                     src="../7204.png" 
+                     alt="金成淬 Logo" 
+                     class="w-full h-full object-contain" 
+                     onerror="this.style.opacity='0';"
+                 >
+            </div>
+        </a>
         <div class="w-16 h-16 mb-4 opacity-80 hover:opacity-100 transition-opacity duration-300">
              <img src="../7204.png alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale">
         </div>
