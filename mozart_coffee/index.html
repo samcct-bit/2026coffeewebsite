@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>哥斯大黎加 莫札特 | 金成淬精選</title>
+    <title>哥斯大黎加 莫札特 | 金成淬精選 | ALCHEMY OF REFINEMENT</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'mozart-light': '#fdfcfeb', /* 極淡的紫白底色 */
-                        'mozart-purple': '#5c4d7d', /* 莫札特專屬典雅紫 */
-                        'mozart-accent': '#9b8db3', /* 淺紫色點綴 */
-                        'coffee-dark': '#2a2438',   /* 帶紫調的深灰色 */
-                        'coffee-gray': '#5a5468',   /* 次要內文 */
-                        'gold-accent': '#c5a880'
+                        'obsidian': '#0c0c0e',     /* 極致曜石黑 */
+                        'coffee-deep': '#16100c',  /* 深邃琥珀褐 */
+                        'ivory': '#fcfaf7',        /* 古董象牙白 */
+                        'brass-gold': '#c49a6c',   /* 匠人古銅金 */
+                        'refined-gold': '#d4af37',  /* 淬煉純金 */
+                        'charcoal': '#1a1a1f'      /* 次級灰黑 */
                     },
                     fontFamily: {
-                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        sans: ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
                         serif: ['"Noto Serif TC"', 'serif'],
+                        outfit: ['"Outfit"', 'sans-serif']
                     }
                 }
             }
@@ -33,196 +34,214 @@
     </script>
 
     <style>
-        /* Fade-in Animation Classes */
-        .fade-in-section {
-            opacity: 0;
-            transform: translateY(20px);
-            visibility: hidden;
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-            will-change: opacity, visibility;
-        }
-        .fade-in-section.is-visible {
-            opacity: 1;
-            transform: none;
-            visibility: visible;
+        body {
+            background-color: #0c0c0e;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(34, 22, 17, 0.45) 0%, transparent 55%),
+                radial-gradient(circle at 100% 50%, rgba(196, 154, 108, 0.03) 0%, transparent 35%);
+            background-attachment: fixed;
         }
         
-        /* Custom scrollbar */
+        .glass-panel {
+            background: rgba(26, 26, 31, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .paper-label {
+            background: #fffdf9;
+            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(196, 154, 108, 0.15);
+            position: relative;
+        }
+
+        .paper-label::before {
+            content: '';
+            position: absolute;
+            top: 8px; left: 8px; right: 8px; bottom: 8px;
+            border: 1px solid rgba(196, 154, 108, 0.2);
+            pointer-events: none;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #fdfcfe;
+            background: #0c0c0e;
         }
         ::-webkit-scrollbar-thumb {
-            background: #9b8db3;
+            background: #1c1816;
             border-radius: 4px;
+            border: 2px solid #0c0c0e;
         }
-
-        /* 樂譜五線譜裝飾線 */
-        .music-staff {
-            background-image: repeating-linear-gradient(transparent, transparent 4px, rgba(92, 77, 125, 0.1) 4px, rgba(92, 77, 125, 0.1) 5px);
-            height: 25px;
-            width: 100%;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c49a6c;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: none;
+            visibility: visible;
         }
     </style>
 </head>
-<body class="bg-[#fdfcfe] text-coffee-dark font-sans antialiased selection:bg-mozart-purple selection:text-white">
+<body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
 
-    <!-- 1. 視覺首圖 (Hero Section) -->
-    <header class="relative w-full h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-        <!-- 背景圖 (使用 Unsplash 帶有白花與暗色調的高質感圖片) -->
-        <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1596438459194-f215f6240d02?q=80&w=2070&auto=format&fit=crop" alt="白花與暗色意境" class="w-full h-full object-cover object-center scale-105" />
-            <!-- 漸層遮罩：帶紫調的深色漸層 -->
-            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#2a2438]/90"></div>
-        </div>
-
-        <div class="relative z-10 text-center px-4 w-full max-w-5xl mx-auto fade-in-section is-visible flex flex-col items-center mt-10">
-            
-            <!-- 品牌 Logo 區塊 (使用最新上傳的黑白乾淨版 Logo) -->
-            <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-90 transition-opacity duration-300 z-30 mx-auto" title="返回首頁">
-            <div class="w-24 h-24 md:w-28 md:h-28 mb-8 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_30px_rgba(255,255,255,0.2)] backdrop-blur-sm group transition-all duration-500 hover:scale-105 mx-auto flex items-center justify-center">
+    <!-- 1. 職人頂級 Header & Clickable Logo -->
+    <header class="w-full pt-16 pb-12 flex flex-col items-center justify-center fade-in is-visible">
+        
+        <!-- click Logo to return to home -->
+        <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-90 transition-opacity duration-300 z-30 mb-8" title="返回首頁">
+            <div class="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-white/95 p-1 shadow-[0_0_30px_rgba(196,154,108,0.25)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center">
                 <img 
                     src="../7204.png" 
                     alt="金成淬 Logo" 
-                    class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" 
+                    class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
                 >
                 <div style="display: none;" class="w-full h-full flex items-center justify-center text-gray-800 font-serif font-bold text-lg">金成淬</div>
             </div>
         </a>
 
-            <span class="block text-mozart-accent tracking-[0.5em] text-xs md:text-sm mb-6 font-medium uppercase drop-shadow-md">金成淬 · 職人淺焙</span>
-            
-            <h1 class="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight tracking-wide drop-shadow-lg">
-                時光濃縮的甘甜<br class="hidden md:block"/>繁花盛開的淬煉
-            </h1>
-            
-            <div class="flex items-center justify-center gap-4 my-6 opacity-80">
-                <div class="h-[1px] w-12 md:w-24 bg-white"></div>
-                <h2 class="text-xl md:text-3xl font-serif text-white tracking-widest">哥斯大黎加 莫札特</h2>
-                <div class="h-[1px] w-12 md:w-24 bg-white"></div>
-            </div>
-
-            <p class="text-base md:text-xl text-gray-200 font-serif font-light tracking-widest mt-2 max-w-2xl mx-auto italic drop-shadow-md">
-                「極致的繁複工藝，淬煉出最純粹的白花幽香。」
-            </p>
-        </div>
-        
-        <!-- 往下滾動提示 -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce text-white/50">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
+        <div class="text-center space-y-3 px-4">
+            <span class="block text-brass-gold tracking-[0.4em] text-xs font-outfit uppercase">GOLDEN COFFEE SELECTION · ALCHEMY</span>
+            <h1 class="text-3xl md:text-5xl font-serif font-bold tracking-widest text-white leading-tight mt-3">哥斯大黎加 音樂家・莫札特</h1>
+            <p class="text-gray-500 tracking-[0.25em] text-xs md:text-sm font-outfit mt-2 uppercase">Costa Rica Musician Mozart</p>
         </div>
     </header>
 
-    <!-- 主內容區 -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 space-y-24">
-
-        <!-- 2. 實體標籤區 (Label Section) - 重現原稿的標籤設計 -->
-        <section class="fade-in-section -mt-32 relative z-20" id="label">
-            <div class="bg-[#faf9eb] rounded-sm p-6 md:p-10 shadow-xl border border-gray-200 max-w-3xl mx-auto relative overflow-hidden">
-                <!-- 標籤紙質感紋理 (透過CSS模擬) -->
-                <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMDAwIi8+PC9zdmc+')]"></div>
-                
-                <div class="relative z-10">
-                    <div class="flex flex-col md:flex-row items-center md:items-start justify-between border-b-2 border-coffee-dark pb-6 mb-6">
-                        <!-- 標籤 Logo 區 -->
-                        <div class="w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-0 shrink-0">
-                            <img src="./7204.png" alt="Logo" class="w-full h-full object-contain" onerror="this.style.opacity='0';">
+    <!-- 2. 主內容區 -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 pb-24 space-y-24">
+        
+        <!-- 實體標籤視覺卡片 (模擬 80x50mm 比例感，宣紙極簡風格) -->
+        <section class="fade-in is-visible pt-4">
+            <div class="max-w-xl mx-auto paper-label p-8 md:p-12 relative group">
+                <div class="relative z-10 space-y-8">
+                    
+                    <!-- 標籤頭部 -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between border-b border-brass-gold/30 pb-6 gap-4">
+                        <div class="w-14 h-14 shrink-0 opacity-80 mix-blend-multiply">
+                            <img src="../7204.png" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale">
                         </div>
-                        
-                        <!-- 標籤標題區 -->
-                        <div class="text-center md:text-right w-full">
-                            <h2 class="text-2xl md:text-3xl font-serif font-bold text-coffee-dark tracking-wider mb-1">哥斯大黎加 音樂家・莫札特</h2>
-                            <p class="text-coffee-gray font-serif text-sm tracking-widest uppercase">Costa Rica / Musician Mozart</p>
+                        <div class="text-center sm:text-right">
+                            <h2 class="text-xl md:text-2xl font-serif font-bold text-obsidian tracking-wider">哥斯大黎加 音樂家・莫札特</h2>
+                            <p class="text-gray-500 font-serif text-[10px] tracking-widest uppercase">Costa Rica Musician Mozart</p>
                         </div>
                     </div>
 
-                    <!-- 標籤資訊列 -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-sm md:text-base border-b border-gray-300 pb-6">
-                        <div class="col-span-2 md:col-span-2 space-y-2 border-r-0 md:border-r border-gray-300 pr-0 md:pr-4">
-                            <div class="flex justify-between"><span class="text-coffee-gray font-medium">烘焙度</span><span class="font-bold text-coffee-dark">淺焙</span></div>
-                            <div class="flex justify-between"><span class="text-coffee-gray font-medium">烘焙日</span><span class="font-mono text-coffee-dark">2026.05.29</span></div>
+                    <!-- 標籤物理屬性 -->
+                    <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm tracking-widest text-gray-600 font-serif border-b border-brass-gold/20 pb-6">
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>產區 Origin</span>
+                            <span class="font-bold text-obsidian">哥斯大黎加</span>
                         </div>
-                        <div class="col-span-2 md:col-span-2 space-y-2 pl-0 md:pl-4">
-                            <div class="flex justify-between"><span class="text-coffee-gray font-medium">處理</span><span class="font-bold text-mozart-purple">極致糖化・葡萄乾蜜處理</span></div>
-                            <div class="flex justify-between"><span class="text-coffee-gray font-medium">品種</span><span class="text-coffee-dark">卡杜拉 (Caturra)</span></div>
-                            <div class="flex justify-between"><span class="text-coffee-gray font-medium">海拔</span><span class="text-coffee-dark">1950m</span></div>
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>烘焙度 Roast</span>
+                            <span class="font-bold text-obsidian">淺焙</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>品種 Variety</span>
+                            <span class="font-bold text-obsidian">卡杜拉 (Caturra)</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>海拔 Altitude</span>
+                            <span class="font-bold text-obsidian">1950m</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>處理法 Process</span>
+                            <span class="font-bold text-brass-gold">極致糖化・葡萄乾蜜處理</span>
+                        </div>
+                        <div class="flex justify-between border-b border-gray-100 pb-1">
+                            <span>烘焙日 Roasted</span>
+                            <span class="font-bold text-obsidian font-mono">2026.05.29</span>
                         </div>
                     </div>
 
-                    <!-- 標籤風味列 -->
-                    <div class="space-y-3 font-serif text-center md:text-left mx-auto max-w-sm md:mx-0 md:ml-auto">
-                        <p class="flex items-center justify-center md:justify-end gap-3"><span class="text-mozart-accent font-bold">【初韻】</span> <span class="text-coffee-dark tracking-widest">百合幽香、莓果微光</span></p>
-                        <p class="flex items-center justify-center md:justify-end gap-3"><span class="text-mozart-accent font-bold">【中調】</span> <span class="text-coffee-dark tracking-widest">紫葡萄汁、蜜糖交響</span></p>
-                        <p class="flex items-center justify-center md:justify-end gap-3"><span class="text-mozart-accent font-bold">【尾韻】</span> <span class="text-coffee-dark tracking-widest">清雅白花、甜潤悠長</span></p>
+                    <!-- 風味階層 -->
+                    <div class="space-y-3.5 font-serif text-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-xs tracking-widest">初韻 Top</span> 
+                            <span class="text-obsidian tracking-widest font-semibold">百合幽香、莓果微光</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-xs tracking-widest">中調 Mid</span> 
+                            <span class="text-obsidian tracking-widest font-semibold">紫葡萄汁、蜜糖交響</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-xs tracking-widest">尾韻 Base</span> 
+                            <span class="text-obsidian tracking-widest font-semibold">清雅白花、甜潤悠長</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. 故事引言 (The Story) -->
-        <section class="fade-in-section max-w-3xl mx-auto px-4" id="story">
-            <div class="music-staff mb-8 opacity-30"></div>
+        <!-- 3. 品牌職人故事敘事區 -->
+        <section class="fade-in is-visible max-w-3xl mx-auto px-4 text-center space-y-8">
+            <!-- 禪意裝飾中線 -->
+            <div class="w-px h-16 bg-gradient-to-b from-transparent via-brass-gold/60 to-transparent mx-auto"></div>
             
-            <div class="space-y-6 text-lg text-coffee-gray leading-loose font-serif text-justify md:text-center">
-                <p>
-                    來自 1950 公尺的雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「<strong class="text-mozart-purple font-bold">葡萄乾蜜處理</strong>」。咖啡果實如葡萄乾般在陽光下濃縮了所有精華，再經由「金成淬」的職人火候，將其釋放。
-                </p>
-                <p>
-                    乾香是高雅的百合花與初摘莓果的氣息；熱水注入，<strong class="text-coffee-dark font-bold">猶如指揮棒落下，濃郁的紫葡萄汁與蜜糖的甜感在口中交織出華麗的交響樂章</strong>；待曲終人散，留在喉間的，是那一抹令人難以忘懷的清新小白花餘韻。
-                </p>
-                <p class="text-xl md:text-2xl text-mozart-purple font-medium text-center mt-10 pt-6 border-t border-mozart-accent/20">
-                    「華麗而不失靜謐，濃郁卻保有澄澈。<br>這是一杯能讓靈魂隨之共鳴的液體藝術。」
-                </p>
+            <h3 class="text-xl md:text-2xl text-brass-gold tracking-[0.25em] font-serif font-medium">時光的流轉 · 禪意的淬煉</h3>
+            
+            <div class="space-y-6 text-base md:text-lg leading-loose tracking-[0.15em] text-gray-300 font-serif text-justify md:text-center">
+                <p>來自 1950 公尺的雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實如葡萄乾般在陽光下濃縮了所有精華，再經由「金成淬」的職人火候，將其釋放。</p>
+            <p>乾香是高雅的百合花與初摘莓果的氣息；熱水注入，猶如指揮棒落下，濃郁的紫葡萄汁與蜜糖的甜感在口中交織出華麗的交響樂章；待曲終人散，留在喉間的，是那一抹令人難以忘懷的清新小白花餘韻。</p>
             </div>
-
-            <div class="music-staff mt-8 opacity-30"></div>
+            
+            <p class="text-lg md:text-2xl text-brass-gold font-serif font-light text-center mt-8 pt-8 border-t border-white/5 italic">
+                「華麗而不失靜謐，濃郁卻保有澄澈。這是一杯能讓靈魂隨之共鳴的液體藝術。」
+            </p>
+            
+            <div class="w-px h-16 bg-gradient-to-b from-transparent via-brass-gold/60 to-transparent mx-auto"></div>
         </section>
 
-        <!-- 4. 沖煮提示 (Brewing Recommendation) -->
-        <section class="fade-in-section mb-12" id="brewing">
-            <div class="bg-gradient-to-br from-mozart-purple to-[#4a3b69] text-white rounded-[2rem] p-8 md:p-14 shadow-2xl relative overflow-hidden">
-                
-                <!-- 裝飾花紋 -->
-                <svg class="absolute -right-10 -top-10 text-white/5 w-64 h-64 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+        <!-- 4. SCA 考官級手沖沖煮指南 -->
+        <section class="fade-in is-visible">
+            <div class="bg-gradient-to-br from-[#1c1816] to-[#0c0c0e] text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden border border-brass-gold/25 max-w-4xl mx-auto">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-brass-gold/5 rounded-full blur-3xl"></div>
+                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20"></div>
 
                 <div class="relative z-10">
-                    <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10 border-b border-white/20 pb-8">
-                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center shrink-0">
-                            <svg class="w-8 h-8 text-mozart-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10 border-b border-white/10 pb-8">
+                        <div class="w-14 h-14 bg-brass-gold/10 rounded-full flex items-center justify-center shrink-0 border border-brass-gold/20">
+                            <svg class="w-7 h-7 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
                         <div class="text-center md:text-left">
-                            <h2 class="text-3xl font-serif font-bold mb-2 tracking-widest">沖煮提示 <span class="text-sm font-sans font-normal opacity-60 ml-2 uppercase">Brewing</span></h2>
-                            <p class="text-mozart-light/80 font-serif">演繹一首純淨無瑕的花果交響曲</p>
+                            <h3 class="text-2xl font-serif font-bold text-white tracking-widest">職人手沖沖煮指南</h3>
+                            <p class="text-brass-gold/80 font-serif text-xs mt-1 tracking-widest uppercase">SCA Professional Brewing Recommendation</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <!-- 參數 1 -->
-                        <div class="bg-black/20 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                        <!-- 水溫與工具 -->
+                        <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
                             <div class="flex items-center mb-4">
-                                <span class="bg-white text-mozart-purple text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mr-3">Step 1</span>
-                                <h4 class="font-bold text-xl tracking-wide">溫和水溫設定</h4>
+                                <span class="bg-brass-gold text-obsidian text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mr-3 font-outfit">Temp</span>
+                                <h4 class="font-bold text-lg tracking-wider text-white">萃取水溫推薦</h4>
                             </div>
-                            <p class="text-3xl font-serif text-mozart-accent mb-3">88°C - 90°C</p>
-                            <p class="text-gray-300 leading-relaxed text-sm md:text-base font-light">
+                            <p class="text-3xl font-serif text-brass-gold mb-3">88°C - 90°C</p>
+                            <p class="text-gray-400 leading-relaxed text-xs md:text-sm font-serif">
                                 建議使用較溫和的水溫。過高的水溫會讓蜜處理的發酵味過於刺鼻，掩蓋掉莫札特最精緻的白花香氣。
                             </p>
                         </div>
                         
-                        <!-- 參數 2 -->
-                        <div class="bg-black/20 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                        <!-- 研磨與手法 -->
+                        <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
                             <div class="flex items-center mb-4">
-                                <span class="bg-white text-mozart-purple text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mr-3">Step 2</span>
-                                <h4 class="font-bold text-xl tracking-wide">偏快萃取節奏</h4>
+                                <span class="bg-brass-gold text-obsidian text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mr-3 font-outfit">Method</span>
+                                <h4 class="font-bold text-lg tracking-wider text-white">研磨度與手法</h4>
                             </div>
-                            <p class="text-xl font-serif text-mozart-accent mb-3 tracking-widest">中粗研磨 / 盡速收水</p>
-                            <p class="text-gray-300 leading-relaxed text-sm md:text-base font-light">
-                                這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的花香與果汁感，<strong class="text-white font-medium">尾段盡速收水</strong>，這樣能讓「小白花」的餘韻更加乾淨、仙氣飄飄。
+                            <p class="text-xl md:text-2xl font-serif text-brass-gold mb-3 tracking-widest truncate">中偏粗研磨 / V60 濾杯 / 盡速收水</p>
+                            <p class="text-gray-400 leading-relaxed text-xs md:text-sm font-serif">
+                                這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的花香與果汁感，尾段盡速收水，這樣能讓「小白花」的餘韻更加乾淨、仙氣飄飄。
                             </p>
                         </div>
                     </div>
@@ -232,46 +251,32 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white py-12 mt-12 text-center border-t border-gray-100 flex flex-col items-center">
-        <!-- Footer Logo -->
-        <!-- Footer Logo -->
-        <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-4" title="返回首頁">
-            <div class="w-16 h-16 mb-4 opacity-80 hover:opacity-100 transition-opacity duration-300 mix-blend-multiply mx-auto">
-                 <img 
-                     src="../7204.png" 
-                     alt="金成淬 Logo" 
-                     class="w-full h-full object-contain" 
-                     onerror="this.style.opacity='0';"
-                 >
+    <!-- 5. 統一頁尾 & Clickable Logo -->
+    <footer class="bg-[#08080a] py-16 text-center flex flex-col items-center justify-center border-t border-white/5">
+        
+        <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-6" title="返回首頁">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_20px_rgba(196,154,108,0.2)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center mix-blend-multiply grayscale">
+                <img src="../7204.png" alt="金成淬 Logo" class="w-full h-full object-contain">
             </div>
         </a>
-        <p class="text-coffee-dark font-serif font-medium tracking-[0.2em] mb-2">金成淬 ALCHEMY OF REFINEMENT</p>
-        <p class="text-gray-400 text-xs tracking-wider uppercase font-light">© 2026 Gàn-sîng-Kim. All rights reserved.</p>
+
+        <p class="text-white font-serif font-bold tracking-[0.3em] mb-2 text-sm">金成淬 · 淬成金</p>
+        <p class="text-gray-500 text-[10px] tracking-[0.3em] mb-6 uppercase font-outfit">Alchemy of Refinement</p>
+        <div class="w-8 h-px bg-white/10 mb-6"></div>
+        <p class="text-gray-600 text-[10px] tracking-widest font-sans uppercase">© 2026 金成淬咖啡工作室. ALL RIGHTS RESERVED.</p>
     </footer>
 
-    <!-- JavaScript for Fade-in Animation -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.15
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
                     }
                 });
-            }, observerOptions);
+            }, { threshold: 0.1 });
 
-            const sections = document.querySelectorAll('.fade-in-section');
-            sections.forEach(section => {
-                observer.observe(section);
-            });
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
         });
     </script>
 </body>
