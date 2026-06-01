@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衣索比亞 古吉 藝伎 (優雅平衡) | 金成淬 · 淬成金</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'zen-white': '#FAFAFA', 
+                        'ink-gray': '#2C2C2C',  
+                        'refine-gold': '#B8905B' 
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Serif TC', serif; background-color: #FAFAFA; color: #2C2C2C; }
+        .fade-in { opacity: 0; transform: translateY(15px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .paper-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+        .zen-border { position: relative; }
+        .zen-border::before, .zen-border::after {
+            content: ''; position: absolute; width: 20px; height: 20px; border: 1px solid #B8905B;
+        }
+        .zen-border::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+        .zen-border::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+    </style>
+</head>
+<body class="antialiased paper-texture selection:bg-refine-gold selection:text-white flex flex-col min-h-screen">
+
+    <header class="w-full flex flex-col items-center justify-center pt-20 pb-12 px-4 fade-in">
+        <!-- 強制帶入的 Logo 程式碼 -->
+        <div class="w-32 h-32 mb-4 relative flex items-center justify-center">
+            <img src="../7204.png" 
+                 alt="金成淬 Logo" 
+                 class="w-full h-full object-contain mix-blend-multiply brightness-110 contrast-125 grayscale"
+                 onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                 
+            <div id="logo-fallback" class="hidden w-28 h-28 rounded-full border-2 border-gray-800 flex-col items-center justify-center relative">
+                <div class="absolute inset-1 rounded-full border border-gray-800 opacity-30"></div>
+                <div class="text-center leading-tight mt-1">
+                    <span class="block text-xs font-bold tracking-widest text-gray-800">金成</span>
+                    <span class="block text-3xl font-bold my-1 text-gray-800">淬</span>
+                    <span class="block text-xs font-bold tracking-widest text-gray-800">成金</span>
+                </div>
+            </div>
+        </div>
+
+        <h1 class="text-xl md:text-2xl font-light tracking-[0.3em] text-ink-gray mt-6 mb-2">本期淬煉精選</h1>
+        <div class="w-12 h-[1px] bg-refine-gold mb-8"></div>
+        <p class="text-sm tracking-widest text-gray-500 font-light">自然 · 禪意 · 專業 · 淬煉</p>
+    </header>
+
+    <main class="flex-grow max-w-5xl mx-auto px-6 pb-24 w-full">
+        <section class="fade-in flex flex-col lg:flex-row gap-16 items-center lg:items-start justify-center mt-8">
+            <div class="w-full max-w-md lg:w-1/2 p-2 relative">
+                <div class="bg-white p-8 md:p-12 shadow-[0_15px_50px_-15px_rgba(0,0,0,0.05)] border border-gray-100 zen-border relative z-10">
+                    <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+                        <span class="text-xs tracking-[0.2em] text-refine-gold border border-refine-gold px-3 py-1.5">極致水洗 · 柔和</span>
+                        <span class="text-xs tracking-widest text-gray-400">Light Roast</span>
+                    </div>
+                    
+                    <h2 class="text-2xl md:text-3xl font-semibold text-ink-gray mb-3 tracking-wide leading-snug">衣索比亞 古吉<br>葛連娜 藝伎</h2>
+                    <p class="text-xs md:text-sm tracking-widest text-gray-400 mb-10 uppercase font-light">Guji Gelana Gesha - Elegant</p>
+                    
+                    <div class="space-y-5 mb-12">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400 tracking-widest">產區海拔</span>
+                            <span class="text-ink-gray font-medium tracking-wider">2100-2200M</span>
+                        </div>
+                        <div class="w-full h-[1px] bg-gray-50"></div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400 tracking-widest">烘焙日期</span>
+                            <span class="text-ink-gray font-semibold tracking-wider text-refine-gold">2026.05.12</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-zen-white p-6 space-y-4 border-l-2 border-refine-gold">
+                        <p class="text-sm flex gap-5 items-center"><span class="text-refine-gold font-medium w-12 text-center text-xs tracking-widest">初韻</span> <span class="text-ink-gray tracking-wider">淡雅白花香、微風柑橘</span></p>
+                        <p class="text-sm flex gap-5 items-center"><span class="text-refine-gold font-medium w-12 text-center text-xs tracking-widest">中調</span> <span class="text-ink-gray tracking-wider">蜜桃甜感、蜂蜜滑順</span></p>
+                        <p class="text-sm flex gap-5 items-center"><span class="text-refine-gold font-medium w-12 text-center text-xs tracking-widest">尾韻</span> <span class="text-ink-gray tracking-wider">烏龍茶韻、甘甜優雅</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full max-w-md lg:w-1/2 space-y-12 lg:pt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-ink-gray tracking-widest mb-6 flex items-center">
+                        <span class="w-8 h-[1px] bg-refine-gold mr-4"></span> 品牌敘事
+                    </h3>
+                    <p class="text-gray-600 leading-[2.2] tracking-wide text-justify font-light text-[15px]">
+                        怕酸的你，也會愛上這杯藝伎的溫柔。白花香氣如晨露般綻放，沒有刺鼻的酸楚，只有蜜桃與蜂蜜交織的細緻甜感。尾段那抹悠長的烏龍茶韻，在舌尖輕柔收攏。這是一場尋求極致平衡的禪意之旅。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium text-ink-gray tracking-widest mb-6 flex items-center">
+                        <span class="w-8 h-[1px] bg-refine-gold mr-4"></span> 考官沖煮指引
+                    </h3>
+                    <ul class="space-y-6 text-[15px] text-gray-600 tracking-wider font-light leading-[1.8]">
+                        <li class="flex items-start">
+                            <span class="text-refine-gold mr-4 mt-1.5 text-xs">◆</span>
+                            <span><strong class="font-medium text-ink-gray tracking-widest">溫控萃取：</strong> <br>建議水溫 90-92°C。溫和的水溫能有效收斂酸質，讓香氣柔和釋放。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-refine-gold mr-4 mt-1.5 text-xs">◆</span>
+                            <span><strong class="font-medium text-ink-gray tracking-widest">節奏流速：</strong> <br>適度拉長中後段的注水時間。較慢的流速有助於完美釋放蜂蜜的甜感與優雅的烏龍茶尾韻。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full py-12 flex flex-col items-center justify-center border-t border-gray-200/50 mt-auto fade-in">
+        <p class="text-ink-gray tracking-[0.25em] text-sm font-medium mb-4">金成淬 ALCHEMY OF REFINEMENT</p>
+        <p class="text-gray-400 text-xs tracking-[0.2em] font-light">© 2026 Gàn-sîng-Kim. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const elements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+                });
+            }, { threshold: 0.1 });
+            elements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>

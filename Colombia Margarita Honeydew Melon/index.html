@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哥倫比亞 瑪格麗特 哈密瓜 | 金成淬 · 淬成金</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'zen-bg': '#FAFAFA',      /* 宣紙白 */
+                        'ink-dark': '#2C2C2C',    /* 墨灰 */
+                        'refined-gold': '#B8905B', /* 淬煉金 */
+                        'ink-light': '#5A5A5A'    /* 淺墨灰 */
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: theme('colors.zen-bg');
+            color: theme('colors.ink-dark');
+            scroll-behavior: smooth;
+        }
+        
+        /* 優雅的淡入動畫 */
+        .fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.3s; }
+        .delay-300 { animation-delay: 0.5s; }
+        .delay-400 { animation-delay: 0.7s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 禪意質感的滾動條 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #B8905B; }
+    </style>
+</head>
+<body class="font-serif antialiased font-light selection:bg-refined-gold selection:text-white">
+
+    <!-- 頂部 Header & Logo -->
+    <header class="w-full pt-16 pb-10 flex flex-col items-center justify-center fade-in">
+        
+        <!-- 【強制 Logo 設定】 -->
+        <div class="w-32 h-32 mb-4 relative flex items-center justify-center">
+            <img src="../7204.png" 
+                 alt="金成淬 Logo" 
+                 class="w-full h-full object-contain mix-blend-multiply brightness-110 contrast-125 grayscale"
+                 onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                 
+            <div id="logo-fallback" class="hidden w-28 h-28 rounded-full border-2 border-gray-800 flex-col items-center justify-center relative">
+                <div class="absolute inset-1 rounded-full border border-gray-800 opacity-30"></div>
+                <div class="text-center leading-tight mt-1">
+                    <span class="block text-xs font-bold tracking-widest text-gray-800">金成</span>
+                    <span class="block text-3xl font-bold my-1 text-gray-800">淬</span>
+                    <span class="block text-xs font-bold tracking-widest text-gray-800">成金</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 space-y-3 px-4">
+            <span class="block text-refined-gold tracking-[0.4em] text-xs font-medium uppercase">金成淬 · 淬煉極致</span>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-widest text-ink-dark mt-2">哥倫比亞 瑪格麗特</h1>
+            <p class="text-ink-light tracking-[0.2em] text-sm md:text-base mt-2">哈密瓜 CO₂ 高壓厭氧蜜處理</p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 pb-20 space-y-20">
+        
+        <!-- 實體標籤視覺卡片 (模擬 80x50mm 比例感) -->
+        <section class="relative fade-in delay-100 pt-4">
+            <div class="max-w-md md:max-w-2xl mx-auto bg-white p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative group transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                <!-- 裝飾頂部金線 -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[2px] bg-refined-gold transition-all duration-500 group-hover:w-32"></div>
+                
+                <div class="space-y-6 text-center md:text-left">
+                    <div class="border-b border-gray-100 pb-5">
+                        <p class="text-xs text-ink-light tracking-[0.4em] mb-2 uppercase">Origin & Terroir</p>
+                        <h2 class="text-2xl md:text-3xl tracking-widest font-medium text-ink-dark">哥倫比亞 瑪格麗特莊園</h2>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 text-sm tracking-widest text-ink-light">
+                        <div class="md:col-span-2">
+                            <span class="block text-xs text-gray-400 mb-1 uppercase tracking-widest">Process</span>
+                            <span class="text-ink-dark text-base">CO₂高壓厭氧蜜處理</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="block text-xs text-gray-400 mb-1 uppercase tracking-widest">Variety</span>
+                            <span class="text-ink-dark text-base">Castillo</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="block text-xs text-gray-400 mb-1 uppercase tracking-widest">Roast Level</span>
+                            <span class="text-ink-dark text-base">極淺焙</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="block text-xs text-gray-400 mb-1 uppercase tracking-widest">Roasted On</span>
+                            <span class="text-ink-dark text-base font-medium">2025.05.24</span>
+                        </div>
+                    </div>
+
+                    <!-- 風味軌跡 -->
+                    <div class="pt-6 mt-2 border-t border-gray-100 space-y-4 text-center md:text-left">
+                        <p class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4">
+                            <span class="text-refined-gold text-xs tracking-widest border border-refined-gold px-2 py-1 shrink-0">初韻</span> 
+                            <span class="tracking-[0.2em] text-ink-dark">沁涼西瓜、微風涼意</span>
+                        </p>
+                        <p class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4">
+                            <span class="text-refined-gold text-xs tracking-widest border border-refined-gold px-2 py-1 shrink-0">中調</span> 
+                            <span class="tracking-[0.2em] text-ink-dark">飽滿哈密瓜、清透蜜糖</span>
+                        </p>
+                        <p class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4">
+                            <span class="text-refined-gold text-xs tracking-widest border border-refined-gold px-2 py-1 shrink-0">尾韻</span> 
+                            <span class="tracking-[0.2em] text-ink-dark">瓜果甜香、絲滑甘醇</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCA 考官杯測評鑑 -->
+        <section class="max-w-3xl mx-auto px-4 text-center space-y-6 fade-in delay-200">
+            <div class="inline-block text-refined-gold/30 mb-1">
+                <!-- 雙引號 Icon -->
+                <svg class="w-10 h-10 mx-auto" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            </div>
+            <p class="text-lg md:text-xl tracking-[0.15em] leading-loose font-medium text-ink-dark italic px-2">
+                「展現出哈密瓜果肉與果皮間，那份清爽不黏膩的香氣與口感。<br class="hidden md:block">
+                更帶有牛奶般滑順的觸感，<br class="hidden md:block">
+                宛如品嚐一口<span class="text-refined-gold border-b border-refined-gold/30 pb-1 mx-1">北海道哈密瓜冰淇淋</span>般的純淨極致。」
+            </p>
+            <div class="pt-4">
+                <span class="inline-block text-[10px] tracking-[0.3em] text-gray-500 uppercase px-4 py-2 border border-gray-200 rounded-full">
+                    SCA 考官 杯測評鑑
+                </span>
+            </div>
+        </section>
+
+        <!-- 品牌文案 (行銷故事) -->
+        <section class="max-w-2xl mx-auto text-center space-y-8 fade-in delay-300 relative px-4">
+            <div class="w-px h-12 bg-gradient-to-b from-transparent via-refined-gold/50 to-transparent mx-auto"></div>
+            
+            <h3 class="text-xl md:text-2xl tracking-[0.3em] font-medium text-ink-dark">夏日微風中的純淨甜果</h3>
+            
+            <p class="text-base leading-loose tracking-[0.15em] text-ink-light text-justify md:text-center">
+                在海拔 1700 公尺的哥倫比亞群山中，我們尋得了這抹宛如盛夏微風的清透香氣。這款作品採用了極具實驗精神的「CO₂ 高壓厭氧蜜處理法」，透過精準的發酵控制與職人淬鍊，將罕見的瓜果調性完美封存。<br><br>
+                研磨的瞬間，宛如切開一顆熟透的哈密瓜，沁涼的西瓜清香與蜜糖般的甜感撲鼻而來。它不只是一杯咖啡，更是一場洗滌煩躁、回歸自然本真的禪意體驗。
+            </p>
+            
+            <div class="w-px h-12 bg-gradient-to-b from-transparent via-refined-gold/50 to-transparent mx-auto"></div>
+        </section>
+
+        <!-- 考官沖煮建議 -->
+        <section class="max-w-4xl mx-auto bg-ink-dark text-zen-bg p-8 md:p-16 relative overflow-hidden fade-in delay-400">
+            <!-- 禪意裝飾光影 -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+            <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-refined-gold/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="text-center mb-10">
+                    <p class="text-xs text-gray-400 tracking-[0.4em] mb-2 uppercase">Brewing Guide</p>
+                    <h3 class="text-xl tracking-[0.3em] text-refined-gold">SCA 專業沖煮淬鍊</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-gray-700">
+                    
+                    <!-- 水溫 -->
+                    <div class="space-y-3 pt-6 md:pt-0">
+                        <span class="block text-4xl font-light tracking-wider">88-90<span class="text-xl text-refined-gold">°C</span></span>
+                        <p class="text-sm tracking-[0.2em] text-gray-300 leading-relaxed font-medium">適中水溫</p>
+                        <p class="text-xs tracking-widest text-gray-400 leading-loose">避免發酵澀感<br>完美保留清透香氣</p>
+                    </div>
+                    
+                    <!-- 研磨度 -->
+                    <div class="space-y-3 pt-8 md:pt-0">
+                        <div class="h-10 flex items-center justify-center">
+                            <span class="block text-xl tracking-[0.2em] text-white">中偏粗研磨</span>
+                        </div>
+                        <p class="text-sm tracking-[0.2em] text-gray-300 leading-relaxed font-medium">俐落排水</p>
+                        <p class="text-xs tracking-widest text-gray-400 leading-loose">維持風味乾淨度<br>展現哈密瓜果肉層次</p>
+                    </div>
+                    
+                    <!-- 流速 -->
+                    <div class="space-y-3 pt-8 md:pt-0">
+                        <div class="h-10 flex items-center justify-center">
+                            <span class="block text-xl tracking-[0.2em] text-white">快沖快濾</span>
+                        </div>
+                        <p class="text-sm tracking-[0.2em] text-gray-300 leading-relaxed font-medium">稍大水柱</p>
+                        <p class="text-xs tracking-widest text-gray-400 leading-loose">減少浸泡時間<br>淬鍊極致純淨甜感</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="text-center py-10 border-t border-gray-200/50 bg-white">
+        <div class="space-y-3">
+            <p class="text-sm tracking-[0.4em] text-ink-dark font-medium uppercase">金成淬 · 淬成金</p>
+            <p class="text-[10px] tracking-[0.2em] text-gray-400 uppercase">Alchemy of Refinement</p>
+            <p class="text-[10px] tracking-wider text-gray-300 pt-2">© 2026 Gàn-sîng-Kim. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

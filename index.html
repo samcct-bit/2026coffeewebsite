@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金成淬 · 職人精品咖啡誌 | ALCHEMY OF REFINEMENT</title>
+    <meta name="description" content="金成淬微批次精選，整合SCA咖啡專業杯測與職人美學，為您呈獻十三款頂級精品咖啡的風味履歷與沖煮指南。">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'obsidian': '#0c0c0e',     /* 極致曜石黑 */
+                        'coffee-deep': '#16100c',  /* 深邃琥珀褐 */
+                        'ivory': '#fcfaf7',        /* 古董象牙白 */
+                        'brass-gold': '#c49a6c',   /* 匠人古銅金 */
+                        'refined-gold': '#d4af37',  /* 淬煉純金 */
+                        'charcoal': '#1a1a1f'      /* 次級灰黑 */
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                        outfit: ['"Outfit"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0c0c0e;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(34, 22, 17, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 100% 50%, rgba(196, 154, 108, 0.05) 0%, transparent 35%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel {
+            background: rgba(26, 26, 31, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .glass-card {
+            background: rgba(22, 16, 12, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(196, 154, 108, 0.08);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px);
+            background: rgba(34, 22, 17, 0.45);
+            border-color: rgba(196, 154, 108, 0.3);
+            box-shadow: 
+                0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(196, 154, 108, 0.1);
+        }
+
+        /* 隱藏滾動條但保持滾動 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0c0c0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1c1816;
+            border-radius: 4px;
+            border: 2px solid #0c0c0e;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c49a6c;
+        }
+
+        /* 卡片過濾漸變動畫 */
+        .bean-card-wrapper {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bean-card-wrapper.hidden {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            position: absolute;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .staff-line {
+            background-image: repeating-linear-gradient(transparent, transparent 6px, rgba(196, 154, 108, 0.06) 6px, rgba(196, 154, 108, 0.06) 7px);
+        }
+    </style>
+</head>
+<body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
+
+    <!-- 1. 頂部奢華 Hero 視覺區 -->
+    <header class="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden px-4 py-16">
+        <!-- 裝飾微光背景 -->
+        <div class="absolute top-[20%] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brass-gold/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+        
+        <!-- 品牌 Logo 閃耀效果 -->
+        <div class="relative z-10 flex flex-col items-center max-w-4xl w-full text-center">
+            
+            <div class="w-32 h-32 md:w-36 md:h-36 mb-10 rounded-full overflow-hidden bg-white/95 p-1.5 shadow-[0_0_50px_rgba(196,154,108,0.25)] hover:shadow-[0_0_60px_rgba(196,154,108,0.4)] transition-all duration-500 hover:scale-105">
+                <img 
+                    src="./7204.png" 
+                    alt="金成淬 Logo" 
+                    class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
+                >
+            </div>
+            
+            <span class="block text-brass-gold tracking-[0.6em] text-xs md:text-sm mb-6 font-medium uppercase font-outfit drop-shadow-md">
+                GOLDEN COFFEE SELECTION · BY GAN-SING-KIM
+            </span>
+            
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight tracking-widest drop-shadow-lg">
+                金成淬 · 職人精品咖啡誌
+            </h1>
+            
+            <div class="flex items-center justify-center gap-4 my-4 w-full opacity-80">
+                <div class="h-[1px] w-12 md:w-28 bg-gradient-to-r from-transparent to-brass-gold"></div>
+                <h2 class="text-lg md:text-2xl font-serif text-brass-gold tracking-[0.2em] font-light">繁華盛開的淬煉，時光濃縮的甘甜</h2>
+                <div class="h-[1px] w-12 md:w-28 bg-gradient-to-l from-transparent to-brass-gold"></div>
+            </div>
+            
+            <p class="text-gray-400 font-serif text-sm md:text-base leading-relaxed tracking-wider max-w-xl mx-auto mt-4 drop-shadow-md">
+                融合 SCA 咖啡考官的化學理智，與金成淬的匠人視覺美學。<br>
+                為您呈現十三款微批次珍稀熟豆的深邃履歷。
+            </p>
+            
+            <!-- 往下滾動提示 -->
+            <a href="#portal" class="mt-16 animate-bounce text-brass-gold/50 hover:text-brass-gold transition-colors duration-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- 主區塊 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24" id="portal">
+
+        <!-- 2. 品牌精神與簡介 -->
+        <section class="glass-panel rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden max-w-5xl mx-auto">
+            <div class="absolute -right-32 -bottom-32 w-96 h-96 bg-brass-gold/5 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="w-full md:w-2/5 text-center border-b md:border-b-0 md:border-r border-white/10 pb-8 md:pb-0 md:pr-12 shrink-0">
+                    <span class="text-brass-gold text-xs tracking-widest font-outfit uppercase">THE PHILOSOPHY</span>
+                    <h3 class="text-3xl font-serif font-bold mt-2 text-white tracking-widest">金成淬宣言</h3>
+                    <div class="w-12 h-px bg-brass-gold mx-auto my-6"></div>
+                    <p class="text-brass-gold/80 italic font-serif text-sm leading-loose tracking-widest">
+                        「我們不只是烘焙咖啡，我們在杯中重組山谷的風、赤道的陽光、與時間的刻度。」
+                    </p>
+                </div>
+                <div class="w-full md:w-3/5 text-gray-300 text-sm md:text-base leading-loose tracking-widest font-serif text-justify">
+                    <p class="mb-4">
+                        「金成淬」由 SCA 高級咖啡考官監製，每一批次生豆皆經過高標準物理特徵篩選（焦糖化潛力與脫水率科學測算），再由極致烘焙曲線（RoR 精密控溫與 DTR 發展比控管）完美還原。
+                    </p>
+                    <p>
+                        本專屬網站集合了十三款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 智能手沖粉水比金牌計算器 -->
+        <section class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <span class="text-brass-gold text-xs tracking-widest uppercase font-outfit">BREWING ALCHEMY</span>
+                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">黃金比例手沖計算器</h3>
+                <p class="text-gray-400 text-xs md:text-sm mt-2 tracking-widest">輸入您的咖啡粉量，自動為您演算金成淬三段式沖煮黃金注水模型</p>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 md:p-10 shadow-2xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- 輸入區 -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-black/40 rounded-2xl p-6 border border-white/5">
+                            <label for="powder-input" class="block text-brass-gold text-xs tracking-widest mb-3 uppercase">步驟 1：輸入粉量 (g)</label>
+                            <div class="flex items-center gap-4">
+                                <input 
+                                    type="number" 
+                                    id="powder-input" 
+                                    class="w-full bg-charcoal text-white text-3xl font-serif font-bold border border-brass-gold/20 rounded-xl px-4 py-3 focus:outline-none focus:border-brass-gold text-center focus:ring-1 focus:ring-brass-gold"
+                                    value="15" 
+                                    min="8" 
+                                    max="50"
+                                    step="1"
+                                    oninput="calculateBrewing()"
+                                >
+                                <span class="text-white font-serif text-lg">克 (g)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-black/40 rounded-2xl p-6 border border-white/5">
+                            <label for="roast-select" class="block text-brass-gold text-xs tracking-widest mb-3 uppercase">步驟 2：選擇烘焙度</label>
+                            <select 
+                                id="roast-select" 
+                                class="w-full bg-charcoal text-white font-medium border border-brass-gold/20 rounded-xl px-4 py-3 focus:outline-none focus:border-brass-gold text-center cursor-pointer text-sm"
+                                onchange="calculateBrewing()"
+                            >
+                                <option value="light">極淺焙 / 淺焙</option>
+                                <option value="medium-light">中淺焙</option>
+                                <option value="medium">中焙</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 輸出大儀表 -->
+                    <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- 總水量 -->
+                        <div class="bg-gradient-to-br from-coffee-deep to-black rounded-2xl p-6 border border-brass-gold/20 text-center relative overflow-hidden flex flex-col justify-center min-h-[160px]">
+                            <span class="block text-brass-gold text-[10px] tracking-widest uppercase mb-1">黃金粉水比 1:15</span>
+                            <span class="block text-gray-400 text-xs tracking-widest mb-2 font-serif">總注水量</span>
+                            <span class="block text-3xl md:text-4xl font-serif font-bold text-white tracking-wide" id="total-water-display">225 g</span>
+                            <span class="block text-[10px] text-gray-500 mt-2 font-serif">推薦粉水比例，乾淨且飽滿</span>
+                        </div>
+
+                        <!-- 萃取水溫 -->
+                        <div class="bg-charcoal rounded-2xl p-6 border border-white/5 text-center flex flex-col justify-center min-h-[160px]">
+                            <span class="block text-brass-gold text-[10px] tracking-widest uppercase mb-1">物理分子釋放度</span>
+                            <span class="block text-gray-400 text-xs tracking-widest mb-2 font-serif">建議水溫</span>
+                            <span class="block text-3xl font-serif font-bold text-refined-gold tracking-wide" id="temp-display">89°C - 91°C</span>
+                            <span class="block text-[10px] text-gray-500 mt-2 font-serif" id="temp-desc">低水溫以保留高雅百合/花果香</span>
+                        </div>
+
+                        <!-- 研磨建議 -->
+                        <div class="bg-charcoal rounded-2xl p-6 border border-white/5 text-center flex flex-col justify-center min-h-[160px]">
+                            <span class="block text-brass-gold text-[10px] tracking-widest uppercase mb-1">流速控制參數</span>
+                            <span class="block text-gray-400 text-xs tracking-widest mb-2 font-serif">研磨度建議</span>
+                            <span class="block text-xl md:text-2xl font-serif font-bold text-white tracking-widest" id="grind-display">中偏粗研磨</span>
+                            <span class="block text-[10px] text-gray-500 mt-2 font-serif" id="grind-desc">如粗砂糖，俐落排水，風味通透</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 三段式注水流程導覽 -->
+                <div class="mt-8 border-t border-white/5 pt-8">
+                    <h4 class="text-white font-serif font-semibold text-lg tracking-widest mb-6 flex items-center gap-3 justify-center">
+                        <svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        職人三段式手沖注水指引 (Pour-Over Guide)
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                        <!-- 第一階段 -->
+                        <div class="bg-black/20 rounded-xl p-5 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-brass-gold text-obsidian text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center font-outfit">1</span>
+                                <h5 class="font-bold text-white tracking-widest">排氣悶蒸 (Bloom)</h5>
+                            </div>
+                            <p class="text-refined-gold font-serif text-lg mb-2" id="bloom-display">注水 30 g · 靜置 30秒</p>
+                            <p class="text-gray-400 leading-relaxed font-serif text-xs">
+                                溫和地從中心畫圈注入粉重 2 倍的水，喚醒沉睡中的二氧化碳，讓風味分子均勻展開。
+                            </p>
+                        </div>
+                        
+                        <!-- 第二階段 -->
+                        <div class="bg-black/20 rounded-xl p-5 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-brass-gold text-obsidian text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center font-outfit">2</span>
+                                <h5 class="font-bold text-white tracking-widest">風味萃取 (Extract)</h5>
+                            </div>
+                            <p class="text-refined-gold font-serif text-lg mb-2" id="extract-display">注水 135 g · 慢速繞圈</p>
+                            <p class="text-gray-400 leading-relaxed font-serif text-xs">
+                                以穩定細柔的水柱，向外打圈注水，萃取精品咖啡中最迷人的中調花香、果汁感與甜感。
+                            </p>
+                        </div>
+                        
+                        <!-- 第三階段 -->
+                        <div class="bg-black/20 rounded-xl p-5 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-brass-gold text-obsidian text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center font-outfit">3</span>
+                                <h5 class="font-bold text-white tracking-widest">厚實甜感 (Body & Sweet)</h5>
+                            </div>
+                            <p class="text-refined-gold font-serif text-lg mb-2" id="body-display">注水 60 g · 中心注水</p>
+                            <p class="text-gray-400 leading-relaxed font-serif text-xs">
+                                最後於中心注入餘水，提升醇厚度 (Body)，並在咖啡液完全滴完前盡速收杯，以保留極致乾淨。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 多維度智能篩選咖啡豆 Portal -->
+        <section class="space-y-10" id="selection-portal">
+            
+            <div class="text-center">
+                <span class="text-brass-gold text-xs tracking-widest uppercase font-outfit">COFFEE BEAN FLAVOR MAP</span>
+                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">金成淬微批次豆單</h3>
+                <p class="text-gray-400 text-xs md:text-sm mt-2 tracking-widest">點擊篩選標籤，精準尋找最契合您今日心境的職人咖啡風味</p>
+            </div>
+
+            <!-- 篩選面板 -->
+            <div class="glass-panel rounded-2xl p-6 max-w-4xl mx-auto space-y-4 shadow-xl">
+                <!-- 產區過濾 -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span class="text-brass-gold text-xs font-serif font-medium tracking-widest shrink-0 w-20">產區 Origin</span>
+                    <div class="flex flex-wrap gap-2" id="filter-origin">
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-brass-gold hover:bg-brass-gold/10 hover:text-white transition-all font-medium active" onclick="setFilter('origin', 'all', this)">全部</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '衣索比亞', this)">衣索比亞</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '哥斯大黎加', this)">哥斯大黎加</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '巴拿馬', this)">巴拿馬</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '哥倫比亞', this)">哥倫比亞</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '肯亞', this)">肯亞</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '泰國', this)">泰國</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('origin', '瓜地馬拉', this)">瓜地馬拉</button>
+                    </div>
+                </div>
+
+                <!-- 烘焙度過濾 -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 border-t border-white/5 pt-4">
+                    <span class="text-brass-gold text-xs font-serif font-medium tracking-widest shrink-0 w-20">焙度 Roast</span>
+                    <div class="flex flex-wrap gap-2" id="filter-roast">
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-brass-gold hover:bg-brass-gold/10 hover:text-white transition-all font-medium active" onclick="setFilter('roast', 'all', this)">全部</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('roast', '極淺焙', this)">極淺焙</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('roast', '淺焙', this)">淺焙</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('roast', '中淺焙', this)">中淺焙</button>
+                        <button class="px-3 py-1 text-xs border border-brass-gold/20 rounded-full text-gray-400 hover:bg-brass-gold/10 hover:text-white transition-all font-medium" onclick="setFilter('roast', '中焙', this)">中焙</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 咖啡豆網格清單 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="coffee-grid">
+                <!-- 咖啡豆卡片將經由 JavaScript 動態渲染以方便完美排序與篩選 -->
+            </div>
+            
+            <!-- 查無咖啡豆時的顯示 -->
+            <div id="no-results" class="hidden text-center py-20 border border-white/5 rounded-3xl bg-charcoal/30 max-w-md mx-auto">
+                <svg class="w-12 h-12 text-brass-gold/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h4 class="text-white font-serif text-lg font-medium tracking-widest mb-1">未尋得對應熟豆</h4>
+                <p class="text-gray-500 text-xs">請嘗試放寬篩選標籤條件</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 5. 頁尾 -->
+    <footer class="bg-[#08080a] py-20 mt-24 border-t border-white/5 text-center flex flex-col items-center">
+        <div class="w-20 h-20 mb-6 opacity-60 hover:opacity-100 transition-opacity duration-500 cursor-pointer">
+             <img src="./7204.png" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale invert">
+        </div>
+        <p class="text-white font-serif font-semibold tracking-[0.3em] mb-3 text-base">金成淬咖啡誌 · ALCHEMY OF REFINEMENT</p>
+        <p class="text-gray-500 text-[10px] tracking-[0.2em] font-light uppercase font-outfit">SCA EXPERT SELECTION & ARTISAN ROASTER</p>
+        
+        <div class="w-12 h-px bg-brass-gold/20 my-6"></div>
+        
+        <p class="text-gray-600 text-xs max-w-md mx-auto leading-relaxed tracking-wider font-serif px-4">
+            「極致的繁複工藝，淬煉出最純粹的白花幽香。」<br>
+            © 2026 Gàn-sîng-Kim Specialty Coffee Studio. All rights reserved.
+        </p>
+        
+        <!-- 備用指向主站駕駛艙 -->
+        <a href="https://samcct-bit.github.io/2026antigravity-hub/" class="mt-8 text-brass-gold/40 hover:text-brass-gold/80 transition-colors text-xs font-serif tracking-widest">
+            ← 返回主站 2026antigravity-hub 駕駛艙
+        </a>
+    </footer>
+
+    <!-- 6. 核心 JS 控制庫 -->
+    <script>
+        // 13款精品咖啡熟豆之完整數據庫
+        const coffeeDatabase = [
+            {
+                id: 'mozart',
+                name: '哥斯大黎加 音樂家・莫札特',
+                englishName: 'Costa Rica Musician Mozart',
+                roast: '淺焙',
+                process: '葡萄乾蜜處理',
+                origin: '哥斯大黎加',
+                variety: '卡杜拉 (Caturra)',
+                altitude: '1950m',
+                roastDate: '2026.05.29',
+                flavors: ['百合幽香、莓果微光', '紫葡萄汁、蜜糖交響', '清雅白花、甜潤悠長'],
+                url: './mozart_coffee/index.html',
+                featured: true
+            },
+            {
+                id: 'dasaya',
+                name: '衣索比亞 塔莎亞・紫風鈴',
+                englishName: 'Dasaya / Purple Wind Chime',
+                roast: '淺焙',
+                process: '精選微批次・日曬',
+                origin: '衣索比亞',
+                variety: '原生種 (Heirloom)',
+                altitude: '2000m - 2200m',
+                roastDate: '2026.04.12',
+                flavors: ['玫瑰迷香、晨露茉莉', '巨峰葡萄、蜜桃軟糖', '佛手柑韻、花香輕拂'],
+                url: './purple_wind_chime/index.html',
+                featured: true
+            },
+            {
+                id: 'worka',
+                name: '衣索比亞 沃卡 莓果女王',
+                englishName: 'Ethiopia Worka Berry Queen',
+                roast: '淺焙',
+                process: '日曬 G1',
+                origin: '衣索比亞',
+                variety: '原生種 (Heirloom)',
+                altitude: '2000m - 2100m',
+                roastDate: '2026.05.24',
+                flavors: ['晨露玫瑰、野莓綻放', '溫潤香草、優雅酸甜', '可可餘韻、醇厚回甘'],
+                url: './Ethiopia Worka Berry Queen/index.html',
+                featured: true
+            },
+            {
+                id: 'margarita',
+                name: '哥倫比亞 瑪格麗特 哈密瓜',
+                englishName: 'Colombia Margarita Honeydew Melon',
+                roast: '極淺焙',
+                process: 'CO₂高壓厭氧蜜處理',
+                origin: '哥倫比亞',
+                variety: 'Castillo',
+                altitude: '1700m',
+                roastDate: '2025.05.24',
+                flavors: ['沁涼西瓜、微風涼意', '飽滿哈密瓜、清透蜜糖', '瓜果甜香、絲滑甘醇'],
+                url: './Colombia Margarita Honeydew Melon/index.html',
+                featured: true
+            },
+            {
+                id: 'srima',
+                name: '泰國 清萊 絲莉瑪',
+                englishName: 'Chiang Rai Srima OB',
+                roast: '中淺焙',
+                process: '雙重厭氧蜜處理',
+                origin: '泰國',
+                variety: 'OB / Caturra',
+                altitude: '1350m',
+                roastDate: '2026.05.15',
+                flavors: ['花香四溢、熟梅蜜餞', '烏龍茶韻、熱帶黃果', '焦糖甜感、榛果茶尾'],
+                url: './Chiang Rai Srima_OB/index.html',
+                featured: false
+            },
+            {
+                id: 'gesha-a',
+                name: '衣索比亞 蓋拉娜 藝伎 A',
+                englishName: 'Guji-Gelana Gesha A',
+                roast: '淺焙',
+                process: '精緻水洗',
+                origin: '衣索比亞',
+                variety: '藝伎 (Gesha)',
+                altitude: '1900m - 2000m',
+                roastDate: '2026.05.18',
+                flavors: ['白色茉莉、檸檬皮香', '荔枝甜美、柑橘酸香', '白茶甘韻、明亮細緻'],
+                url: './Guji-Gelana- Gesha-A/index.html',
+                featured: false
+            },
+            {
+                id: 'gesha-b',
+                name: '衣索比亞 蓋拉娜 藝伎 B',
+                englishName: 'Guji Gelana Gesha B',
+                roast: '淺焙',
+                process: '日曬處理',
+                origin: '衣索比亞',
+                variety: '藝伎 (Gesha)',
+                altitude: '1900m - 2000m',
+                roastDate: '2026.05.18',
+                flavors: ['熱帶水果、紅酒香氣', '芒果熟甜、草莓軟糖', '黑巧克力、蜜糖甜尾'],
+                url: './Guji Gelana Gesha_B/index.html',
+                featured: false
+            },
+            {
+                id: 'kianjogu-aa1',
+                name: '肯亞 尼亞里 卡安尤古 AA1',
+                englishName: 'Kenya Nyeri Kianjogu AA1',
+                roast: '中淺焙',
+                process: '傳統雙重水洗',
+                origin: '肯亞',
+                variety: 'SL28, SL34',
+                altitude: '1800m',
+                roastDate: '2026.05.20',
+                flavors: ['黑醋栗香、蔓越莓酸', '烏梅甘甜、黑莓果醬', '蔗糖甘甜、仙草茶韻'],
+                url: './Kenya Nyeri Kianjogu AA1/index.html',
+                featured: false
+            },
+            {
+                id: 'kianjogu-aa2',
+                name: '肯亞 尼亞里 卡安尤古 AA2',
+                englishName: 'Kenya Nyeri Kianjogu AA2',
+                roast: '中焙',
+                process: '傳統雙重水洗',
+                origin: '肯亞',
+                variety: 'SL28, SL34',
+                altitude: '1800m',
+                roastDate: '2026.05.20',
+                flavors: ['熟果梅香、紅糖甘甜', '酸梅湯韻、黑棗甜感', '茶感厚實、可可尾韻'],
+                url: './Kenya Nyeri Kianjogu AA2/index.html',
+                featured: false
+            },
+            {
+                id: 'baby-gesha',
+                name: '巴拿馬 寶貝藝伎',
+                englishName: 'Panama Baby Gesha',
+                roast: '淺焙',
+                process: '低溫厭氧日曬',
+                origin: '巴拿馬',
+                variety: '藝伎 (Gesha)',
+                altitude: '1600m - 1700m',
+                roastDate: '2026.05.22',
+                flavors: ['茉莉仙氣、佛手柑皮', '白桃水靈、荔枝清甜', '烏龍茶香、蜂蜜甜潤'],
+                url: './baby_gesha/index.html',
+                featured: true
+            },
+            {
+                id: 'elida-gesha',
+                name: '巴拿馬 艾利達莊園 藝伎',
+                englishName: 'Panama Elida Gesha',
+                roast: '極淺焙',
+                process: 'ASD厭氧慢乾日曬',
+                origin: '巴拿馬',
+                variety: '綠頂藝伎 (Green Tip Gesha)',
+                altitude: '1800m - 2000m',
+                roastDate: '2026.05.25',
+                flavors: ['玫瑰香水、紅糖清甜', '水蜜桃汁、香檳氣泡', '蜂蜜甘甜、茉莉清幽'],
+                url: './elida_gesha/index.html',
+                featured: true
+            },
+            {
+                id: 'kenya-aa',
+                name: '肯亞 AA 奇安布',
+                englishName: 'Kenya AA Kiambu',
+                roast: '中淺焙',
+                process: '傳統雙重水洗',
+                origin: '肯亞',
+                variety: 'SL28',
+                altitude: '1750m',
+                roastDate: '2026.04.10',
+                flavors: ['明亮黑醋栗、聖女番茄', '李子酸香、甘蔗清甜', '綠茶清雅、餘韻悠長'],
+                url: './kenya/index.html',
+                featured: false
+            },
+            {
+                id: 'marias',
+                name: '瓜地馬拉 拉斯瑪麗亞斯',
+                englishName: 'Guatemala Las Marias',
+                roast: '中焙',
+                process: '傳統水洗',
+                origin: '瓜地馬拉',
+                variety: 'Bourbon, Caturra',
+                altitude: '1600m',
+                roastDate: '2026.05.10',
+                flavors: ['堅果香氣、紅蘋果甜', '焦糖牛奶、太妃糖韻', '可可醇厚、黑糖甜尾'],
+                url: './las_marias/index.html',
+                featured: false
+            }
+        ];
+
+        // 過濾狀態
+        const filters = {
+            origin: 'all',
+            roast: 'all'
+        };
+
+        // 渲染咖啡豆卡片列表
+        function renderGrid() {
+            const grid = document.getElementById('coffee-grid');
+            const noResults = document.getElementById('no-results');
+            grid.innerHTML = '';
+            
+            let matchedCount = 0;
+
+            coffeeDatabase.forEach(bean => {
+                // 過濾判斷
+                const matchOrigin = (filters.origin === 'all' || bean.origin === filters.origin);
+                
+                // 焙度判斷細分（極淺焙與淺焙歸為一類，或精準匹配）
+                let matchRoast = false;
+                if (filters.roast === 'all') {
+                    matchRoast = true;
+                } else if (filters.roast === '淺焙') {
+                    matchRoast = (bean.roast === '淺焙' || bean.roast === '極淺焙');
+                } else {
+                    matchRoast = (bean.roast === filters.roast);
+                }
+
+                const isVisible = matchOrigin && matchRoast;
+                
+                if (isVisible) {
+                    matchedCount++;
+                }
+
+                // 創建卡片 HTML
+                const card = document.createElement('div');
+                card.className = `bean-card-wrapper ${isVisible ? '' : 'hidden'}`;
+                
+                card.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col h-full group">
+                        
+                        <!-- 卡片頂部漸變金線 -->
+                        <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20 opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <!-- 首行類別標籤與特選徽章 -->
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-brass-gold/10 border border-brass-gold/20 text-brass-gold text-[10px] tracking-widest px-2.5 py-1 rounded-full font-serif font-medium">
+                                ${bean.origin} · ${bean.roast}
+                            </span>
+                            ${bean.featured ? `
+                                <span class="text-refined-gold flex items-center gap-1 text-[10px] tracking-widest font-outfit font-semibold uppercase">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-refined-gold animate-ping"></span>
+                                    Featured 微批次
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- 咖啡品名 -->
+                        <div class="mb-4">
+                            <h4 class="text-white font-serif font-bold text-xl md:text-2xl tracking-wider leading-tight group-hover:text-brass-gold transition-colors duration-300">
+                                ${bean.name}
+                            </h4>
+                            <p class="text-gray-500 font-serif text-[11px] tracking-wider uppercase mt-1">
+                                ${bean.englishName}
+                            </p>
+                        </div>
+
+                        <!-- 物理資訊網格 -->
+                        <div class="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-[10px] md:text-xs tracking-widest text-gray-400 font-serif mb-6">
+                            <div>
+                                <span class="block text-gray-600 mb-0.5">處理法</span>
+                                <span class="text-white font-medium truncate block">${bean.process}</span>
+                            </div>
+                            <div>
+                                <span class="block text-gray-600 mb-0.5">海拔</span>
+                                <span class="text-white font-medium truncate block">${bean.altitude}</span>
+                            </div>
+                            <div>
+                                <span class="block text-gray-600 mb-0.5">品種</span>
+                                <span class="text-white font-medium truncate block">${bean.variety}</span>
+                            </div>
+                        </div>
+
+                        <!-- 風味三段演繹 (視覺時間軸) -->
+                        <div class="space-y-3 font-serif mb-8 flex-grow">
+                            <div class="flex items-start gap-3">
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">初韻</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[0]}</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">中調</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[1]}</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">尾韻</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[2]}</span>
+                            </div>
+                        </div>
+
+                        <!-- 卡片底端沖煮連結按鈕 -->
+                        <div class="pt-4 border-t border-white/5">
+                            <a 
+                                href="${bean.url}" 
+                                class="w-full flex items-center justify-center gap-2 bg-charcoal hover:bg-brass-gold text-white hover:text-obsidian py-3 px-4 rounded-xl border border-white/10 hover:border-brass-gold text-xs font-serif tracking-[0.2em] uppercase font-bold transition-all duration-300"
+                            >
+                                品飲與沖煮指南
+                                <svg class="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+
+            // 查無資料的處理
+            if (matchedCount === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        // 設定過濾標籤狀態與按鈕選取高亮
+        function setFilter(type, value, btnElement) {
+            filters[type] = value;
+            
+            // 去除同組所有按鈕高亮
+            const parent = btnElement.parentElement;
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'text-brass-gold');
+                btn.classList.add('text-gray-400');
+            });
+            
+            // 點亮當前按鈕
+            btnElement.classList.add('active', 'text-brass-gold');
+            btnElement.classList.remove('text-gray-400');
+            
+            // 重新渲染卡片網格
+            renderGrid();
+        }
+
+        // 4. 手沖黃金粉水比與烘焙引導計算器
+        function calculateBrewing() {
+            const powderInput = document.getElementById('powder-input').value;
+            const roastSelect = document.getElementById('roast-select').value;
+            
+            const powder = parseFloat(powderInput);
+            if (isNaN(powder) || powder <= 0) return;
+
+            // 總水重 (1:15比例)
+            const totalWater = powder * 15;
+            
+            // 三段注水比 (悶蒸=粉重2倍, 第二段=總水量60%, 第三階段=餘水)
+            const bloomWater = powder * 2;
+            const extractWater = Math.round(totalWater * 0.60);
+            const bodyWater = Math.round(totalWater - bloomWater - extractWater);
+
+            // 依照烘焙度細緻化參數
+            let temp = "89°C - 91°C";
+            let grind = "中偏粗研磨";
+            let tempDesc = "低水溫能完美壓制發酵刺鼻感，保留極致白花與蜜桃幽香。";
+            let grindDesc = "粗細如粗砂糖。俐落排水能有效保留前段酸質與花香，並避免尾段發酵雜苦味。";
+
+            if (roastSelect === 'light') {
+                temp = "90°C - 92°C";
+                grind = "中細研磨";
+                tempDesc = "稍高水溫能充分釋放極淺/淺焙精品豆之明亮野莓酸香與精緻香氣分子。";
+                grindDesc = "稍細顆粒。透過增加水粉接觸面積以拉高萃取率，帶出完美甜感與厚實餘韻。";
+            } else if (roastSelect === 'medium') {
+                temp = "87°C - 89°C";
+                grind = "中度研磨";
+                tempDesc = "溫和的中低水溫能帶出優雅的焦糖、可可、堅果醇厚甜感，防止焦苦雜味釋放。";
+                grindDesc = "顆粒如精鹽。中度慢速萃取，追求極致飽滿、平衡與太妃糖甜尾。";
+            }
+
+            // 更新 UI
+            document.getElementById('total-water-display').innerText = `${Math.round(totalWater)} g`;
+            document.getElementById('temp-display').innerText = temp;
+            document.getElementById('grind-display').innerText = grind;
+            document.getElementById('temp-desc').innerText = tempDesc;
+            document.getElementById('grind-desc').innerText = grindDesc;
+
+            document.getElementById('bloom-display').innerText = `注水 ${Math.round(bloomWater)} g · 靜置 30秒`;
+            document.getElementById('extract-display').innerText = `注水 ${Math.round(extractWater)} g · 慢速繞圈`;
+            document.getElementById('body-display').innerText = `注水 ${Math.round(bodyWater)} g · 中心注水`;
+        }
+
+        // 初始化載入
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+            calculateBrewing();
+        });
+    </script>
+</body>
+</html>

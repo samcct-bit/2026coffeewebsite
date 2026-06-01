@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哥倫比亞 拉斯瑪麗亞 酵母日曬 | 金成淬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'zen-bg': '#FAFAFA',      /* 宣紙白 */
+                        'zen-text': '#2C2C2C',    /* 墨灰 */
+                        'zen-gold': '#B8905B',    /* 淬煉金 */
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAFA; color: #2C2C2C; }
+        .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 1s ease-out, transform 1s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        
+        /* 標籤特殊質感邊框 */
+        .paper-card {
+            background-color: #FFFFFF;
+            box-shadow: 0 10px 30px -10px rgba(44, 44, 44, 0.05);
+            position: relative;
+        }
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid rgba(184, 144, 91, 0.2);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-serif antialiased selection:bg-zen-gold selection:text-white">
+
+    <!-- 視覺首圖區塊 -->
+    <header class="relative w-full min-h-[70vh] flex flex-col items-center justify-center overflow-hidden py-20 px-4">
+        <!-- 禪意背景圖 (溫暖大地/日曬意境) -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-15 grayscale" alt="咖啡意境背景" />
+            <div class="absolute inset-0 bg-gradient-to-b from-zen-bg/40 via-transparent to-zen-bg"></div>
+        </div>
+
+        <!-- 注意：父層加上了 mix-blend-multiply 來解決圖層渲染導致的白底問題 -->
+        <div class="relative z-10 flex flex-col items-center text-center fade-in mix-blend-multiply">
+            <!-- 強制帶入的 Logo 代碼 (含加強去背濾鏡) -->
+            <div class="w-32 h-32 mb-4 relative flex items-center justify-center">
+                <img src="../7204.png" 
+                     alt="金成淬 Logo" 
+                     class="w-full h-full object-contain mix-blend-multiply grayscale contrast-[2] brightness-[1.2]"
+                     onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                     
+                <div id="logo-fallback" class="hidden w-28 h-28 rounded-full border-2 border-gray-800 flex-col items-center justify-center relative">
+                    <div class="absolute inset-1 rounded-full border border-gray-800 opacity-30"></div>
+                    <div class="text-center leading-tight mt-1">
+                        <span class="block text-xs font-bold tracking-widest text-gray-800">金成</span>
+                        <span class="block text-3xl font-bold my-1 text-gray-800">淬</span>
+                        <span class="block text-xs font-bold tracking-widest text-gray-800">成金</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-zen-gold tracking-[0.3em] text-sm md:text-base mb-6 font-light">金 成 淬 · 單 品 鑑 賞</p>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-medium tracking-widest mb-4 leading-tight">
+                拉斯瑪麗亞
+            </h1>
+            <p class="text-xl md:text-2xl text-zen-text/70 tracking-widest mt-2 font-light">酵母日曬的熱帶盛宴</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-12 space-y-32">
+        
+        <!-- 實體標籤設計區塊 -->
+        <section class="fade-in relative z-20 -mt-20">
+            <div class="paper-card max-w-2xl mx-auto p-10 md:p-14">
+                <div class="border-b border-zen-gold/30 pb-6 mb-8 text-center">
+                    <h2 class="text-2xl font-medium tracking-widest text-zen-text mb-2">哥倫比亞 薇拉</h2>
+                    <p class="text-xs tracking-[0.2em] text-zen-gold uppercase">Colombia Huila - Las Marias</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-1">
+                            <span class="text-sm text-zen-text/60 tracking-wider">莊園 Farm</span>
+                            <span class="text-base font-medium">拉斯瑪麗亞</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-1">
+                            <span class="text-sm text-zen-text/60 tracking-wider">海拔 Altitude</span>
+                            <span class="text-base font-medium">1900m</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-1">
+                            <span class="text-sm text-zen-text/60 tracking-wider">品種 Variety</span>
+                            <span class="text-base font-medium">薇拉莎琪</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-1">
+                            <span class="text-sm text-zen-text/60 tracking-wider">處理 Process</span>
+                            <span class="text-base font-medium text-zen-gold">酵母日曬</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-1">
+                            <span class="text-sm text-zen-text/60 tracking-wider">烘焙度 Roast</span>
+                            <span class="text-base font-medium">極淺焙</span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-zen-gold font-medium w-16">【初韻】</span>
+                            <span class="text-base tracking-widest">梅子微酸、草莓甜香</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-zen-gold font-medium w-16">【中調】</span>
+                            <span class="text-base tracking-widest">蜜桃溫潤、鳳梨明亮</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-zen-gold font-medium w-16">【尾韻】</span>
+                            <span class="text-base tracking-widest leading-relaxed">葡萄醇厚、<br>熱帶水果綿延</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6 flex justify-between items-center px-4">
+                    <p class="text-[10px] text-zen-text/40 tracking-[0.3em]">ROASTED BY ALCHEMY OF REFINEMENT</p>
+                    <p class="text-[10px] text-zen-text/40 tracking-widest">焙期：2026.04.25</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 品牌故事/行銷文案 -->
+        <section class="fade-in max-w-3xl mx-auto text-center">
+            <div class="w-px h-16 bg-zen-gold/50 mx-auto mb-10"></div>
+            <h3 class="text-2xl text-zen-gold tracking-widest mb-8 font-medium">自然淬煉的職人承諾</h3>
+            <div class="space-y-6 text-lg leading-loose tracking-wide text-zen-text/80 text-justify md:text-center px-4">
+                <p>來自哥倫比亞薇拉高地的拉斯瑪麗亞莊園，海拔 1900 公尺的純淨微氣候，孕育出珍稀的薇拉莎琪品種。我們刻意保留大自然的餽贈，透過獨特的<span class="text-zen-gold font-medium">「酵母日曬」</span>處理法，讓時間與自然在靜謐中淬煉出最迷人的香氣。</p>
+                <p>當熱水緩緩傾注，宛如一場果香的盛宴悄然揭幕。梅子與草莓的酸甜如晨露般初醒；隨著溫度推移，蜜桃的溫潤與鳳梨的熱情交織而上；最終，以深邃的葡萄與豐沛的熱帶水果甜感在舌尖綿延收尾。</p>
+            </div>
+            <div class="w-px h-16 bg-zen-gold/50 mx-auto mt-10"></div>
+        </section>
+
+        <!-- 沖煮建議 (SCA視角) -->
+        <section class="fade-in mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-2xl tracking-widest text-zen-text font-medium">講師沖煮指南</h3>
+                <p class="text-sm text-zen-text/50 tracking-wider mt-2">BREWING RECOMMENDATION</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 水溫 -->
+                <div class="border border-zen-gold/20 p-8 flex flex-col items-center text-center bg-white">
+                    <span class="text-zen-gold text-sm tracking-[0.2em] mb-4">WATER TEMP</span>
+                    <h4 class="text-3xl font-light mb-4">88<span class="text-xl">°C</span> - 90<span class="text-xl">°C</span></h4>
+                    <p class="text-sm leading-relaxed text-zen-text/70">酵母日曬風味物質豐富，適度降溫可避免過度萃取發酵澀感，完美保留草莓與蜜桃的細緻花果酯香。</p>
+                </div>
+                <!-- 研磨 -->
+                <div class="border border-zen-gold/20 p-8 flex flex-col items-center text-center bg-white">
+                    <span class="text-zen-gold text-sm tracking-[0.2em] mb-4">GRIND SIZE</span>
+                    <h4 class="text-2xl font-medium tracking-widest mb-4 mt-2">中偏細</h4>
+                    <p class="text-sm leading-relaxed text-zen-text/70">約手沖標準刻度略細半格。增加粉水接觸面積，能有效提升前端梅子酸值的明亮度與層次。</p>
+                </div>
+                <!-- 手法 -->
+                <div class="border border-zen-gold/20 p-8 flex flex-col items-center text-center bg-white">
+                    <span class="text-zen-gold text-sm tracking-[0.2em] mb-4">POUR & FLOW</span>
+                    <h4 class="text-2xl font-medium tracking-widest mb-4 mt-2">三段式柔注</h4>
+                    <p class="text-sm leading-relaxed text-zen-text/70">前段大水柱激發莓果香氣；中後段轉為極柔和中心注水，平穩萃取出葡萄的醇厚與熱帶水果的甜感。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="border-t border-gray-200 py-12 text-center flex flex-col items-center justify-center">
+        <!-- 頁尾同樣加上 mix-blend-multiply 到父層 -->
+        <div class="w-12 h-12 mb-6 opacity-40 mix-blend-multiply">
+            <img src="../7204.png" alt="金成淬 圖騰" class="w-full h-full object-contain mix-blend-multiply grayscale contrast-[2] brightness-[1.2]">
+        </div>
+        <p class="text-zen-text tracking-[0.3em] text-sm mb-2 font-medium">金成淬</p>
+        <p class="text-zen-gold text-xs tracking-[0.2em] mb-6">ALCHEMY OF REFINEMENT</p>
+        <p class="text-zen-text/40 text-xs tracking-wider font-sans">© 2026 金成淬咖啡工作室. All Rights Reserved.</p>
+    </footer>
+
+    <!-- 滾動動畫腳本 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>

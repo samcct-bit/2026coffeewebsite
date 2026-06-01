@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰國 清萊 Srima 橙花 雙重厭氧蜜處理 | 金成淬</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'zen-bg': '#FAFAFA',      /* 宣紙白 */
+                        'zen-text': '#2C2C2C',    /* 墨灰 */
+                        'zen-gold': '#B8905B',    /* 淬煉金 */
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAFA; color: #2C2C2C; }
+        .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 1.2s ease-out, transform 1.2s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        
+        /* 標籤特殊質感邊框，呈現和紙留白的美感 */
+        .paper-card {
+            background-color: #FFFFFF;
+            box-shadow: 0 15px 40px -10px rgba(44, 44, 44, 0.04);
+            position: relative;
+        }
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 6px; left: 6px; right: 6px; bottom: 6px;
+            border: 1px solid rgba(184, 144, 91, 0.15); /* 淬煉金極淡邊框 */
+            pointer-events: none;
+        }
+        
+        /* 垂直文字裝飾 */
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+    </style>
+</head>
+<body class="font-serif antialiased selection:bg-zen-gold selection:text-white">
+
+    <!-- 視覺首圖區塊 -->
+    <header class="relative w-full min-h-[75vh] flex flex-col items-center justify-center overflow-hidden py-20 px-4">
+        <!-- 禪意背景圖 (東方山林雲霧意境) -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=2074&auto=format&fit=crop" class="w-full h-full object-cover opacity-20 grayscale" alt="高山雲霧茶園意境背景" />
+            <div class="absolute inset-0 bg-gradient-to-b from-zen-bg/60 via-zen-bg/40 to-zen-bg"></div>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center text-center fade-in mix-blend-multiply">
+            
+            <!-- 【強制 Logo 設定區塊 - 已強化去背濾鏡】 -->
+            <div class="w-32 h-32 mb-4 relative flex items-center justify-center">
+                <img src="../7204.png" 
+                     alt="金成淬 Logo" 
+                     class="w-full h-full object-contain mix-blend-multiply grayscale contrast-[2] brightness-[1.2]"
+                     onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                     
+                <div id="logo-fallback" class="hidden w-28 h-28 rounded-full border-2 border-gray-800 flex-col items-center justify-center relative">
+                    <div class="absolute inset-1 rounded-full border border-gray-800 opacity-30"></div>
+                    <div class="text-center leading-tight mt-1">
+                        <span class="block text-xs font-bold tracking-widest text-gray-800">金成</span>
+                        <span class="block text-3xl font-bold my-1 text-gray-800">淬</span>
+                        <span class="block text-xs font-bold tracking-widest text-gray-800">成金</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 【強制 Logo 設定區塊 結束】 -->
+
+            <p class="text-zen-gold tracking-[0.4em] text-xs md:text-sm mb-8 font-light uppercase">金 成 淬 · 高 山 禪 韻</p>
+            
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-medium tracking-widest mb-6 leading-tight text-zen-text">
+                Srima 橙花
+            </h1>
+            
+            <div class="flex items-center justify-center space-x-4 opacity-80">
+                <span class="h-px w-8 bg-zen-text/30"></span>
+                <p class="text-lg md:text-xl text-zen-text tracking-[0.2em] font-light">雙重厭氧蜜處理</p>
+                <span class="h-px w-8 bg-zen-text/30"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-12 space-y-32">
+        
+        <!-- 實體標籤設計區塊 (模擬 80x50mm 留白排版) -->
+        <section class="fade-in relative z-20 -mt-24">
+            <div class="paper-card max-w-3xl mx-auto p-12 md:p-16 flex flex-col md:flex-row gap-10">
+                
+                <!-- 左側：產地資訊 -->
+                <div class="flex-1 border-b md:border-b-0 md:border-r border-zen-gold/20 pb-8 md:pb-0 md:pr-10">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-medium tracking-widest text-zen-text mb-1">泰國 清萊</h2>
+                        <p class="text-[10px] tracking-[0.25em] text-zen-gold uppercase">Thailand Chiang Rai</p>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-2">
+                            <span class="text-xs text-zen-text/50 tracking-[0.1em]">莊園 Farm</span>
+                            <span class="text-sm font-medium tracking-wider text-zen-text">Srima (OB橙花批次)</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-2">
+                            <span class="text-xs text-zen-text/50 tracking-[0.1em]">海拔 Altitude</span>
+                            <span class="text-sm font-medium tracking-wider text-zen-text">1400-1600m</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-2">
+                            <span class="text-xs text-zen-text/50 tracking-[0.1em]">品種 Variety</span>
+                            <span class="text-sm font-medium tracking-wider text-zen-text">卡杜拉 Caturra</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-100 pb-2">
+                            <span class="text-xs text-zen-text/50 tracking-[0.1em]">處理 Process</span>
+                            <span class="text-sm font-medium tracking-wider text-zen-gold">雙重厭氧蜜處理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：風味描述 -->
+                <div class="flex-1 flex flex-col justify-center space-y-8">
+                    <div class="flex items-center space-x-6 group">
+                        <span class="text-xs text-zen-gold font-medium border border-zen-gold/30 px-2 py-1 rounded-sm tracking-widest">初韻</span>
+                        <span class="text-base tracking-[0.15em] text-zen-text group-hover:text-zen-gold transition-colors duration-300">橙花幽香、茉莉清揚</span>
+                    </div>
+                    <div class="flex items-center space-x-6 group">
+                        <span class="text-xs text-zen-gold font-medium border border-zen-gold/30 px-2 py-1 rounded-sm tracking-widest">中調</span>
+                        <span class="text-base tracking-[0.15em] text-zen-text group-hover:text-zen-gold transition-colors duration-300">柚子明亮、細緻果酸</span>
+                    </div>
+                    <div class="flex items-center space-x-6 group">
+                        <span class="text-xs text-zen-gold font-medium border border-zen-gold/30 px-2 py-1 rounded-sm tracking-widest">尾韻</span>
+                        <span class="text-base tracking-[0.15em] text-zen-text group-hover:text-zen-gold transition-colors duration-300">蜂蜜甘醇、溫潤綿長</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 水分與密度隱藏資訊(專業點綴) -->
+            <div class="max-w-3xl mx-auto mt-4 flex justify-end space-x-6 px-4">
+                <span class="text-[10px] text-zen-text/30 tracking-widest">M: 10.1%</span>
+                <span class="text-[10px] text-zen-text/30 tracking-widest">D: 839 g/L</span>
+            </div>
+        </section>
+
+        <!-- 品牌故事/行銷文案 -->
+        <section class="fade-in max-w-2xl mx-auto text-center relative">
+            <!-- 裝飾線 -->
+            <div class="absolute left-1/2 -top-16 w-px h-10 bg-zen-gold/40 transform -translate-x-1/2"></div>
+            
+            <h3 class="text-xl md:text-2xl text-zen-gold tracking-[0.2em] mb-10 font-medium">東方花韻的靜謐淬煉</h3>
+            
+            <div class="space-y-8 text-base md:text-lg leading-[2.2] tracking-wide text-zen-text/80 text-justify md:text-center px-2">
+                <p>走進泰國清萊 1600 公尺的雲霧深處，冷冽的山嵐孕育出純淨的卡杜拉。Srima 莊園以費時的<span class="text-zen-gold font-medium">「雙重厭氧蜜處理」</span>工藝，將高山的冷冽與大自然的芬芳，溫柔地封存於每一顆生豆之中。</p>
+                <p>沸水注入的瞬間，宛如推開一扇初春的木門。橙花與茉莉的雅緻香氣如微風般拂面而來；隨之躍動在舌尖的，是柚子般清透晶瑩的酸甜；最終，這股香氣沉澱為如頂級蜂蜜般的甘醇溫潤，在喉間久久不散。</p>
+                <p class="text-zen-text font-medium mt-8 text-center pt-8 border-t border-zen-gold/10">「不急不躁，靜待花開。」</p>
+            </div>
+        </section>
+
+        <!-- 沖煮建議 (SCA考官視角) -->
+        <section class="fade-in mb-24 relative">
+            <div class="absolute left-1/2 -top-20 w-px h-10 bg-zen-gold/40 transform -translate-x-1/2"></div>
+
+            <div class="text-center mb-16">
+                <h3 class="text-lg md:text-xl tracking-[0.2em] text-zen-text font-medium">SCA 考官沖煮獻策</h3>
+                <p class="text-[10px] text-zen-text/40 tracking-[0.3em] mt-3 uppercase">Brewing Guide</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 水溫 -->
+                <div class="group border border-zen-text/5 bg-white p-10 hover:border-zen-gold/30 transition-all duration-500 flex flex-col items-center text-center shadow-sm hover:shadow-md">
+                    <span class="w-10 h-10 rounded-full border border-zen-gold flex items-center justify-center text-zen-gold mb-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </span>
+                    <h4 class="text-xs tracking-[0.2em] text-zen-text/50 mb-3 uppercase">水溫配置</h4>
+                    <p class="text-2xl font-light text-zen-text mb-4">89°C - 91°C</p>
+                    <p class="text-sm leading-loose text-zen-text/70">雙重厭氧蜜處理甜感與發酵香氣豐富。避免過高水溫引發雜味，完美保留最上層輕盈的橙花與茉莉香。</p>
+                </div>
+
+                <!-- 研磨 -->
+                <div class="group border border-zen-text/5 bg-white p-10 hover:border-zen-gold/30 transition-all duration-500 flex flex-col items-center text-center shadow-sm hover:shadow-md">
+                    <span class="w-10 h-10 rounded-full border border-zen-gold flex items-center justify-center text-zen-gold mb-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </span>
+                    <h4 class="text-xs tracking-[0.2em] text-zen-text/50 mb-3 uppercase">研磨刻度</h4>
+                    <p class="text-lg tracking-widest font-medium text-zen-text mb-5 mt-1">中偏細</p>
+                    <p class="text-sm leading-loose text-zen-text/70">約為手沖標準刻度。適當的粉層阻力能讓水分均勻穿透，引出中段柚子的明亮感與尾段的蜂蜜醇厚度。</p>
+                </div>
+
+                <!-- 手法 -->
+                <div class="group border border-zen-text/5 bg-white p-10 hover:border-zen-gold/30 transition-all duration-500 flex flex-col items-center text-center shadow-sm hover:shadow-md">
+                    <span class="w-10 h-10 rounded-full border border-zen-gold flex items-center justify-center text-zen-gold mb-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </span>
+                    <h4 class="text-xs tracking-[0.2em] text-zen-text/50 mb-3 uppercase">注水手法</h4>
+                    <p class="text-lg tracking-widest font-medium text-zen-text mb-5 mt-1">柔和中心注水</p>
+                    <p class="text-sm leading-loose text-zen-text/70">悶蒸後使用中小水柱平穩繞圈，避免過度翻攪。靜靜帶出如茶湯般清透、乾淨的蜜香口感與細緻花韻。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-[#F5F5F5] py-16 text-center flex flex-col items-center justify-center">
+        <!-- 頁尾再次呼應 Logo 但使用較低透明度融入背景，並加強去背 -->
+        <div class="w-12 h-12 mb-6 opacity-60 mix-blend-multiply">
+            <img src="../7204.png" alt="金成淬 圖騰" class="w-full h-full object-contain mix-blend-multiply grayscale contrast-[2] brightness-[1.2]">
+        </div>
+        <p class="text-zen-text tracking-[0.3em] text-sm mb-3 font-medium">金成淬 · 淬成金</p>
+        <p class="text-zen-gold text-[10px] tracking-[0.3em] mb-8 uppercase">Alchemy of Refinement</p>
+        <div class="w-8 h-px bg-zen-text/20 mb-8"></div>
+        <p class="text-zen-text/30 text-[10px] tracking-widest font-sans">© 2026 金成淬咖啡工作室. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <!-- 滾動動畫腳本 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>

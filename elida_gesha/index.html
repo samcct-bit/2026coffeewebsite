@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾利達的九十六小時 · 靜謐花開 | 金成淬精選</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 'champagne-light': '#fdfbf7', 'champagne-dark': '#d3a588', 'blush-accent': '#e6b8af', 'coffee-dark': '#3e2723', 'coffee-gray': '#6d4c41' },
+                    fontFamily: { sans: ['"Noto Sans TC"', 'sans-serif'], serif: ['"Noto Serif TC"', 'serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in-section { opacity: 0; transform: translateY(20px); visibility: hidden; transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .fade-in-section.is-visible { opacity: 1; transform: none; visibility: visible; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #fdfbf7; } ::-webkit-scrollbar-thumb { background: #d3a588; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-champagne-light text-coffee-dark font-sans antialiased selection:bg-champagne-dark selection:text-white">
+
+    <header class="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1508610048659-a06b669e3321?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover object-center scale-105" alt="晨曦花卉意境" />
+            <div class="absolute inset-0 bg-gradient-to-t from-champagne-light via-black/40 to-black/60"></div>
+        </div>
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto fade-in-section is-visible flex flex-col items-center">
+            
+            <!-- 完美去背去雜訊的 Logo -->
+            <div class="w-24 h-24 md:w-32 md:h-32 mb-8 rounded-full bg-white shadow-[0_0_25px_rgba(211,165,136,0.4)] flex items-center justify-center hover:scale-105 transition-transform duration-500 overflow-hidden">
+                <img src="../7204.png alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale">
+            </div>
+
+            <span class="block text-champagne-dark tracking-[0.4em] text-sm md:text-base mb-4 font-medium uppercase drop-shadow-md">金成淬精選</span>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6 leading-tight drop-shadow-lg tracking-wide">
+                艾利達的九十六小時 <br class="md:hidden" /><span class="text-3xl md:text-5xl lg:text-6xl text-champagne-light opacity-90">· 靜謐花開</span>
+            </h1>
+            <p class="text-lg md:text-2xl text-gray-100 font-serif font-light tracking-widest drop-shadow-md mt-4">
+                「於時光的流轉中，等待一朵花的綻放。」
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 space-y-24">
+        <!-- 理念引言 -->
+        <section class="fade-in-section max-w-3xl mx-auto text-center px-4">
+            <p class="text-xl md:text-2xl text-coffee-dark leading-loose font-serif font-medium">在巴拿馬波魁特的高海拔森林中，我們讓豆子與果膠靜置九十六小時。<br><span class="text-champagne-dark">這不是等待，而是自然的醞釀。</span></p>
+        </section>
+
+        <!-- 生豆溯源 -->
+        <section class="fade-in-section" id="origin">
+            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-champagne-dark/10 max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-serif font-bold mb-4">生豆溯源</h2>
+                    <div class="h-[2px] w-16 bg-champagne-dark mx-auto"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+                    <div class="border-b border-gray-100 pb-4 text-center sm:text-left">
+                        <h3 class="text-sm font-bold text-champagne-dark uppercase tracking-wider mb-2">產區 / 莊園</h3>
+                        <p class="text-lg font-medium text-coffee-dark">巴拿馬 波魁特 · 艾利達莊園</p>
+                    </div>
+                    <div class="border-b border-gray-100 pb-4 text-center sm:text-left">
+                        <h3 class="text-sm font-bold text-champagne-dark uppercase tracking-wider mb-2">品種</h3>
+                        <p class="text-lg font-medium text-coffee-dark">卡杜拉 (花魁批次)</p>
+                    </div>
+                    <div class="border-b border-gray-100 pb-4 text-center sm:text-left">
+                        <h3 class="text-sm font-bold text-champagne-dark uppercase tracking-wider mb-2">海拔</h3>
+                        <p class="text-lg font-medium text-coffee-dark">1,850 公尺</p>
+                    </div>
+                    <div class="border-b border-gray-100 pb-4 text-center sm:text-left">
+                        <h3 class="text-sm font-bold text-champagne-dark uppercase tracking-wider mb-2">處理法</h3>
+                        <p class="text-lg font-medium text-coffee-dark">厭氧慢速蜜處理 96小時</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 感官實驗室 -->
+        <section class="fade-in-section" id="sensory">
+            <div class="bg-white rounded-3xl p-8 md:p-12 lg:p-16 relative overflow-hidden shadow-[0_0_30px_rgba(211,165,136,0.1)]">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blush-accent/10 rounded-full blur-3xl"></div>
+                <div class="relative z-10">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-serif font-bold mb-4">風味輪廓</h2>
+                        <div class="h-[2px] w-16 bg-champagne-dark mx-auto"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <div class="relative text-center z-10">
+                            <div class="w-16 h-16 mx-auto bg-champagne-light text-champagne-dark rounded-full flex items-center justify-center mb-6 text-lg font-serif font-bold shadow-sm border border-champagne-dark/20">初韻</div>
+                            <h4 class="font-bold text-xl mb-3 text-coffee-dark">甜蜜花香 / 柳橙</h4>
+                            <p class="text-coffee-gray leading-relaxed font-serif">輕盈的甜蜜花香，伴隨著清新的柳橙果香，如山間晨曦般澄澈。</p>
+                        </div>
+                        <div class="relative text-center z-10">
+                            <div class="w-16 h-16 mx-auto bg-champagne-light text-champagne-dark rounded-full flex items-center justify-center mb-6 text-lg font-serif font-bold shadow-sm border border-champagne-dark/20">中調</div>
+                            <h4 class="font-bold text-xl mb-3 text-coffee-dark">伯爵茶 / 葡萄 / 柑橘</h4>
+                            <p class="text-coffee-gray leading-relaxed font-serif">獨特的伯爵茶香在口中散開，帶動葡萄與柑橘的細緻酸質。</p>
+                        </div>
+                        <div class="relative text-center z-10">
+                            <div class="w-16 h-16 mx-auto bg-champagne-light text-champagne-dark rounded-full flex items-center justify-center mb-6 text-lg font-serif font-bold shadow-sm border border-champagne-dark/20">餘韻</div>
+                            <h4 class="font-bold text-xl mb-3 text-coffee-dark">奶昔質地 / 細緻柔順</h4>
+                            <p class="text-coffee-gray leading-relaxed font-serif">質地如奶昔般滑順綿密，在舌尖留下極其精細的柔順質感，如禪定般的平衡圓滿。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 萃取指南 -->
+        <section class="fade-in-section mb-20">
+            <div class="bg-[#32231e] text-champagne-light rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-serif font-bold mb-4">萃取指南</h2>
+                        <div class="h-[2px] w-16 bg-champagne-dark mx-auto mb-6"></div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                            <p class="font-bold text-xl mb-2">錐型濾杯</p><p class="text-sm text-gray-400">V60 / 摺紙濾杯</p>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                            <p class="font-bold text-xl mb-2">90°C - 92°C</p><p class="text-sm text-gray-400">溫和萃取保留甜感</p>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                            <p class="font-bold text-xl mb-2">中偏粗</p><p class="text-sm text-gray-400">維持茶感清透</p>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                            <p class="font-bold text-xl mb-2">輕快帶出</p><p class="text-sm text-gray-400">總時間 2'00" - 2'15"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white py-12 text-center border-t border-champagne-dark/20 flex flex-col items-center">
+        <div class="w-16 h-16 mb-4 opacity-80 hover:opacity-100 transition-opacity duration-300">
+            <img src="../7204.png alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale">
+        </div>
+        <p class="text-coffee-dark font-serif font-medium tracking-widest mb-2">金成淬 ALCHEMY OF REFINEMENT</p>
+        <p class="text-coffee-gray text-xs tracking-wider uppercase font-light">© 2026 Gàn-sîng-Kim. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); obs.unobserve(entry.target); } });
+            }, { threshold: 0.15 });
+            document.querySelectorAll('.fade-in-section').forEach(sec => observer.observe(sec));
+        });
+    </script>
+</body>
+</html>
