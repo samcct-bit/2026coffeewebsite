@@ -360,6 +360,734 @@
     <script>
         // 1. 初始化資料庫（預載 3 款高畫質 ROR 數據，對應精品豆與烘豆機建議）
         let roastingDatabase = [
+
+            {
+                        "id": "roast_tank200_gesha_1",
+                        "beanName": "衣索比亞 古吉 藝伎 G1 水洗 #1 (Guji Gesha G1 Washed #1)",
+                        "origin": "衣索比亞",
+                        "machine": "Tank-200",
+                        "roastDate": "2026-05-10",
+                        "roastLevel": "淺焙",
+                        "chargeMassG": 194,
+                        "dropMassG": 172.0,
+                        "chargeTemp": 205,
+                        "tpTemp": 88,
+                        "tpTime": "01:20",
+                        "fcTemp": 207,
+                        "fcTime": "08:00",
+                        "dropTemp": 216,
+                        "dropTime": "08:54",
+                        "dtrRatio": "10.1%",
+                        "lossRatio": "11.3%",
+                        "rorDatapoints": [
+                                    {
+                                                "timeS": 0,
+                                                "beanTemp": 205,
+                                                "ror": 0,
+                                                "note": "入豆"
+                                    },
+                                    {
+                                                "timeS": 30,
+                                                "beanTemp": 140,
+                                                "ror": -25,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 60,
+                                                "beanTemp": 99,
+                                                "ror": -10,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 80,
+                                                "beanTemp": 88,
+                                                "ror": 0,
+                                                "note": "回溫點 (TP)"
+                                    },
+                                    {
+                                                "timeS": 120,
+                                                "beanTemp": 99,
+                                                "ror": 16.5,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 180,
+                                                "beanTemp": 122,
+                                                "ror": 23.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 240,
+                                                "beanTemp": 143,
+                                                "ror": 21.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 300,
+                                                "beanTemp": 162,
+                                                "ror": 19.0,
+                                                "note": "轉黃點 (Ye)"
+                                    },
+                                    {
+                                                "timeS": 360,
+                                                "beanTemp": 179,
+                                                "ror": 17.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 420,
+                                                "beanTemp": 194,
+                                                "ror": 15.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 480,
+                                                "beanTemp": 207,
+                                                "ror": 13.0,
+                                                "note": "一爆開始 (FC)"
+                                    },
+                                    {
+                                                "timeS": 534,
+                                                "beanTemp": 216,
+                                                "ror": 10.0,
+                                                "note": "下豆冷卻 (Drop)"
+                                    }
+                        ],
+                        "timelineActions": [
+                                    {
+                                                "time": "00:00",
+                                                "temp": 205,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "入豆溫 205C，初始火力衝刺"
+                                    },
+                                    {
+                                                "time": "01:20",
+                                                "temp": 88,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "回溫點成立"
+                                    },
+                                    {
+                                                "time": "04:55",
+                                                "temp": 162,
+                                                "burner": "火力 75%",
+                                                "damper": "風門 3cm",
+                                                "note": "轉黃點完成脫水，降火至 75%"
+                                    },
+                                    {
+                                                "time": "08:00",
+                                                "temp": 207,
+                                                "burner": "火力 72%",
+                                                "damper": "風門 3cm",
+                                                "note": "一爆響起，開大風門，火力微調為 72%"
+                                    },
+                                    {
+                                                "time": "08:54",
+                                                "temp": 216,
+                                                "burner": "關火",
+                                                "damper": "風門 70%",
+                                                "note": "下豆冷卻，發展期 54 秒"
+                                    }
+                        ]
+            },
+            {
+                        "id": "roast_tank200_gesha_2",
+                        "beanName": "衣索比亞 古吉 藝伎 G1 水洗 #2 (Guji Gesha G1 Washed #2)",
+                        "origin": "衣索比亞",
+                        "machine": "Tank-200",
+                        "roastDate": "2026-05-10",
+                        "roastLevel": "淺焙",
+                        "chargeMassG": 194,
+                        "dropMassG": 171.8,
+                        "chargeTemp": 200,
+                        "tpTemp": 83,
+                        "tpTime": "01:45",
+                        "fcTemp": 202,
+                        "fcTime": "08:14",
+                        "dropTemp": 216,
+                        "dropTime": "08:53",
+                        "dtrRatio": "7.3%",
+                        "lossRatio": "11.4%",
+                        "rorDatapoints": [
+                                    {
+                                                "timeS": 0,
+                                                "beanTemp": 200,
+                                                "ror": 0,
+                                                "note": "入豆"
+                                    },
+                                    {
+                                                "timeS": 30,
+                                                "beanTemp": 135,
+                                                "ror": -26,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 60,
+                                                "beanTemp": 96,
+                                                "ror": -12,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 105,
+                                                "beanTemp": 83,
+                                                "ror": 0,
+                                                "note": "回溫點 (TP)"
+                                    },
+                                    {
+                                                "timeS": 120,
+                                                "beanTemp": 88,
+                                                "ror": 20.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 180,
+                                                "beanTemp": 95,
+                                                "ror": 7.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 240,
+                                                "beanTemp": 117,
+                                                "ror": 22.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 300,
+                                                "beanTemp": 139,
+                                                "ror": 22.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 360,
+                                                "beanTemp": 158,
+                                                "ror": 19.0,
+                                                "note": "轉黃點 (Ye)"
+                                    },
+                                    {
+                                                "timeS": 420,
+                                                "beanTemp": 174,
+                                                "ror": 16.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 480,
+                                                "beanTemp": 190,
+                                                "ror": 16.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 494,
+                                                "beanTemp": 202,
+                                                "ror": 51.4,
+                                                "note": "一爆開始 (FC)"
+                                    },
+                                    {
+                                                "timeS": 533,
+                                                "beanTemp": 216,
+                                                "ror": 21.5,
+                                                "note": "下豆冷卻 (Drop)"
+                                    }
+                        ],
+                        "timelineActions": [
+                                    {
+                                                "time": "00:00",
+                                                "temp": 200,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "入豆溫 200C，初始火力 85%"
+                                    },
+                                    {
+                                                "time": "01:45",
+                                                "temp": 83,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "回溫點成立，起步較慢"
+                                    },
+                                    {
+                                                "time": "04:55",
+                                                "temp": 155,
+                                                "burner": "火力 75%",
+                                                "damper": "風門 3cm",
+                                                "note": "轉黃點完成脫水，降火至 75%"
+                                    },
+                                    {
+                                                "time": "08:14",
+                                                "temp": 202,
+                                                "burner": "火力 72%",
+                                                "damper": "風門 3cm",
+                                                "note": "一爆響起，降火至 72%"
+                                    },
+                                    {
+                                                "time": "08:53",
+                                                "temp": 216,
+                                                "burner": "關火",
+                                                "damper": "風門 70%",
+                                                "note": "下豆冷卻，發展期 39 秒，溫升 14C"
+                                    }
+                        ]
+            },
+            {
+                        "id": "roast_tank200_gesha_3",
+                        "beanName": "衣索比亞 古吉 藝伎 G1 水洗 #3 (Guji Gesha G1 Washed #3)",
+                        "origin": "衣索比亞",
+                        "machine": "Tank-200",
+                        "roastDate": "2026-05-10",
+                        "roastLevel": "淺焙",
+                        "chargeMassG": 194,
+                        "dropMassG": 172.2,
+                        "chargeTemp": 200,
+                        "tpTemp": 91,
+                        "tpTime": "01:15",
+                        "fcTemp": 207,
+                        "fcTime": "07:34",
+                        "dropTemp": 216,
+                        "dropTime": "08:16",
+                        "dtrRatio": "8.5%",
+                        "lossRatio": "11.2%",
+                        "rorDatapoints": [
+                                    {
+                                                "timeS": 0,
+                                                "beanTemp": 200,
+                                                "ror": 0,
+                                                "note": "入豆"
+                                    },
+                                    {
+                                                "timeS": 30,
+                                                "beanTemp": 138,
+                                                "ror": -24,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 60,
+                                                "beanTemp": 102,
+                                                "ror": -10,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 75,
+                                                "beanTemp": 91,
+                                                "ror": 0,
+                                                "note": "回溫點 (TP)"
+                                    },
+                                    {
+                                                "timeS": 120,
+                                                "beanTemp": 93,
+                                                "ror": 2.7,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 180,
+                                                "beanTemp": 106,
+                                                "ror": 13.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 240,
+                                                "beanTemp": 132,
+                                                "ror": 26.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 300,
+                                                "beanTemp": 152,
+                                                "ror": 20.0,
+                                                "note": "轉黃點 (Ye)"
+                                    },
+                                    {
+                                                "timeS": 360,
+                                                "beanTemp": 173,
+                                                "ror": 21.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 420,
+                                                "beanTemp": 188,
+                                                "ror": 15.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 454,
+                                                "beanTemp": 207,
+                                                "ror": 33.5,
+                                                "note": "一爆開始 (FC)"
+                                    },
+                                    {
+                                                "timeS": 480,
+                                                "beanTemp": 213,
+                                                "ror": 13.8,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 496,
+                                                "beanTemp": 216,
+                                                "ror": 11.2,
+                                                "note": "下豆冷卻 (Drop)"
+                                    }
+                        ],
+                        "timelineActions": [
+                                    {
+                                                "time": "00:00",
+                                                "temp": 200,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "入豆溫 200C，初始火力 85%"
+                                    },
+                                    {
+                                                "time": "01:15",
+                                                "temp": 91,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "回溫點成立"
+                                    },
+                                    {
+                                                "time": "04:10",
+                                                "temp": 155,
+                                                "burner": "火力 75%",
+                                                "damper": "風門 3cm",
+                                                "note": "轉黃點完成脫水，降火至 75%"
+                                    },
+                                    {
+                                                "time": "07:34",
+                                                "temp": 207,
+                                                "burner": "火力 72%",
+                                                "damper": "風門 3cm",
+                                                "note": "一爆響起，降火至 72%"
+                                    },
+                                    {
+                                                "time": "08:16",
+                                                "temp": 216,
+                                                "burner": "關火",
+                                                "damper": "風門 70%",
+                                                "note": "下豆冷卻，發展期 42 秒"
+                                    }
+                        ]
+            },
+            {
+                        "id": "roast_tank200_gesha_4",
+                        "beanName": "衣索比亞 古吉 藝伎 G1 水洗 #4 (Guji Gesha G1 Washed #4)",
+                        "origin": "衣索比亞",
+                        "machine": "Tank-200",
+                        "roastDate": "2026-05-10",
+                        "roastLevel": "淺焙",
+                        "chargeMassG": 194,
+                        "dropMassG": 172.5,
+                        "chargeTemp": 174,
+                        "tpTemp": 79,
+                        "tpTime": "01:20",
+                        "fcTemp": 205,
+                        "fcTime": "10:50",
+                        "dropTemp": 214,
+                        "dropTime": "11:30",
+                        "dtrRatio": "5.8%",
+                        "lossRatio": "11.1%",
+                        "rorDatapoints": [
+                                    {
+                                                "timeS": 0,
+                                                "beanTemp": 174,
+                                                "ror": 0,
+                                                "note": "入豆"
+                                    },
+                                    {
+                                                "timeS": 30,
+                                                "beanTemp": 125,
+                                                "ror": -28,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 60,
+                                                "beanTemp": 89,
+                                                "ror": -15,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 80,
+                                                "beanTemp": 79,
+                                                "ror": 0,
+                                                "note": "回溫點 (TP)"
+                                    },
+                                    {
+                                                "timeS": 120,
+                                                "beanTemp": 83,
+                                                "ror": 6.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 180,
+                                                "beanTemp": 92,
+                                                "ror": 9.0,
+                                                "note": "火力調高 85%"
+                                    },
+                                    {
+                                                "timeS": 240,
+                                                "beanTemp": 102,
+                                                "ror": 10.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 300,
+                                                "beanTemp": 115,
+                                                "ror": 13.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 360,
+                                                "beanTemp": 132,
+                                                "ror": 17.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 420,
+                                                "beanTemp": 149,
+                                                "ror": 17.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 450,
+                                                "beanTemp": 157,
+                                                "ror": 16.0,
+                                                "note": "轉黃點 (Ye)"
+                                    },
+                                    {
+                                                "timeS": 480,
+                                                "beanTemp": 165,
+                                                "ror": 16.0,
+                                                "note": "降火 75%"
+                                    },
+                                    {
+                                                "timeS": 540,
+                                                "beanTemp": 180,
+                                                "ror": 15.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 600,
+                                                "beanTemp": 195,
+                                                "ror": 15.0,
+                                                "note": "降火 65%"
+                                    },
+                                    {
+                                                "timeS": 650,
+                                                "beanTemp": 205,
+                                                "ror": 12.0,
+                                                "note": "一爆開始 (FC)"
+                                    },
+                                    {
+                                                "timeS": 660,
+                                                "beanTemp": 208,
+                                                "ror": 18.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 690,
+                                                "beanTemp": 214,
+                                                "ror": 12.0,
+                                                "note": "下豆冷卻 (Drop)"
+                                    }
+                        ],
+                        "timelineActions": [
+                                    {
+                                                "time": "00:00",
+                                                "temp": 174,
+                                                "burner": "火力 80%",
+                                                "damper": "風門 3cm",
+                                                "note": "入豆溫 174C，初始火力 80%"
+                                    },
+                                    {
+                                                "time": "01:20",
+                                                "temp": 79,
+                                                "burner": "火力 80%",
+                                                "damper": "風門 3cm",
+                                                "note": "回溫點，忘記在回溫點後調火，升溫極慢"
+                                    },
+                                    {
+                                                "time": "02:45",
+                                                "temp": 90,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "開大火力至 85%"
+                                    },
+                                    {
+                                                "time": "07:30",
+                                                "temp": 157,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "轉黃點完成脫水"
+                                    },
+                                    {
+                                                "time": "08:00",
+                                                "temp": 165,
+                                                "burner": "火力 75%",
+                                                "damper": "風門 3cm",
+                                                "note": "降火至 75%"
+                                    },
+                                    {
+                                                "time": "10:00",
+                                                "temp": 195,
+                                                "burner": "火力 65%",
+                                                "damper": "風門 3cm",
+                                                "note": "降火至 65%"
+                                    },
+                                    {
+                                                "time": "10:50",
+                                                "temp": 205,
+                                                "burner": "火力 65%",
+                                                "damper": "風門 3cm",
+                                                "note": "遲到的一爆響起"
+                                    },
+                                    {
+                                                "time": "11:30",
+                                                "temp": 214,
+                                                "burner": "關火",
+                                                "damper": "風門 70%",
+                                                "note": "下豆冷卻，發展期 40 秒，總時間長達 11m 30s"
+                                    }
+                        ]
+            },
+            {
+                        "id": "roast_tank200_gesha_5",
+                        "beanName": "衣索比亞 古吉 藝伎 G1 水洗 #5 (Guji Gesha G1 Washed #5)",
+                        "origin": "衣索比亞",
+                        "machine": "Tank-200",
+                        "roastDate": "2026-05-10",
+                        "roastLevel": "淺焙",
+                        "chargeMassG": 194,
+                        "dropMassG": 172.1,
+                        "chargeTemp": 170,
+                        "tpTemp": 90,
+                        "tpTime": "01:15",
+                        "fcTemp": 208,
+                        "fcTime": "07:42",
+                        "dropTemp": 216,
+                        "dropTime": "08:23",
+                        "dtrRatio": "8.2%",
+                        "lossRatio": "11.3%",
+                        "rorDatapoints": [
+                                    {
+                                                "timeS": 0,
+                                                "beanTemp": 170,
+                                                "ror": 0,
+                                                "note": "入豆"
+                                    },
+                                    {
+                                                "timeS": 30,
+                                                "beanTemp": 128,
+                                                "ror": -26,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 60,
+                                                "beanTemp": 98,
+                                                "ror": -10,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 75,
+                                                "beanTemp": 90,
+                                                "ror": 0,
+                                                "note": "回溫點 (TP)"
+                                    },
+                                    {
+                                                "timeS": 120,
+                                                "beanTemp": 103,
+                                                "ror": 17.3,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 180,
+                                                "beanTemp": 126,
+                                                "ror": 23.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 240,
+                                                "beanTemp": 146,
+                                                "ror": 20.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 267,
+                                                "beanTemp": 155,
+                                                "ror": 20.0,
+                                                "note": "轉黃點 (Ye)"
+                                    },
+                                    {
+                                                "timeS": 300,
+                                                "beanTemp": 165,
+                                                "ror": 18.2,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 360,
+                                                "beanTemp": 182,
+                                                "ror": 17.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 420,
+                                                "beanTemp": 197,
+                                                "ror": 15.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 462,
+                                                "beanTemp": 208,
+                                                "ror": 15.7,
+                                                "note": "一爆開始 (FC)"
+                                    },
+                                    {
+                                                "timeS": 480,
+                                                "beanTemp": 211,
+                                                "ror": 10.0,
+                                                "note": ""
+                                    },
+                                    {
+                                                "timeS": 503,
+                                                "beanTemp": 216,
+                                                "ror": 13.0,
+                                                "note": "下豆冷卻 (Drop)"
+                                    }
+                        ],
+                        "timelineActions": [
+                                    {
+                                                "time": "00:00",
+                                                "temp": 170,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "入豆溫 170C，初始火力 85%"
+                                    },
+                                    {
+                                                "time": "01:15",
+                                                "temp": 90,
+                                                "burner": "火力 85%",
+                                                "damper": "風門 3cm",
+                                                "note": "回溫點成立"
+                                    },
+                                    {
+                                                "time": "04:27",
+                                                "temp": 155,
+                                                "burner": "火力 75%",
+                                                "damper": "風門 3cm",
+                                                "note": "轉黃點完成脫水，降火至 75%"
+                                    },
+                                    {
+                                                "time": "07:42",
+                                                "temp": 208,
+                                                "burner": "火力 72%",
+                                                "damper": "風門 3cm",
+                                                "note": "一爆響起，降火至 72%"
+                                    },
+                                    {
+                                                "time": "08:23",
+                                                "temp": 216,
+                                                "burner": "關火",
+                                                "damper": "風門 70%",
+                                                "note": "下豆冷卻，發展期 41 秒"
+                                    }
+                        ]
+            }
+,
+
             {
                 id: "roast_001",
                 beanName: "巴拿馬 波奎特 藝伎 (Panama Boquete Gesha)",
