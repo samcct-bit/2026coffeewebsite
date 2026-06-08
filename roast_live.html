@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金成淬 · 職人即時烘焙記錄系統 | REAL-TIME ROAST LOG</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'obsidian': '#0c0c0e',     /* 極致曜石黑 */
+                        'coffee-deep': '#16100c',  /* 深邃琥珀褐 */
+                        'ivory': '#fcfaf7',        /* 古董象牙白 */
+                        'brass-gold': '#c49a6c',   /* 匠人古銅金 */
+                        'refined-gold': '#d4af37',  /* 淬煉純金 */
+                        'charcoal': '#1a1a1f'      /* 次級灰黑 */
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                        outfit: ['"Outfit"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0c0c0e;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(34, 22, 17, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(196, 154, 108, 0.03) 0%, transparent 35%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel {
+            background: rgba(26, 26, 31, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .glass-card {
+            background: rgba(22, 16, 12, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(196, 154, 108, 0.08);
+        }
+
+        /* 隱藏滾動條但保持滾動 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0c0c0e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1c1816;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c49a6c;
+        }
+    </style>
+</head>
+<body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
+
+    <!-- 密碼保護遮罩 (Premium Black & Gold Theme) -->
+    <div id="password-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0c0c0e] text-white font-sans">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-[#c49a6c]/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="glass-panel p-8 md:p-10 rounded-2xl max-w-sm w-full mx-4 text-center relative z-10 border border-[#c49a6c]/20 shadow-[0_0_50px_rgba(0,0,0,0.8)]" style="background: rgba(26, 26, 31, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+            <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-[#c49a6c]/10 border border-[#c49a6c]/30 flex items-center justify-center text-brass-gold text-2xl font-serif">
+                🔒
+            </div>
+            <h3 class="text-xl font-serif font-bold text-white mb-2 tracking-widest">金成淬 · 烘焙紀錄系統</h3>
+            <p class="text-xs text-gray-400 font-serif mb-6 tracking-wide">本系統受密碼保護，請輸入存取密碼</p>
+            <form onsubmit="verifyPassword(event)" class="space-y-4">
+                <input 
+                    type="password" 
+                    id="password-input" 
+                    placeholder="請輸入進入密碼..." 
+                    class="w-full bg-black/40 border border-white/10 focus:border-[#c49a6c] rounded-xl px-4 py-3 text-sm text-center text-white placeholder-gray-600 focus:outline-none transition-colors font-mono tracking-widest"
+                >
+                <button 
+                    type="submit" 
+                    class="w-full bg-[#c49a6c] hover:bg-[#d4af37] text-[#0c0c0e] text-xs font-serif font-bold py-3 px-6 rounded-xl tracking-[0.2em] uppercase transition-colors duration-300"
+                >
+                    驗證進入
+                </button>
+            </form>
+            <p id="password-error" class="text-red-500 text-[10px] mt-3 hidden font-serif">⚠️ 密碼錯誤，請重新輸入！</p>
+            <a href="./index.html" class="block text-gray-500 hover:text-white text-[10px] tracking-wider mt-6 font-serif transition-colors">
+                ← 返回首頁
+            </a>
+        </div>
+    </div>
+    <script>
+        function verifyPassword(event) {
+            event.preventDefault();
+            const input = document.getElementById("password-input").value;
+            if (input === "Samcct6744") {
+                sessionStorage.setItem("roast_db_auth", "true");
+                document.getElementById("password-overlay").style.display = "none";
+            } else {
+                document.getElementById("password-error").classList.remove("hidden");
+                document.getElementById("password-input").value = "";
+                document.getElementById("password-input").focus();
+            }
+        }
+        if (sessionStorage.getItem("roast_db_auth") === "true") {
+            document.write('<style>#password-overlay { display: none !important; }</style>');
+        }
+    </script>
+
+    <!-- 1. 頂部導航 -->
+    <header class="w-full border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center z-10 glass-panel sticky top-0">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-white/95 p-0.5 mix-blend-multiply grayscale">
+                <img src="./logo/7204.png" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <div>
+                <span class="block text-[8px] md:text-[10px] tracking-[0.4em] font-outfit text-brass-gold uppercase">SCA EXPERT SELECTION</span>
+                <h1 class="text-base md:text-lg font-serif font-bold text-white tracking-widest">金成淬 · 職人即時烘焙記錄系統</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="cloud-status" class="bg-gray-500/10 border border-white/5 text-gray-400 text-[9px] tracking-widest px-2.5 py-1 rounded-full font-serif">
+                ⏳ 雲端同步中...
+            </span>
+            <a href="./roast_db.html" class="bg-[#c49a6c]/10 hover:bg-[#c49a6c]/20 text-[#c49a6c] border border-[#c49a6c]/20 text-xs px-4 py-2 rounded-xl transition-all font-serif font-bold tracking-wider">
+                📁 烘焙日誌資料庫
+            </a>
+            <a href="./index.html" class="text-gray-400 hover:text-brass-gold transition-colors text-xs font-serif tracking-widest">
+                ← 返回入口平台首頁
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. 主版面 -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 md:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- 左欄：輸入表單與網格 (col-6) -->
+        <section class="lg:col-span-6 flex flex-col gap-6">
+            <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-xl relative" id="form-container">
+                <h3 class="text-white font-serif font-bold text-lg tracking-widest mb-6 border-b border-white/5 pb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    記錄全新批次烘焙
+                </h3>
+
+                <form id="add-roast-form" class="space-y-6" onsubmit="addRoastRecord(event)">
+                    <!-- 基本資料行 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">生豆名稱 *</label>
+                            <input type="text" id="form-bean" required placeholder="如：肯亞 尼亞里" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">產區 *</label>
+                            <input type="text" id="form-origin" required placeholder="如：肯亞" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">烘豆設備 *</label>
+                            <input type="text" id="form-machine" required placeholder="如：Giesen W6A" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">烘焙日期 *</label>
+                            <input type="date" id="form-date" required class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                    </div>
+
+                    <!-- 物理重量與溫度時間節點 -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 border-t border-white/5 pt-4">
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">入豆克數 (g)</label>
+                            <input type="number" id="form-input-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="1000" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">出豆克數 (g)</label>
+                            <input type="number" id="form-output-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="880" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">入豆溫 (°C)</label>
+                            <input type="number" id="form-charge-temp" placeholder="200" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">一爆溫 (°C)</label>
+                            <input type="number" id="form-fc-temp" placeholder="185" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">出豆溫 (°C)</label>
+                            <input type="number" id="form-drop-temp" placeholder="193" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">烘焙度</label>
+                            <select id="form-roast" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold" onchange="liveUpdateChartPreview()">
+                                <option value="淺焙">淺焙</option>
+                                <option value="極淺焙">極淺焙</option>
+                                <option value="中淺焙">中淺焙</option>
+                                <option value="中焙">中焙</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 計算節點時間 (以計算 DTR) -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 border-t border-white/5 pt-4">
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">回溫時間 (分:秒)</label>
+                            <input type="text" id="form-tp-time" placeholder="01:20" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold" oninput="liveUpdateChartPreview()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">一爆開始 (分:秒) *</label>
+                            <input type="text" id="form-fc-time" oninput="autoCalculate(); liveUpdateChartPreview();" required placeholder="08:10" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-brass-gold tracking-widest mb-2 uppercase">總烘焙時間 (分:秒) *</label>
+                            <input type="text" id="form-drop-time" oninput="autoCalculate(); liveUpdateChartPreview();" required placeholder="09:35" class="w-full bg-charcoal text-white text-xs border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold">
+                        </div>
+                    </div>
+
+                    <!-- 1. 即時 ROR 輸入觀測網格 -->
+                    <div class="border-t border-white/5 pt-6 space-y-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <div>
+                                <h4 class="text-brass-gold font-serif font-bold text-xs tracking-widest uppercase">📊 ROR 即時升溫率觀測網格</h4>
+                                <p class="text-[9px] text-gray-500 mt-0.5">每 30 秒或每分鐘輸入一次豆溫，系統將自動演算 ROR 並即時重新渲染右側圖表！</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="loadMozartTemplate()" class="bg-brass-gold/10 hover:bg-brass-gold/25 text-brass-gold border border-brass-gold/20 text-[10px] px-3 py-1.5 rounded-lg transition-colors font-serif">
+                                    📦 經典莫札特範本
+                                </button>
+                                <button type="button" onclick="clearGrid()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[10px] px-3 py-1.5 rounded-lg transition-colors font-serif">
+                                    🧹 清空網格
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto rounded-xl border border-white/5 bg-black/25">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="border-b border-white/5 bg-white/5 text-brass-gold">
+                                        <th class="p-3 font-semibold w-1/4">計時 (分:秒)</th>
+                                        <th class="p-3 font-semibold w-1/4">豆溫 BT (°C)</th>
+                                        <th class="p-3 font-semibold w-1/4">升溫率 ROR</th>
+                                        <th class="p-3 font-semibold w-1/4">風火操作/備註說明</th>
+                                        <th class="p-3 font-semibold text-center w-12">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ror-grid-body">
+                                    <!-- 動態新增行，見 JavaScript 處理 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <button type="button" onclick="addGridRow('', '', '')" class="w-full bg-charcoal hover:bg-brass-gold/10 text-gray-300 hover:text-brass-gold border border-white/10 border-dashed py-2 rounded-xl text-xs font-serif tracking-widest transition-all">
+                            ➕ 新增烘焙觀測點 (BT/ROR)
+                        </button>
+                    </div>
+
+                    <!-- 提交按鈕 -->
+                    <div class="border-t border-white/5 pt-6">
+                        <button 
+                            type="submit" 
+                            id="submit-btn"
+                            class="w-full bg-brass-gold hover:bg-refined-gold text-obsidian font-serif font-bold text-xs tracking-widest py-3.5 px-6 rounded-xl uppercase transition-colors"
+                        >
+                            💾 儲存並同步至雲端資料庫
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+
+        <!-- 右欄：圖表即時預覽 (col-6) -->
+        <section class="lg:col-span-6 flex flex-col gap-6">
+            <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl relative sticky top-[90px]" id="preview-container">
+                <div class="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20"></div>
+                
+                <h3 class="text-white font-serif font-bold text-lg tracking-widest mb-6 border-b border-white/5 pb-4 flex items-center gap-2">
+                    📈 即時烘焙曲線預覽 (Real-time Preview)
+                </h3>
+
+                <!-- 雙軸 ROR 圖表容器 -->
+                <div class="relative w-full h-[350px] bg-black/45 rounded-2xl p-4 border border-white/5 mb-6">
+                    <canvas id="rorChart"></canvas>
+                </div>
+
+                <!-- 儀表板計算結果 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-black/35 rounded-xl p-4 border border-white/5 text-center">
+                        <span class="block text-[10px] text-brass-gold tracking-widest uppercase mb-1">發展比例 (DTR)</span>
+                        <span class="block text-xl font-serif font-bold text-white" id="form-calc-dtr">0.0%</span>
+                    </div>
+                    <div class="bg-black/35 rounded-xl p-4 border border-white/5 text-center">
+                        <span class="block text-[10px] text-brass-gold tracking-widest uppercase mb-1">失重比 (Loss Ratio)</span>
+                        <span class="block text-xl font-serif font-bold text-white" id="form-calc-loss">0.0%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-[#08080a] py-8 border-t border-white/5 text-center mt-12">
+        <p class="text-gray-500 text-[10px] tracking-widest font-sans uppercase">© 2026 金成淬精品咖啡工作室. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <!-- Firebase SDK & 核心邏輯 -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
+        import { getFirestore, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
+            authDomain: "my-teaching-tools-01.firebaseapp.com",
+            projectId: "my-teaching-tools-01",
+            storageBucket: "my-teaching-tools-01.firebasestorage.app",
+            messagingSenderId: "552535919921",
+            appId: "1:552535919921:web:95b4c1288edbae9572b410"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let rorChartInstance = null;
+
+        // 1. 初始化頁面
+        document.addEventListener("DOMContentLoaded", () => {
+            // 設定日期預設為今日
+            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+            
+            // 監聽網格動態輸入
+            const gridBody = document.getElementById("ror-grid-body");
+            gridBody.addEventListener("input", () => {
+                autoCalculate();
+                liveUpdateChartPreview();
+            });
+
+            // 初始化空白觀測點
+            initializeEmptyGrid();
+
+            // 更新雲端連線狀態燈號
+            const statusBadge = document.getElementById("cloud-status");
+            if (statusBadge) {
+                statusBadge.innerText = "🟢 雲端已連線 (my-teaching-tools-01)";
+                statusBadge.className = "bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] tracking-widest px-2.5 py-1 rounded-full font-serif";
+            }
+        });
+
+        // 2. 表單自動演算
+        function timeToSeconds(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(":");
+            if (parts.length === 2) {
+                return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            }
+            return parseFloat(timeStr) * 60;
+        }
+
+        function autoCalculate() {
+            const inputMass = parseFloat(document.getElementById("form-input-mass").value);
+            const outputMass = parseFloat(document.getElementById("form-output-mass").value);
+            const fcTimeStr = document.getElementById("form-fc-time").value;
+            const dropTimeStr = document.getElementById("form-drop-time").value;
+
+            // 計算失重比
+            let lossRatioStr = "0.0%";
+            if (!isNaN(inputMass) && !isNaN(outputMass) && inputMass > 0) {
+                const loss = ((inputMass - outputMass) / inputMass) * 100;
+                lossRatioStr = `${loss.toFixed(1)}%`;
+            }
+            document.getElementById("form-calc-loss").innerText = lossRatioStr;
+
+            // 計算 DTR
+            let dtrStr = "0.0%";
+            const fcS = timeToSeconds(fcTimeStr);
+            const dropS = timeToSeconds(dropTimeStr);
+
+            if (fcS > 0 && dropS > fcS) {
+                const devTime = dropS - fcS;
+                const dtr = (devTime / dropS) * 100;
+                dtrStr = `${dtr.toFixed(1)}%`;
+            }
+            document.getElementById("form-calc-dtr").innerText = dtrStr;
+        }
+
+        // 3. ROR 網格輸入邏輯
+        function initializeEmptyGrid() {
+            const defaultTimes = ["00:00", "00:30", "01:00", "01:30", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "09:30"];
+            const gridBody = document.getElementById("ror-grid-body");
+            gridBody.innerHTML = "";
+            
+            defaultTimes.forEach((t, i) => {
+                let note = "";
+                if (i === 0) note = "入豆溫";
+                if (t === "01:30") note = "回溫點成立";
+                if (t === "06:00") note = "轉黃點完成脫水";
+                if (t === "08:00") note = "一爆開始";
+                if (t === "09:30") note = "出豆冷卻";
+                addGridRow(t, "", note);
+            });
+            liveUpdateChartPreview();
+        }
+
+        function addGridRow(timeStr = "", tempVal = "", noteVal = "") {
+            const gridBody = document.getElementById("ror-grid-body");
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-white/5 hover:bg-white/5 transition-colors";
+            
+            tr.innerHTML = `
+                <td class="p-2">
+                    <input type="text" class="grid-time w-full bg-charcoal text-white text-xs rounded px-2 py-1 focus:outline-none border border-white/5 focus:border-brass-gold font-mono" placeholder="如 01:30" value="${timeStr}">
+                </td>
+                <td class="p-2">
+                    <input type="number" step="0.1" class="grid-temp w-full bg-charcoal text-white text-xs rounded px-2 py-1 focus:outline-none border border-white/5 focus:border-brass-gold font-mono" placeholder="溫度 °C" value="${tempVal}">
+                </td>
+                <td class="p-2">
+                    <input type="text" class="grid-ror w-full bg-black/40 text-gray-500 text-xs rounded px-2 py-1 border border-white/5 cursor-not-allowed font-mono text-center font-bold" readonly value="--">
+                </td>
+                <td class="p-2">
+                    <input type="text" class="grid-note w-full bg-charcoal text-white text-xs rounded px-2 py-1 focus:outline-none border border-white/5 focus:border-brass-gold font-serif" placeholder="風火變更或註記" value="${noteVal}">
+                </td>
+                <td class="p-2 text-center">
+                    <button type="button" onclick="deleteGridRow(this)" class="text-red-500 hover:text-red-400 font-serif font-bold text-xs p-1">❌</button>
+                </td>
+            `;
+            gridBody.appendChild(tr);
+            recalculateGrid();
+        }
+
+        function deleteGridRow(btn) {
+            btn.closest("tr").remove();
+            recalculateGrid();
+            liveUpdateChartPreview();
+        }
+
+        function clearGrid() {
+            document.getElementById("ror-grid-body").innerHTML = "";
+            liveUpdateChartPreview();
+        }
+
+        function recalculateGrid() {
+            const rows = document.querySelectorAll("#ror-grid-body tr");
+            const datapoints = [];
+            
+            let prevTime = null;
+            let prevTemp = null;
+            
+            rows.forEach((row, index) => {
+                const timeInput = row.querySelector(".grid-time");
+                const tempInput = row.querySelector(".grid-temp");
+                const rorDisplay = row.querySelector(".grid-ror");
+                const noteInput = row.querySelector(".grid-note");
+                
+                if (!timeInput || !tempInput) return;
+
+                const timeStr = timeInput.value.trim();
+                const tempVal = parseFloat(tempInput.value);
+                const noteVal = noteInput.value.trim();
+                
+                if (!timeStr) return;
+                
+                const currSeconds = timeToSeconds(timeStr);
+                
+                let ror = 0;
+                if (index > 0 && !isNaN(tempVal) && prevTime !== null && prevTemp !== null) {
+                    const dt = currSeconds - prevTime;
+                    const dbt = tempVal - prevTemp;
+                    if (dt > 0) {
+                        ror = parseFloat(((dbt / dt) * 60).toFixed(1));
+                    }
+                }
+                
+                if (!isNaN(tempVal)) {
+                    if (index === 0) {
+                        rorDisplay.value = "0.0 (入豆)";
+                    } else {
+                        rorDisplay.value = ror.toFixed(1);
+                    }
+                    datapoints.push({
+                        timeS: currSeconds,
+                        beanTemp: tempVal,
+                        ror: index === 0 ? 0 : ror,
+                        note: noteVal,
+                        timeStr: timeStr
+                    });
+                    
+                    prevTime = currSeconds;
+                    prevTemp = tempVal;
+                } else {
+                    rorDisplay.value = "--";
+                }
+            });
+            
+            return datapoints;
+        }
+
+        // 4. 即時更新 ROR 預覽圖表
+        function liveUpdateChartPreview() {
+            const pts = recalculateGrid();
+            if (pts.length === 0) return;
+
+            const previewRec = {
+                beanName: document.getElementById("form-bean").value || "即時輸入預覽",
+                origin: document.getElementById("form-origin").value || "產區",
+                machine: document.getElementById("form-machine").value || "設備",
+                roastDate: document.getElementById("form-date").value || "",
+                roastLevel: document.getElementById("form-roast").value,
+                rorDatapoints: pts
+            };
+
+            drawRORChart(previewRec);
+        }
+
+        // 5. 繪圖引擎
+        function drawRORChart(record) {
+            const ctx = document.getElementById('rorChart').getContext('2d');
+            
+            if (rorChartInstance) {
+                rorChartInstance.destroy();
+            }
+
+            const labels = record.rorDatapoints.map(dp => {
+                if (dp.timeStr) return dp.timeStr;
+                const min = Math.floor(dp.timeS / 60);
+                const sec = dp.timeS % 60;
+                return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            });
+            const tempValues = record.rorDatapoints.map(dp => dp.beanTemp);
+            const rorValues = record.rorDatapoints.map(dp => dp.ror);
+
+            rorChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '豆溫 (Bean Temp °C)',
+                            data: tempValues,
+                            borderColor: '#c49a6c',
+                            backgroundColor: 'rgba(196, 154, 108, 0.05)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#c49a6c',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.35,
+                            yAxisID: 'yTemp'
+                        },
+                        {
+                            label: '升溫率 (ROR °C/min)',
+                            data: rorValues,
+                            borderColor: '#8d7daf',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#8d7daf',
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            tension: 0.3,
+                            yAxisID: 'yRor'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                            ticks: { color: '#888', font: { family: 'Outfit' } }
+                        },
+                        yTemp: {
+                            type: 'linear',
+                            position: 'left',
+                            min: 50,
+                            max: 230,
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            ticks: { color: '#c49a6c', font: { family: 'Outfit' } },
+                            title: { display: true, text: '豆溫 BT (°C)', color: '#c49a6c', font: { family: 'Noto Serif TC' } }
+                        },
+                        yRor: {
+                            type: 'linear',
+                            position: 'right',
+                            min: -30,
+                            max: 40,
+                            grid: { display: false },
+                            ticks: { color: '#9b8db3', font: { family: 'Outfit' } },
+                            title: { display: true, text: '升溫率 ROR (°C/min)', color: '#9b8db3', font: { family: 'Noto Serif TC' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ccc', font: { family: 'Noto Sans TC', size: 10 } }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#16100c',
+                            borderColor: '#c49a6c',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#ccc',
+                            titleFont: { family: 'Outfit' },
+                            bodyFont: { family: 'Noto Sans TC' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 6. 載入經典莫札特範本
+        function loadMozartTemplate() {
+            document.getElementById("form-bean").value = "哥斯大黎加 音樂家系列 莫札特 (Musician Mozart Batch 4)";
+            document.getElementById("form-origin").value = "哥斯大黎加";
+            document.getElementById("form-machine").value = "Tank-200";
+            document.getElementById("form-input-mass").value = 250;
+            document.getElementById("form-output-mass").value = 221.5;
+            document.getElementById("form-charge-temp").value = 175;
+            document.getElementById("form-fc-temp").value = 175.7;
+            document.getElementById("form-drop-temp").value = 181.3;
+            document.getElementById("form-tp-time").value = "01:30";
+            document.getElementById("form-fc-time").value = "08:49";
+            document.getElementById("form-drop-time").value = "09:30";
+            document.getElementById("form-roast").value = "淺焙";
+
+            const templatePoints = [
+                { time: "00:00", temp: "175.0", note: "入豆溫 (火力 1.2, 風門 2.5)" },
+                { time: "00:30", temp: "140.0", note: "" },
+                { time: "01:00", temp: "122.0", note: "" },
+                { time: "01:30", temp: "116.9", note: "回溫點成立 (火力 1.2 維持)" },
+                { time: "02:00", temp: "123.0", note: "" },
+                { time: "03:00", temp: "135.0", note: "" },
+                { time: "04:00", temp: "148.0", note: "梅納反應加速" },
+                { time: "04:22", temp: "150.0", note: "轉黃點完成脫水" },
+                { time: "05:00", temp: "156.0", note: "" },
+                { time: "06:00", temp: "163.5", note: "降火力至 1.0 預防一爆前暴衝" },
+                { time: "07:00", temp: "169.0", note: "" },
+                { time: "08:00", temp: "172.5", note: "" },
+                { time: "08:49", temp: "175.7", note: "一爆響起 (火力降至 0.9, 風門全開)" },
+                { time: "09:30", temp: "181.3", note: "發展期 41秒 盲飛精準下豆 (DTR 14.5%)" }
+            ];
+
+            const gridBody = document.getElementById("ror-grid-body");
+            gridBody.innerHTML = "";
+            templatePoints.forEach(p => {
+                addGridRow(p.time, p.temp, p.note);
+            });
+
+            autoCalculate();
+            liveUpdateChartPreview();
+        }
+
+        // 7. 新增一筆烘焙紀錄並儲存至 Firestore
+        async function addRoastRecord(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById("submit-btn");
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = "⏳ 正在同步同步至雲端資料庫...";
+            submitBtn.disabled = true;
+
+            const beanName = document.getElementById("form-bean").value;
+            const origin = document.getElementById("form-origin").value;
+            const machine = document.getElementById("form-machine").value;
+            const date = document.getElementById("form-date").value;
+            const inputMass = parseFloat(document.getElementById("form-input-mass").value) || 1000;
+            const outputMass = parseFloat(document.getElementById("form-output-mass").value) || 880;
+            const chargeTemp = parseFloat(document.getElementById("form-charge-temp").value) || 200;
+            const fcTemp = parseFloat(document.getElementById("form-fc-temp").value) || 185;
+            const dropTemp = parseFloat(document.getElementById("form-drop-temp").value) || 193;
+            const roastLevel = document.getElementById("form-roast").value;
+            const tpTime = document.getElementById("form-tp-time").value || "01:20";
+            const fcTime = document.getElementById("form-fc-time").value;
+            const dropTime = document.getElementById("form-drop-time").value;
+
+            const pts = recalculateGrid();
+            if (pts.length === 0) {
+                alert("請至少輸入一個烘焙觀測溫度節點！");
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            const fcS = timeToSeconds(fcTime);
+            const dropS = timeToSeconds(dropTime);
+            const dtr = ((dropS - fcS) / dropS) * 100;
+            const loss = ((inputMass - outputMass) / inputMass) * 100;
+
+            const newId = `roast_${Date.now()}`;
+
+            // 自動提取 timeline 操作細節
+            const timelineActions = pts
+                .filter(pt => pt.note !== "")
+                .map(pt => {
+                    let burner = "自訂火力";
+                    let damper = "風門";
+                    
+                    const burnerMatch = pt.note.match(/(?:火力|火)\s*([a-zA-Z0-9.%+-]+)/);
+                    if (burnerMatch) burner = "火力 " + burnerMatch[1];
+                    const damperMatch = pt.note.match(/(?:風門|風)\s*([a-zA-Z0-9.%+-]+)/);
+                    if (damperMatch) damper = "風門 " + damperMatch[1];
+
+                    return {
+                        time: pt.timeStr,
+                        temp: pt.beanTemp,
+                        burner: burner,
+                        damper: damper,
+                        note: pt.note
+                    };
+                });
+
+            if (timelineActions.length === 0) {
+                timelineActions.push(
+                    { time: "00:00", temp: chargeTemp, burner: "預設高火力", damper: "低風門", note: "入豆初始配置" },
+                    { time: tpTime, temp: pts.find(p => p.timeStr === tpTime)?.beanTemp || 96, burner: "全火力輸出", damper: "對流風門", note: "通過回溫點，脫水階段開啟" },
+                    { time: fcTime, temp: fcTemp, burner: "火力微調調降", damper: "風門全開", note: "一爆開始，排走煙塵，防溫升過陡" }
+                );
+            }
+
+            const newRecord = {
+                id: newId,
+                beanName: beanName,
+                origin: origin,
+                machine: machine,
+                roastDate: date,
+                roastLevel: roastLevel,
+                chargeMassG: inputMass,
+                dropMassG: outputMass,
+                chargeTemp: chargeTemp,
+                tpTemp: pts.find(p => p.timeStr === tpTime)?.beanTemp || 96,
+                tpTime: tpTime,
+                fcTemp: fcTemp,
+                fcTime: fcTime,
+                dropTemp: dropTemp,
+                dropTime: dropTime,
+                dtrRatio: `${dtr.toFixed(1)}%`,
+                lossRatio: `${loss.toFixed(1)}%`,
+                rorDatapointsJson: JSON.stringify(pts),
+                timelineActionsJson: JSON.stringify(timelineActions)
+            };
+
+            try {
+                // 直接儲存至 Firestore
+                await setDoc(doc(db, "coffee_roasts", newId), newRecord);
+                alert("🟢 烘焙紀錄成功儲存至雲端！將為您跳轉回烘焙日誌資料庫。");
+                window.location.href = "./roast_db.html";
+            } catch (err) {
+                console.error("[-] 寫入雲端資料庫失敗:", err);
+                alert("🔴 雲端寫入失敗！請檢查網路連線或稍後再試。" + err.message);
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 綁定全域函式至 window 以利 HTML 事件觸電
+        window.loadMozartTemplate = loadMozartTemplate;
+        window.clearGrid = clearGrid;
+        window.addGridRow = addGridRow;
+        window.deleteGridRow = deleteGridRow;
+        window.addRoastRecord = addRoastRecord;
+        window.liveUpdateChartPreview = liveUpdateChartPreview;
+        window.autoCalculate = autoCalculate;
+    </script>
+</body>
+</html>
