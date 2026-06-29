@@ -297,13 +297,13 @@
                 roastLevel: "中淺焙",
                 lossRatio: "11.6%",
                 dtrRatio: "4.2%",
-                flavorTop: "狂野玫瑰花香、蜜桃哈密瓜幽香",
-                flavorMid: "熟甜果汁蜜糖、紅酒氣泡膠響",
-                flavorBase: "楓糖與太妃糖甜感、細緻黑可可尾韻",
-                storyCopy: "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了玫瑰花的幽香與深邃的熟果甜感，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。",
+                flavorTop: "狂野玫瑰、香瓜幽香",
+                flavorMid: "熟甜香瓜、紅酒交響",
+                flavorBase: "絲滑奶油、楓糖甘甜",
+                storyCopy: "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。",
                 brewTemp: "89°C - 91°C",
                 brewMethod: "中偏粗研磨 / V60 濾杯 / 四六法注水",
-                brewGuideNote: "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與哈密瓜香氣，中段帶出楓糖甘醇。"
+                brewGuideNote: "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"
             },
             {
                 id: "roast_margarita_0628",
@@ -388,20 +388,16 @@
 
             // Gem 智慧備援推導 (若內容為通用備援字樣，強制作業更新為專屬 Gem 風味)
             if (bName.includes("蕭邦") || bName.includes("Chopin")) {
-                rec.process = (!rec.process || rec.process.includes("微批次")) ? "雙重厭氧蜜處理 (Raisin Honey)" : rec.process;
-                rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1850m" : rec.altitude;
-                rec.variety = (!rec.variety || rec.variety.includes("精品品種")) ? "卡杜拉 / 卡杜艾" : rec.variety;
-                if (isGenericFlavor) {
-                    rec.flavorTop = "狂野玫瑰花香、蜜桃哈密瓜幽香";
-                    rec.flavorMid = "熟甜果汁蜜糖、紅酒氣泡膠響";
-                    rec.flavorBase = "楓糖與太妃糖甜感、細緻黑可可尾韻";
-                }
-                if (isGenericStory) {
-                    rec.storyCopy = "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了玫瑰花的幽香與深邃的熟果甜感，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
-                    rec.brewTemp = "89°C - 91°C";
-                    rec.brewMethod = "中偏粗研磨 / V60 濾杯 / 四六法注水";
-                    rec.brewGuideNote = "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與哈密瓜香氣，中段帶出楓糖甘醇。";
-                }
+                rec.process = "雙重厭氧蜜處理 (Raisin Honey)";
+                rec.altitude = "1850m";
+                rec.variety = "卡杜拉 / 卡杜艾";
+                rec.flavorTop = "狂野玫瑰、香瓜幽香";
+                rec.flavorMid = "熟甜香瓜、紅酒交響";
+                rec.flavorBase = "絲滑奶油、楓糖甘甜";
+                rec.storyCopy = "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
+                rec.brewTemp = "89°C - 91°C";
+                rec.brewMethod = "中偏粗研磨 / V60 濾杯 / 四六法注水";
+                rec.brewGuideNote = "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。";
             } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                 rec.process = (!rec.process || rec.process.includes("微批次")) ? "草莓厭氧蜜處理" : rec.process;
                 rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1750m" : rec.altitude;

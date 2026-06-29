@@ -414,7 +414,7 @@
                 variety: '卡杜拉 / 卡杜艾',
                 altitude: '1850m',
                 roastDate: '2026.06.29',
-                flavors: ['狂野玫瑰花香、蜜桃哈密瓜幽香', '熟甜果汁蜜糖、紅酒氣泡膠響', '楓糖與太妃糖甜感、細緻黑可可尾韻'],
+                flavors: ['狂野玫瑰、香瓜幽香', '熟甜香瓜、紅酒交響', '絲滑奶油、楓糖甘甜'],
                 url: './bean.html?id=roast_chopin_0629',
                 featured: true
             },
@@ -884,14 +884,12 @@
                     const isGenericProcess = !process || process.includes("微批次") || process.includes("精選");
 
                     if (bName.includes("蕭邦") || bName.includes("Chopin")) {
-                        process = isGenericProcess ? "雙重厭氧蜜處理" : process;
-                        altitude = (!altitude || altitude.includes("高海拔")) ? "1850m" : altitude;
-                        variety = (!variety || variety.includes("精品品種")) ? "卡杜拉 / 卡杜艾" : variety;
-                        if (isGenericTop) {
-                            top = "狂野玫瑰花香、蜜桃哈密瓜幽香";
-                            mid = "熟甜果汁蜜糖、紅酒氣泡膠響";
-                            base = "楓糖與太妃糖甜感、細緻黑可可餘韻";
-                        }
+                        process = "雙重厭氧蜜處理";
+                        altitude = "1850m";
+                        variety = "卡杜拉 / 卡杜艾";
+                        top = "狂野玫瑰、香瓜幽香";
+                        mid = "熟甜香瓜、紅酒交響";
+                        base = "絲滑奶油、楓糖甘甜";
                     } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                         process = isGenericProcess ? "草莓厭氧蜜處理" : process;
                         altitude = (!altitude || altitude.includes("高海拔")) ? "1750m" : altitude;
