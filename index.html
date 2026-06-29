@@ -954,10 +954,20 @@
                 });
 
                 if (cloudRecords.length > 0) {
-                    // 將雲端動態資料與本地資料去重合併
-                    const cloudNames = new Set(cloudRecords.map(r => r.name.replace(/\s*\(.*?\)\s*/g, "").trim()));
-                    const filteredLocal = coffeeDatabase.filter(b => !cloudNames.has(b.name.replace(/\s*\(.*?\)\s*/g, "").trim()));
-                    coffeeDatabase = [...cloudRecords, ...filteredLocal];
+                    // 精準匹配更新本地微批次豆單，確保總數固定為十五款不跳動
+                    cloudRecords.forEach(cloudBean => {
+                        const cleanCloudKey = cloudBean.name.replace(/\s*\(.*?\)\s*/g, "").replace(/_/g, " ").trim();
+                        const target = coffeeDatabase.find(localBean => {
+                            const cleanLocalKey = localBean.name.replace(/\s*\(.*?\)\s*/g, "").replace(/_/g, " ").trim();
+                            return cleanLocalKey.includes(cleanCloudKey) || cleanCloudKey.includes(cleanLocalKey) || (localBean.id === cloudBean.id);
+                        });
+                        if (target) {
+                            target.url = cloudBean.url;
+                            if (cloudBean.roastDate) target.roastDate = cloudBean.roastDate;
+                            if (cloudBean.process && !cloudBean.process.includes("微批次")) target.process = cloudBean.process;
+                            if (cloudBean.flavors && cloudBean.flavors[0] && !cloudBean.flavors[0].includes("高雅花香")) target.flavors = cloudBean.flavors;
+                        }
+                    });
                     renderGrid();
                 }
             } catch (err) {
