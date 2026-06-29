@@ -356,8 +356,31 @@
                         record.id = docSnap.id;
                     }
                 } catch (e) {
-                    console.warn("Firestore fetch failed, checking fallback:", e);
+                    console.warn("Firestore direct fetch failed:", e);
                 }
+
+                // 若直抓失敗或為通用整合 ID (如 roast_003 / mozart)，自動對接雲端最新的同名紀錄達成 100% 統一
+                if (!record || beanId === 'roast_003' || beanId === 'mozart' || beanId === 'roast_margarita_0628') {
+                    try {
+                        const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
+                        const querySnap = await getDocs(q);
+                        let matched = null;
+                        querySnap.forEach(d => {
+                            if (matched) return;
+                            const bData = d.data();
+                            const bName = bData.beanName || "";
+                            if ((beanId.includes('003') || beanId.includes('mozart')) && (bName.includes('莫札特') || bName.includes('Mozart'))) {
+                                matched = { ...bData, id: d.id };
+                            } else if (beanId.includes('margarita') && (bName.includes('瑪格麗特') || bName.includes('草莓'))) {
+                                matched = { ...bData, id: d.id };
+                            }
+                        });
+                        if (matched) record = matched;
+                    } catch (e) {
+                        console.warn("Firestore smart unified search failed:", e);
+                    }
+                }
+
                 if (!record) {
                     record = fallbackDatabase.find(r => r.id === beanId);
                 }
