@@ -303,40 +303,45 @@
             <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden" id="dashboard-detail">
                 <div class="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20"></div>
                 
-                <!-- 豆款基本標題 -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/5 pb-4 mb-6 gap-4">
-                    <div>
+                <!-- 豆款基本標題與數據 -->
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-white/10 pb-4 mb-4 gap-4">
+                    <div class="min-w-0 flex-1">
                         <span class="bg-brass-gold/10 border border-brass-gold/20 text-brass-gold text-[10px] tracking-widest px-2.5 py-1 rounded-full font-serif" id="detail-origin-roast">巴拿馬 · 淺焙</span>
-                        <h2 class="text-2xl md:text-3xl font-serif font-bold text-white tracking-wider mt-2" id="detail-bean-name">巴拿馬 波奎特 藝伎 首烘實驗</h2>
-                        <p class="text-gray-500 font-serif text-xs uppercase mt-1 tracking-wider" id="detail-machine-date">烘豆機: Aillio Bullet R1 | 烘焙日期: 2026.05.22</p>
+                        <h2 class="text-xl md:text-3xl font-serif font-bold text-white tracking-wider mt-2 break-words leading-tight" id="detail-bean-name">巴拿馬 波奎特 藝伎 首烘實驗</h2>
+                        <p class="text-gray-500 font-serif text-xs uppercase mt-1.5 tracking-wider" id="detail-machine-date">烘豆機: Aillio Bullet R1 | 烘焙日期: 2026.05.22</p>
                     </div>
-                    <!-- 大圓儀：DTR & 失重比與操作按鈕 -->
-                    <div class="flex flex-wrap items-center gap-4 shrink-0">
-                        <div class="flex gap-3">
-                            <div class="bg-black/35 rounded-xl p-3 border border-white/5 text-center min-w-[80px]">
-                                <span class="block text-[8px] text-brass-gold tracking-widest uppercase">發展比例</span>
-                                <span class="block text-lg font-serif font-bold text-white" id="detail-dtr">14.5%</span>
-                            </div>
-                            <div class="bg-black/35 rounded-xl p-3 border border-white/5 text-center min-w-[80px]">
-                                <span class="block text-[8px] text-brass-gold tracking-widest uppercase">失重比</span>
-                                <span class="block text-lg font-serif font-bold text-white" id="detail-loss">11.2%</span>
-                            </div>
+                    <!-- 大圓儀：DTR & 失重比 -->
+                    <div class="flex gap-3 shrink-0 self-start lg:self-center">
+                        <div class="bg-black/35 rounded-xl p-3 border border-white/5 text-center min-w-[85px]">
+                            <span class="block text-[8px] text-brass-gold tracking-widest uppercase">發展比例</span>
+                            <span class="block text-base md:text-lg font-serif font-bold text-white" id="detail-dtr">14.5%</span>
                         </div>
-                        <!-- 數據操作按鈕組 -->
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="openBeanPage()" title="查看此熟豆風土故事與 SCA 沖煮指南" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-3.5 py-2 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 shadow-md">
-                                📖 豆款專頁與手沖指南
-                            </button>
-                            <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
-                                🔥 實況台修改風火備註
-                            </button>
-                            <button onclick="openEditModal()" title="編輯此筆數據" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian border border-brass-gold/30 text-brass-gold px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
-                                ✏️ 編輯
-                            </button>
-                            <button onclick="deleteCurrentRecord()" title="刪除此筆數據" class="bg-red-500/10 hover:bg-red-500 hover:text-white border border-red-500/30 text-red-400 px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
-                                🗑️ 刪除
-                            </button>
+                        <div class="bg-black/35 rounded-xl p-3 border border-white/5 text-center min-w-[85px]">
+                            <span class="block text-[8px] text-brass-gold tracking-widest uppercase">失重比</span>
+                            <span class="block text-base md:text-lg font-serif font-bold text-white" id="detail-loss">11.2%</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 專屬快捷操作工具列 -->
+                <div class="bg-black/25 border border-white/5 rounded-xl p-3 mb-6 flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-xs font-serif text-gray-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-brass-gold animate-pulse"></span>
+                        <span>數據操作面板</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="openBeanPage()" title="查看此熟豆風土故事與 SCA 沖煮指南" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-3 py-1.5 rounded-lg text-xs font-serif transition-all flex items-center gap-1.5 shadow">
+                            📖 豆款專頁與手沖指南
+                        </button>
+                        <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
+                            🔥 實況台修改風火備註
+                        </button>
+                        <button onclick="openEditModal()" title="編輯此筆數據" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian border border-brass-gold/30 text-brass-gold px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
+                            ✏️ 編輯
+                        </button>
+                        <button onclick="deleteCurrentRecord()" title="刪除此筆數據" class="bg-red-500/10 hover:bg-red-500 hover:text-white border border-red-500/30 text-red-400 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
+                            🗑️ 刪除
+                        </button>
                     </div>
                 </div>
 
