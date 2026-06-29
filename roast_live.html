@@ -323,7 +323,7 @@
     <!-- Firebase SDK & 核心邏輯 -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { getFirestore, setDoc, getDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
@@ -338,12 +338,13 @@
         const db = getFirestore(app);
 
         let rorChartInstance = null;
+        let editingRecordId = null;
 
         // 1. 初始化頁面
-        document.addEventListener("DOMContentLoaded", () => {
-            // 設定日期預設為今日
-            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-            
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('id') || urlParams.get('editId');
+
             // 監聽網格動態輸入
             const gridBody = document.getElementById("ror-grid-body");
             gridBody.addEventListener("input", () => {
@@ -351,8 +352,15 @@
                 liveUpdateChartPreview();
             });
 
-            // 初始化空白觀測點
-            initializeEmptyGrid();
+            if (editId) {
+                editingRecordId = editId;
+                await loadRecordForEdit(editId);
+            } else {
+                // 設定日期預設為今日
+                document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+                // 初始化空白觀測點
+                initializeEmptyGrid();
+            }
 
             // 更新雲端連線狀態燈號
             const statusBadge = document.getElementById("cloud-status");
@@ -361,6 +369,70 @@
                 statusBadge.className = "bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] tracking-widest px-2.5 py-1 rounded-full font-serif";
             }
         });
+
+        // 載入指定烘焙紀錄進實況台供編輯
+        async function loadRecordForEdit(editId) {
+            try {
+                const docRef = doc(db, "coffee_roasts", editId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    const titleEl = document.querySelector("#form-container h3");
+                    if (titleEl) {
+                        titleEl.innerHTML = `<svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> 編輯烘焙紀錄風火配置備註：${data.beanName || ''}`;
+                    }
+                    const submitBtn = document.getElementById("submit-btn");
+                    if (submitBtn) {
+                        submitBtn.innerText = "💾 儲存修改至雲端資料庫";
+                    }
+
+                    document.getElementById("form-bean").value = data.beanName || "";
+                    document.getElementById("form-origin").value = data.origin || "";
+                    document.getElementById("form-machine").value = data.machine || "";
+                    document.getElementById("form-date").value = data.roastDate || new Date().toISOString().split('T')[0];
+                    document.getElementById("form-input-mass").value = data.chargeMassG || "";
+                    document.getElementById("form-output-mass").value = data.dropMassG || "";
+                    document.getElementById("form-charge-temp").value = data.chargeTemp || "";
+                    document.getElementById("form-fc-temp").value = data.fcTemp || "";
+                    document.getElementById("form-drop-temp").value = data.dropTemp || "";
+                    document.getElementById("form-roast").value = data.roastLevel || "淺焙";
+                    document.getElementById("form-tp-time").value = data.tpTime || "";
+                    document.getElementById("form-fc-time").value = data.fcTime || "";
+                    document.getElementById("form-drop-time").value = data.dropTime || "";
+
+                    const gridBody = document.getElementById("ror-grid-body");
+                    gridBody.innerHTML = "";
+
+                    let datapoints = [];
+                    if (data.rorDatapointsJson) {
+                        datapoints = JSON.parse(data.rorDatapointsJson);
+                    } else if (data.rorDatapoints) {
+                        datapoints = data.rorDatapoints;
+                    }
+
+                    if (datapoints && datapoints.length > 0) {
+                        datapoints.forEach(dp => {
+                            const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
+                            addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                        });
+                    } else {
+                        initializeEmptyGrid();
+                    }
+
+                    autoCalculate();
+                    liveUpdateChartPreview();
+                } else {
+                    alert("⚠️ 找不到該筆烘焙紀錄。");
+                    initializeEmptyGrid();
+                }
+            } catch (err) {
+                console.error("[-] 載入烘焙紀錄失敗:", err);
+                alert("🔴 載入烘焙紀錄發生錯誤，請檢查網路連線。");
+                initializeEmptyGrid();
+            }
+        }
 
         // 2. 表單自動演算
         function timeToSeconds(timeStr) {
@@ -701,9 +773,8 @@
             const dtr = ((dropS - fcS) / dropS) * 100;
             const loss = ((inputMass - outputMass) / inputMass) * 100;
 
-            const newId = `roast_${Date.now()}`;
+            const saveId = editingRecordId || `roast_${Date.now()}`;
 
-            // 自動提取 timeline 操作細節
             const timelineActions = pts
                 .filter(pt => pt.note !== "")
                 .map(pt => {
@@ -733,7 +804,7 @@
             }
 
             const newRecord = {
-                id: newId,
+                id: saveId,
                 beanName: beanName,
                 origin: origin,
                 machine: machine,
@@ -756,8 +827,8 @@
 
             try {
                 // 直接儲存至 Firestore
-                await setDoc(doc(db, "coffee_roasts", newId), newRecord);
-                alert("🟢 烘焙紀錄成功儲存至雲端！將為您跳轉回烘焙日誌資料庫。");
+                await setDoc(doc(db, "coffee_roasts", saveId), newRecord);
+                alert("🟢 烘焙紀錄成功更新至雲端！將為您跳轉回烘焙日誌資料庫。");
                 window.location.href = "./roast_db.html";
             } catch (err) {
                 console.error("[-] 寫入雲端資料庫失敗:", err);

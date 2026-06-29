@@ -291,7 +291,10 @@
                             </div>
                         </div>
                         <!-- 數據操作按鈕組 -->
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
+                                🔥 實況台修改風火備註
+                            </button>
                             <button onclick="openEditModal()" title="編輯此筆數據" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian border border-brass-gold/30 text-brass-gold px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
                                 ✏️ 編輯
                             </button>
@@ -2006,11 +2009,14 @@
                         <span class="text-refined-gold font-bold">DTR: ${rec.dtrRatio || '-'}</span>
                     </div>
                     <!-- 卡片快捷操作按鈕組 -->
-                    <div class="mt-3 pt-2 border-t border-white/5 flex justify-end gap-2">
-                        <button onclick="event.stopPropagation(); openEditModal('${rec.id}')" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian text-brass-gold px-3 py-1 rounded-lg text-[11px] font-serif font-bold transition-all flex items-center gap-1 border border-brass-gold/30 shadow">
+                    <div class="mt-3 pt-2 border-t border-white/5 flex flex-wrap justify-end gap-1.5">
+                        <button onclick="event.stopPropagation(); openLiveControl('${rec.id}')" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
+                            🔥 實況台備註
+                        </button>
+                        <button onclick="event.stopPropagation(); openEditModal('${rec.id}')" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian text-brass-gold px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-brass-gold/30 shadow">
                             ✏️ 編輯
                         </button>
-                        <button onclick="event.stopPropagation(); deleteRecordById('${rec.id}')" class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 px-3 py-1 rounded-lg text-[11px] font-serif font-bold transition-all flex items-center gap-1 border border-red-500/30 shadow">
+                        <button onclick="event.stopPropagation(); deleteRecordById('${rec.id}')" class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-red-500/30 shadow">
                             🗑️ 刪除
                         </button>
                     </div>
@@ -2389,6 +2395,13 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
             if (selectedRecord) deleteRecordById(selectedRecord.id);
         }
 
+        function openLiveControl(id) {
+            const targetId = id || (selectedRecord ? selectedRecord.id : null);
+            if (targetId) {
+                window.location.href = `./roast_live.html?id=${targetId}`;
+            }
+        }
+
         // --- 手動綁定全域函數至 window 以相容 HTML onClick/onSubmit 事件 ---
         window.showRecordDetail = showRecordDetail;
         window.exportJSON = exportJSON;
@@ -2402,6 +2415,7 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
         window.saveRecordEdits = saveRecordEdits;
         window.deleteCurrentRecord = deleteCurrentRecord;
         window.deleteRecordById = deleteRecordById;
+        window.openLiveControl = openLiveControl;
         // -----------------------------------------------------------------
     
     </script>
