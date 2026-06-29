@@ -385,10 +385,39 @@
         </a>
     </footer>
 
-    <!-- 6. 核心 JS 控制庫 -->
-    <script>
-        // 13款精品咖啡熟豆之完整數據庫
-        const coffeeDatabase = [
+    <!-- 6. 核心 JS 控制庫與 Cloud Firestore 雲端同步 -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
+            authDomain: "my-teaching-tools-01.firebaseapp.com",
+            projectId: "my-teaching-tools-01",
+            storageBucket: "my-teaching-tools-01.firebasestorage.app",
+            messagingSenderId: "552535919921",
+            appId: "1:552535919921:web:95b4c1288edbae9572b410"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 13款精品咖啡熟豆之完整數據庫 (備份與基礎資料)
+        let coffeeDatabase = [
+            {
+                id: 'roast_margarita_0628',
+                name: '哥倫比亞 瑪格麗特 草莓厭氧蜜處理',
+                englishName: 'Colombia Margarita Strawberry Anaerobic',
+                roast: '中淺焙',
+                process: '草莓厭氧蜜處理',
+                origin: '哥倫比亞',
+                variety: 'Castillo / Pink Bourbon',
+                altitude: '1750m',
+                roastDate: '2026.06.28',
+                flavors: ['百合幽香、鮮摘草莓軟糖', '草莓水蜜桃汁、蜜糖交響', '紅糖甜感、細緻可可尾韻'],
+                url: './bean.html?id=roast_margarita_0628',
+                featured: true
+            },
             {
                 id: 'mozart',
                 name: '哥斯大黎加 音樂家・莫札特',
@@ -400,7 +429,7 @@
                 altitude: '1950m',
                 roastDate: '2026.05.29',
                 flavors: ['百合幽香、莓果微光', '紫葡萄汁、蜜糖交響', '清雅白花、甜潤悠長'],
-                url: './mozart_coffee/index.html',
+                url: './bean.html?id=roast_003',
                 featured: true
             },
             {
@@ -765,10 +794,53 @@
         }
 
         // 初始化載入
-        document.addEventListener('DOMContentLoaded', () => {
-            renderGrid();
+        document.addEventListener('DOMContentLoaded', async () => {
             calculateBrewing();
+            renderGrid();
+
+            // 從 Cloud Firestore 動態抓取最新烘焙紀錄並合併顯示
+            try {
+                const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
+                const querySnapshot = await getDocs(q);
+                const cloudRecords = [];
+
+                querySnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const recId = docSnap.id;
+                    cloudRecords.push({
+                        id: recId,
+                        name: data.beanName || "精品熟豆",
+                        englishName: `${data.origin || ''} ${data.machine || ''}`,
+                        roast: data.roastLevel || "淺焙",
+                        process: data.process || "微批次處理",
+                        origin: data.origin || "精選產區",
+                        variety: data.variety || "精品品種",
+                        altitude: data.altitude || "高海拔",
+                        roastDate: data.roastDate || "",
+                        flavors: [
+                            data.flavorTop || "高雅花香、初摘果香",
+                            data.flavorMid || "多汁果蜜、明亮酸甜",
+                            data.flavorBase || "清雅白花、甘甜悠長"
+                        ],
+                        url: `./bean.html?id=${recId}`,
+                        featured: true
+                    });
+                });
+
+                if (cloudRecords.length > 0) {
+                    // 將雲端動態資料與本地資料去重合併
+                    const existingIds = new Set(cloudRecords.map(r => r.id));
+                    const filteredLocal = coffeeDatabase.filter(b => !existingIds.has(b.id));
+                    coffeeDatabase = [...cloudRecords, ...filteredLocal];
+                    renderGrid();
+                }
+            } catch (err) {
+                console.warn("[-] Firestore 雲端連線失敗，維持離線模式渲染:", err);
+            }
         });
+
+        window.setFilter = setFilter;
+        window.calculateBrewing = calculateBrewing;
     </script>
 </body>
 </html>

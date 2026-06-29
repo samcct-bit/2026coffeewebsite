@@ -270,6 +270,44 @@
                         </button>
                     </div>
 
+                    <!-- 2. Gem 熟豆三段風味與職人手沖指南 -->
+                    <div class="border-t border-[#c49a6c]/15 pt-6 space-y-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <h4 class="text-[#5c544c] font-serif font-bold text-sm md:text-base tracking-widest uppercase">🌿 Gem 熟豆三段風味與職人手沖指南</h4>
+                            <button type="button" onclick="autoGenerateGemSensory()" class="bg-[#c49a6c] hover:bg-[#d4af37] text-white text-xs px-3.5 py-2 rounded-lg transition-all font-serif font-bold shadow-md flex items-center gap-1.5">
+                                ✨ AI Gem 智慧帶入風味文案
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs text-[#5c544c] font-bold mb-1">初韻 (Top Note)</label>
+                                <input type="text" id="form-flavor-top" placeholder="如：百合幽香、草莓水蜜桃" class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-2 focus:outline-none focus:border-brass-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-[#5c544c] font-bold mb-1">中調 (Mid Note)</label>
+                                <input type="text" id="form-flavor-mid" placeholder="如：濃郁葡萄蜜糖、發酵酒香" class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-2 focus:outline-none focus:border-brass-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-[#5c544c] font-bold mb-1">尾韻 (Base Note)</label>
+                                <input type="text" id="form-flavor-base" placeholder="如：清雅白花、紅糖甜感悠長" class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-2 focus:outline-none focus:border-brass-gold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-[#5c544c] font-bold mb-1">品牌時光禪意故事文案</label>
+                            <textarea id="form-story-copy" rows="2" placeholder="撰寫結合風土美學與職人淬煉精神的故事描述..." class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-serif border border-[#c49a6c]/35 rounded-lg p-2.5 focus:outline-none focus:border-brass-gold"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-[#5c544c] font-bold mb-1">推薦水溫</label>
+                                <input type="text" id="form-brew-temp" placeholder="如：88°C - 90°C" value="88°C - 90°C" class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-2 focus:outline-none focus:border-brass-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-[#5c544c] font-bold mb-1">研磨與手法</label>
+                                <input type="text" id="form-brew-method" placeholder="如：中偏粗研磨 / V60 濾杯" value="中偏粗研磨 / V60 濾杯" class="w-full bg-[#fcfbfa] text-[#2b2621] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-2 focus:outline-none focus:border-brass-gold">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 提交按鈕 -->
                     <div class="border-t border-[#c49a6c]/15 pt-6">
                         <button 
@@ -401,6 +439,13 @@
                     document.getElementById("form-tp-time").value = data.tpTime || "";
                     document.getElementById("form-fc-time").value = data.fcTime || "";
                     document.getElementById("form-drop-time").value = data.dropTime || "";
+
+                    document.getElementById("form-flavor-top").value = data.flavorTop || "";
+                    document.getElementById("form-flavor-mid").value = data.flavorMid || "";
+                    document.getElementById("form-flavor-base").value = data.flavorBase || "";
+                    document.getElementById("form-story-copy").value = data.storyCopy || "";
+                    document.getElementById("form-brew-temp").value = data.brewTemp || "88°C - 90°C";
+                    document.getElementById("form-brew-method").value = data.brewMethod || "中偏粗研磨 / V60 濾杯";
 
                     const gridBody = document.getElementById("ror-grid-body");
                     gridBody.innerHTML = "";
@@ -821,6 +866,12 @@
                 dropTime: dropTime,
                 dtrRatio: `${dtr.toFixed(1)}%`,
                 lossRatio: `${loss.toFixed(1)}%`,
+                flavorTop: document.getElementById("form-flavor-top").value || "",
+                flavorMid: document.getElementById("form-flavor-mid").value || "",
+                flavorBase: document.getElementById("form-flavor-base").value || "",
+                storyCopy: document.getElementById("form-story-copy").value || "",
+                brewTemp: document.getElementById("form-brew-temp").value || "88°C - 90°C",
+                brewMethod: document.getElementById("form-brew-method").value || "中偏粗研磨 / V60 濾杯",
                 rorDatapointsJson: JSON.stringify(pts),
                 timelineActionsJson: JSON.stringify(timelineActions)
             };
@@ -838,6 +889,34 @@
             }
         }
 
+        function autoGenerateGemSensory() {
+            const bean = document.getElementById("form-bean").value || "";
+            const origin = document.getElementById("form-origin").value || "";
+
+            if (bean.includes("瑪格麗特") || bean.includes("草莓")) {
+                document.getElementById("form-flavor-top").value = "百合幽香、鮮摘草莓與草莓軟糖";
+                document.getElementById("form-flavor-mid").value = "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響";
+                document.getElementById("form-flavor-base").value = "紅糖甜感、細緻可可尾韻悠長";
+                document.getElementById("form-story-copy").value = "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。";
+                document.getElementById("form-brew-temp").value = "88°C - 90°C";
+                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯 / 三段注水";
+            } else if (bean.includes("莫札特") || bean.includes("Mozart")) {
+                document.getElementById("form-flavor-top").value = "百合幽香、莓果微光";
+                document.getElementById("form-flavor-mid").value = "紫葡萄汁、蜜糖交響";
+                document.getElementById("form-flavor-base").value = "清雅白花、甜潤悠長";
+                document.getElementById("form-story-copy").value = "來自 1950 公尺的雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實如葡萄乾般在陽光下濃縮了所有精華，再經由「金成淬」的職人火候，將其釋放。";
+                document.getElementById("form-brew-temp").value = "88°C - 90°C";
+                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
+            } else {
+                document.getElementById("form-flavor-top").value = `${origin || '產區'}高雅花香、初摘柑橘果香`;
+                document.getElementById("form-flavor-mid").value = `明亮果汁感、堅果與蜂蜜交響`;
+                document.getElementById("form-flavor-base").value = `清雅白花餘韻、黑糖甘甜悠長`;
+                document.getElementById("form-story-copy").value = `來自 ${origin || '精選產區'} 的微批次精品豆，經過金成淬職人精密控溫與 ROR 升溫率管轄，釋放出極致風土特色與乾淨優雅的杯測層次。`;
+                document.getElementById("form-brew-temp").value = "88°C - 90°C";
+                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
+            }
+        }
+
         // 綁定全域函式至 window 以利 HTML 事件觸電
         window.loadMozartTemplate = loadMozartTemplate;
         window.clearGrid = clearGrid;
@@ -846,6 +925,7 @@
         window.addRoastRecord = addRoastRecord;
         window.liveUpdateChartPreview = liveUpdateChartPreview;
         window.autoCalculate = autoCalculate;
+        window.autoGenerateGemSensory = autoGenerateGemSensory;
     </script>
 </body>
 </html>

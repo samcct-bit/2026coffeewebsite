@@ -166,6 +166,38 @@
                     </div>
                 </div>
 
+                <div class="border-t border-white/10 pt-4 space-y-3">
+                    <h4 class="text-brass-gold font-bold text-xs uppercase tracking-widest">🌿 Gem 熟豆風味與 SCA 手沖指南設定</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">初韻 (Top Note)</label>
+                            <input type="text" id="edit-flavorTop" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">中調 (Mid Note)</label>
+                            <input type="text" id="edit-flavorMid" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">尾韻 (Base Note)</label>
+                            <input type="text" id="edit-flavorBase" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">時光禪意故事文案</label>
+                        <textarea id="edit-storyCopy" rows="2" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl p-2 text-white focus:outline-none"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">推薦水溫</label>
+                            <input type="text" id="edit-brewTemp" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">研磨與手法</label>
+                            <input type="text" id="edit-brewMethod" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
                     <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl border border-white/10 hover:bg-white/5 text-gray-300 font-bold transition-all">
                         取消
@@ -292,6 +324,9 @@
                         </div>
                         <!-- 數據操作按鈕組 -->
                         <div class="flex flex-wrap gap-2">
+                            <button onclick="openBeanPage()" title="查看此熟豆風土故事與 SCA 沖煮指南" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-3.5 py-2 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 shadow-md">
+                                📖 豆款專頁與手沖指南
+                            </button>
                             <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3.5 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow-md">
                                 🔥 實況台修改風火備註
                             </button>
@@ -381,7 +416,54 @@
         // -------------------------------------------------
         
     let roastingDatabase = [
-
+            {
+                "id": "roast_margarita_0628",
+                "beanName": "哥倫比亞 瑪格麗特 草莓厭氧蜜處理 (Colombia Margarita Strawberry Anaerobic)",
+                "origin": "哥倫比亞",
+                "machine": "盧貝斯1kg全熱風半自動",
+                "roastDate": "2026-06-28",
+                "roastLevel": "中淺焙",
+                "chargeMassG": 1000,
+                "dropMassG": 882,
+                "chargeTemp": 200,
+                "tpTemp": 94,
+                "tpTime": "01:15",
+                "fcTemp": 184,
+                "fcTime": "08:00",
+                "dropTemp": 192,
+                "dropTime": "09:20",
+                "dtrRatio": "4.1%",
+                "lossRatio": "11.8%",
+                "cuppingScore": 91.5,
+                "flavorTop": "百合幽香、鮮摘草莓與草莓軟糖",
+                "flavorMid": "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響",
+                "flavorBase": "紅糖甜感、細緻可可尾韻悠長",
+                "storyCopy": "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。",
+                "brewTemp": "88°C - 90°C",
+                "brewMethod": "中偏粗研磨 / V60 濾杯 / 三段注水",
+                "brewGuideNote": "建議使用較溫和的 89°C 水溫萃取，保留其極致草莓軟糖與水蜜桃香氣，尾段快速收水以維持乾淨甜潤感受。",
+                "rorDatapoints": [
+                    { "timeS": 0, "beanTemp": 200, "ror": 0, "note": "入豆" },
+                    { "timeS": 30, "beanTemp": 152, "ror": -24, "note": "" },
+                    { "timeS": 60, "beanTemp": 106, "ror": -8, "note": "" },
+                    { "timeS": 75, "beanTemp": 94, "ror": 0, "note": "回溫點" },
+                    { "timeS": 120, "beanTemp": 110, "ror": 21, "note": "" },
+                    { "timeS": 180, "beanTemp": 128, "ror": 24, "note": "" },
+                    { "timeS": 240, "beanTemp": 142, "ror": 21, "note": "" },
+                    { "timeS": 300, "beanTemp": 155, "ror": 18, "note": "" },
+                    { "timeS": 360, "beanTemp": 168, "ror": 15, "note": "轉黃點" },
+                    { "timeS": 420, "beanTemp": 178, "ror": 11, "note": "" },
+                    { "timeS": 480, "beanTemp": 184, "ror": 7, "note": "一爆" },
+                    { "timeS": 540, "beanTemp": 189, "ror": 5, "note": "" },
+                    { "timeS": 560, "beanTemp": 192, "ror": 3, "note": "下豆" }
+                ],
+                "timelineActions": [
+                    { "time": "00:00", "temp": 200, "burner": "紅外線火 75%", "damper": "風門 30%", "note": "蜜處理高糖分結構，入豆溫不可過高" },
+                    { "time": "01:15", "temp": 94, "burner": "紅外線火 80%", "damper": "風門 40%", "note": "過回溫點以對流熱傳防止焦化反應" },
+                    { "time": "05:50", "temp": 166, "burner": "紅外線火 50%", "damper": "風門 60%", "note": "梅納期中段溫和溫控以保留草莓水蜜桃香" },
+                    { "time": "08:00", "temp": 184, "burner": "紅外線火 10%", "damper": "風門 90%", "note": "一爆溫和，排煙避免嗆喉發酵酸味" }
+                ]
+            },
             {
                         "id": "roast_tank200_kenya_1",
                         "beanName": "肯亞 尼亞里 克安尤古 AA #1 (Kenya Nyeri Kianjogu AA #1)",
@@ -2010,6 +2092,9 @@
                     </div>
                     <!-- 卡片快捷操作按鈕組 -->
                     <div class="mt-3 pt-2 border-t border-white/5 flex flex-wrap justify-end gap-1.5">
+                        <button onclick="event.stopPropagation(); openBeanPage('${rec.id}')" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-2.5 py-1 rounded-lg text-[10px] font-serif transition-all flex items-center gap-1 shadow">
+                            📖 豆款專頁
+                        </button>
                         <button onclick="event.stopPropagation(); openLiveControl('${rec.id}')" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
                             🔥 實況台備註
                         </button>
@@ -2295,6 +2380,13 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
             document.getElementById("edit-lossRatio").value = selectedRecord.lossRatio || "";
             document.getElementById("edit-dtrRatio").value = selectedRecord.dtrRatio || "";
             
+            document.getElementById("edit-flavorTop").value = selectedRecord.flavorTop || "";
+            document.getElementById("edit-flavorMid").value = selectedRecord.flavorMid || "";
+            document.getElementById("edit-flavorBase").value = selectedRecord.flavorBase || "";
+            document.getElementById("edit-storyCopy").value = selectedRecord.storyCopy || "";
+            document.getElementById("edit-brewTemp").value = selectedRecord.brewTemp || "88°C - 90°C";
+            document.getElementById("edit-brewMethod").value = selectedRecord.brewMethod || "中偏粗研磨 / V60 濾杯";
+
             document.getElementById("edit-modal").classList.remove("hidden");
         }
 
@@ -2332,6 +2424,13 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
 
             selectedRecord.lossRatio = document.getElementById("edit-lossRatio").value;
             selectedRecord.dtrRatio = document.getElementById("edit-dtrRatio").value;
+
+            selectedRecord.flavorTop = document.getElementById("edit-flavorTop").value;
+            selectedRecord.flavorMid = document.getElementById("edit-flavorMid").value;
+            selectedRecord.flavorBase = document.getElementById("edit-flavorBase").value;
+            selectedRecord.storyCopy = document.getElementById("edit-storyCopy").value;
+            selectedRecord.brewTemp = document.getElementById("edit-brewTemp").value;
+            selectedRecord.brewMethod = document.getElementById("edit-brewMethod").value;
 
             // 儲存至 Cloud Firestore
             try {
@@ -2402,6 +2501,15 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
             }
         }
 
+        function openBeanPage(id) {
+            const targetId = id || (selectedRecord ? selectedRecord.id : null);
+            if (targetId) {
+                window.location.href = `./bean.html?id=${targetId}`;
+            } else {
+                window.location.href = `./bean.html`;
+            }
+        }
+
         // --- 手動綁定全域函數至 window 以相容 HTML onClick/onSubmit 事件 ---
         window.showRecordDetail = showRecordDetail;
         window.exportJSON = exportJSON;
@@ -2416,6 +2524,7 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
         window.deleteCurrentRecord = deleteCurrentRecord;
         window.deleteRecordById = deleteRecordById;
         window.openLiveControl = openLiveControl;
+        window.openBeanPage = openBeanPage;
         // -----------------------------------------------------------------
     
     </script>
