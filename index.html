@@ -139,7 +139,7 @@
             
             <p class="text-gray-400 font-serif text-sm md:text-base leading-relaxed tracking-wider max-w-xl mx-auto mt-4 drop-shadow-md">
                 融合 SCA 咖啡師的化學理智，與金成淬的匠人視覺美學。<br>
-                為您呈現十三款微批次珍稀熟豆的深邃履歷。
+                為您呈現 <span id="hero-bean-count" class="text-brass-gold font-bold">十三</span> 款微批次珍稀熟豆的深邃履歷。
             </p>
             
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 z-20">
@@ -184,7 +184,7 @@
                         「金成淬」由 具有SCA Brewing 咖啡萃取(金杯理論)及SCA Roasting 咖啡烘焙中級國際認證的咖啡師監製，每一批次生豆皆經過高標準物理特徵篩選（焦糖化潛力與脫水率科學測算），再由極致烘焙曲線（RoR 精密控溫與 DTR 發展比控管）完美還原。
                     </p>
                     <p>
-                        本專屬網站集合了十三款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
+                        本專屬網站集合了 <span id="philosophy-bean-count" class="text-brass-gold font-bold">十三</span> 款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
                     </p>
                 </div>
             </div>
@@ -315,7 +315,7 @@
             
             <div class="text-center">
                 <span class="text-brass-gold text-xs tracking-widest uppercase font-outfit">COFFEE BEAN FLAVOR MAP</span>
-                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">金成淬微批次豆單</h3>
+                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">金成淬微批次豆單 <span id="portal-bean-count" class="text-brass-gold text-2xl ml-1 font-normal">(十三款)</span></h3>
                 <p class="text-gray-400 text-xs md:text-sm mt-2 tracking-widest">點擊篩選標籤，精準尋找最契合您今日心境的職人咖啡風味</p>
             </div>
 
@@ -608,8 +608,37 @@
             roast: 'all'
         };
 
+        // 數字轉中文表示
+        function toChineseNumber(n) {
+            const zh = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+            if (n <= 10) return zh[n];
+            if (n < 20) return "十" + (n % 10 === 0 ? "" : zh[n % 10]);
+            if (n < 100) {
+                const tens = Math.floor(n / 10);
+                const units = n % 10;
+                return zh[tens] + "十" + (units === 0 ? "" : zh[units]);
+            }
+            return n.toString();
+        }
+
+        // 動態連動全頁咖啡豆數量標示
+        function updateDynamicCounts() {
+            const totalCount = coffeeDatabase.length;
+            const zhCount = toChineseNumber(totalCount);
+            
+            const heroEl = document.getElementById('hero-bean-count');
+            if (heroEl) heroEl.innerText = zhCount;
+            
+            const philEl = document.getElementById('philosophy-bean-count');
+            if (philEl) philEl.innerText = zhCount;
+            
+            const portalEl = document.getElementById('portal-bean-count');
+            if (portalEl) portalEl.innerText = `(${zhCount}款)`;
+        }
+
         // 渲染咖啡豆卡片列表
         function renderGrid() {
+            updateDynamicCounts();
             const grid = document.getElementById('coffee-grid');
             const noResults = document.getElementById('no-results');
             grid.innerHTML = '';
