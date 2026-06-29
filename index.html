@@ -405,6 +405,20 @@
         // 13款精品咖啡熟豆之完整數據庫 (備份與基礎資料)
         let coffeeDatabase = [
             {
+                id: 'roast_chopin_0629',
+                name: '哥斯大黎加 音樂家系列 蕭邦',
+                englishName: 'Costa Rica Musician Chopin',
+                roast: '中淺焙',
+                process: '雙重厭氧蜜處理 (Raisin Honey)',
+                origin: '哥斯大黎加',
+                variety: '卡杜拉 / 卡杜艾',
+                altitude: '1850m',
+                roastDate: '2026.06.29',
+                flavors: ['狂野玫瑰花香、蜜桃哈密瓜幽香', '熟甜果汁蜜糖、紅酒氣泡膠響', '楓糖與太妃糖甜感、細緻黑可可尾韻'],
+                url: './bean.html?id=roast_chopin_0629',
+                featured: true
+            },
+            {
                 id: 'roast_margarita_0628',
                 name: '哥倫比亞 瑪格麗特 草莓厭氧蜜處理',
                 englishName: 'Colombia Margarita Strawberry Anaerobic',
@@ -857,41 +871,54 @@
                     let mid = data.flavorMid;
                     let base = data.flavorBase;
 
+                    const isGenericTop = !top || top.includes("高雅花香") || top.includes("初摘");
+                    const isGenericProcess = !process || process.includes("微批次") || process.includes("精選");
+
                     if (bName.includes("蕭邦") || bName.includes("Chopin")) {
-                        process = process || "雙重厭氧蜜處理";
-                        altitude = altitude || "1850m";
-                        variety = variety || "卡杜拉 / 卡杜艾";
-                        top = top || "狂野玫瑰花香、蜜桃哈密瓜幽香";
-                        mid = mid || "熟甜果汁蜜糖、紅酒氣泡膠響";
-                        base = base || "楓糖與太妃糖甜感、細緻黑可可餘韻";
+                        process = isGenericProcess ? "雙重厭氧蜜處理" : process;
+                        altitude = (!altitude || altitude.includes("高海拔")) ? "1850m" : altitude;
+                        variety = (!variety || variety.includes("精品品種")) ? "卡杜拉 / 卡杜艾" : variety;
+                        if (isGenericTop) {
+                            top = "狂野玫瑰花香、蜜桃哈密瓜幽香";
+                            mid = "熟甜果汁蜜糖、紅酒氣泡膠響";
+                            base = "楓糖與太妃糖甜感、細緻黑可可餘韻";
+                        }
                     } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
-                        process = process || "草莓厭氧蜜處理";
-                        altitude = altitude || "1750m";
-                        variety = variety || "Castillo / Pink Bourbon";
-                        top = top || "百合幽香、鮮摘草莓軟糖";
-                        mid = mid || "濃郁草莓水蜜桃汁、蜜糖交響";
-                        base = base || "紅糖甜感、細緻可可尾韻";
+                        process = isGenericProcess ? "草莓厭氧蜜處理" : process;
+                        altitude = (!altitude || altitude.includes("高海拔")) ? "1750m" : altitude;
+                        variety = (!variety || variety.includes("精品品種")) ? "Castillo / Pink Bourbon" : variety;
+                        if (isGenericTop) {
+                            top = "百合幽香、鮮摘草莓軟糖";
+                            mid = "濃郁草莓水蜜桃汁、蜜糖交響";
+                            base = "紅糖甜感、細緻可可尾韻";
+                        }
                     } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                        process = process || "葡萄乾蜜處理";
-                        altitude = altitude || "1950m";
-                        variety = variety || "卡杜拉 (Caturra)";
-                        top = top || "百合幽香、莓果微光";
-                        mid = mid || "紫葡萄汁、蜜糖交響";
-                        base = base || "清雅白花、甜潤悠長";
+                        process = isGenericProcess ? "葡萄乾蜜處理" : process;
+                        altitude = (!altitude || altitude.includes("高海拔")) ? "1950m" : altitude;
+                        variety = (!variety || variety.includes("精品品種")) ? "卡杜拉 (Caturra)" : variety;
+                        if (isGenericTop) {
+                            top = "百合幽香、莓果微光";
+                            mid = "紫葡萄汁、蜜糖交響";
+                            base = "清雅白花、甜潤悠長";
+                        }
                     } else if (bName.includes("藝伎") || bName.includes("Gesha") || bName.includes("Geisha")) {
-                        process = process || "精緻水洗 / 日曬";
-                        altitude = altitude || "1950m";
-                        variety = variety || "藝伎 (Gesha)";
-                        top = top || "白色茉莉花香、佛手柑皮清香";
-                        mid = mid || "鮮採水蜜桃汁、荔枝甜感交響";
-                        base = base || "高雅白茶餘韻、蜂蜜甘甜悠長";
+                        process = isGenericProcess ? "精緻水洗 / 日曬" : process;
+                        altitude = (!altitude || altitude.includes("高海拔")) ? "1950m" : altitude;
+                        variety = (!variety || variety.includes("精品品種")) ? "藝伎 (Gesha)" : variety;
+                        if (isGenericTop) {
+                            top = "白色茉莉花香、佛手柑皮清香";
+                            mid = "鮮採水蜜桃汁、荔枝甜感交響";
+                            base = "高雅白茶餘韻、蜂蜜甘甜悠長";
+                        }
                     } else if (bName.includes("肯亞") || bName.includes("Kenya")) {
-                        process = process || "傳統雙重水洗";
-                        altitude = altitude || "1800m";
-                        variety = variety || "SL28, SL34";
-                        top = top || "黑醋栗香、烏梅與聖女番茄";
-                        mid = mid || "黑莓果醬、多汁蔓越莓酸甜";
-                        base = base || "蔗糖甘甜、仙草茶韻悠長";
+                        process = isGenericProcess ? "傳統雙重水洗" : process;
+                        altitude = (!altitude || altitude.includes("高海拔")) ? "1800m" : altitude;
+                        variety = (!variety || variety.includes("精品品種")) ? "SL28, SL34" : variety;
+                        if (isGenericTop) {
+                            top = "黑醋栗香、烏梅與聖女番茄";
+                            mid = "黑莓果醬、多汁蔓越莓酸甜";
+                            base = "蔗糖甘甜、仙草茶韻悠長";
+                        }
                     } else {
                         process = process || "精選微批次處理";
                         altitude = altitude || "1700m - 2000m";
