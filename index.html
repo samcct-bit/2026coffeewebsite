@@ -616,6 +616,15 @@
             }
         ];
 
+        // 腳本啟動時立即對基礎資料庫進行豆名去重，防止首頁加載時數字閃爍
+        const initSeen = new Set();
+        coffeeDatabase = coffeeDatabase.filter(b => {
+            const k = b.name.replace(/\s*\(.*?\)\s*/g, "").trim();
+            if (initSeen.has(k)) return false;
+            initSeen.add(k);
+            return true;
+        });
+
         // 過濾狀態
         const filters = {
             origin: 'all',
