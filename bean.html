@@ -335,7 +335,7 @@
                 flavorMid: "紫葡萄汁、蜜糖交響",
                 flavorBase: "花香甘甜、柔滑悠長",
                 storyCopy: "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。",
-                brewTemp: "88°C - 90°C",
+                brewTemp: "90°C - 92°C",
                 brewMethod: "中偏粗研磨 / V60 濾杯",
                 brewGuideNote: "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。"
             }
@@ -431,9 +431,9 @@
                 rec.flavorMid = "紫葡萄汁、蜜糖交響";
                 rec.flavorBase = "花香甘甜、柔滑悠長";
                 rec.storyCopy = "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。";
-                rec.brewTemp = "88°C - 90°C";
-                rec.brewMethod = "中偏粗研磨 / V60 濾杯";
-                rec.brewGuideNote = "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。";
+                rec.brewTemp = rec.brewTemp || "90°C - 92°C";
+                rec.brewMethod = rec.brewMethod || "中偏粗研磨 / V60 濾杯";
+                rec.brewGuideNote = rec.brewGuideNote || "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。";
             } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                 rec.process = (!rec.process || rec.process.includes("微批次")) ? "草莓厭氧蜜處理" : rec.process;
                 rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1750m" : rec.altitude;
