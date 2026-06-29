@@ -847,24 +847,58 @@
                     if (seenBeans.has(cleanNameKey)) return;
                     seenBeans.add(cleanNameKey);
 
+                    // 自動補充物理屬性 (處理法/海拔/品種)
+                    let process = data.process;
+                    let altitude = data.altitude;
+                    let variety = data.variety;
+
                     // 自動補充 Gem 熟豆三段風味
                     let top = data.flavorTop;
                     let mid = data.flavorMid;
                     let base = data.flavorBase;
-                    if (!top || !mid || !base) {
-                        if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
-                            top = top || "百合幽香、鮮摘草莓軟糖";
-                            mid = mid || "濃郁草莓水蜜桃汁、蜜糖交響";
-                            base = base || "紅糖甜感、細緻可可尾韻";
-                        } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                            top = top || "百合幽香、莓果微光";
-                            mid = mid || "紫葡萄汁、蜜糖交響";
-                            base = base || "清雅白花、甜潤悠長";
-                        } else {
-                            top = top || `${data.origin || ''}高雅花香、柑橘果香`;
-                            mid = mid || "多汁果蜜、明亮酸甜";
-                            base = base || "清雅白花、甘甜悠長";
-                        }
+
+                    if (bName.includes("蕭邦") || bName.includes("Chopin")) {
+                        process = process || "雙重厭氧蜜處理";
+                        altitude = altitude || "1850m";
+                        variety = variety || "卡杜拉 / 卡杜艾";
+                        top = top || "狂野玫瑰花香、蜜桃哈密瓜幽香";
+                        mid = mid || "熟甜果汁蜜糖、紅酒氣泡膠響";
+                        base = base || "楓糖與太妃糖甜感、細緻黑可可餘韻";
+                    } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
+                        process = process || "草莓厭氧蜜處理";
+                        altitude = altitude || "1750m";
+                        variety = variety || "Castillo / Pink Bourbon";
+                        top = top || "百合幽香、鮮摘草莓軟糖";
+                        mid = mid || "濃郁草莓水蜜桃汁、蜜糖交響";
+                        base = base || "紅糖甜感、細緻可可尾韻";
+                    } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
+                        process = process || "葡萄乾蜜處理";
+                        altitude = altitude || "1950m";
+                        variety = variety || "卡杜拉 (Caturra)";
+                        top = top || "百合幽香、莓果微光";
+                        mid = mid || "紫葡萄汁、蜜糖交響";
+                        base = base || "清雅白花、甜潤悠長";
+                    } else if (bName.includes("藝伎") || bName.includes("Gesha") || bName.includes("Geisha")) {
+                        process = process || "精緻水洗 / 日曬";
+                        altitude = altitude || "1950m";
+                        variety = variety || "藝伎 (Gesha)";
+                        top = top || "白色茉莉花香、佛手柑皮清香";
+                        mid = mid || "鮮採水蜜桃汁、荔枝甜感交響";
+                        base = base || "高雅白茶餘韻、蜂蜜甘甜悠長";
+                    } else if (bName.includes("肯亞") || bName.includes("Kenya")) {
+                        process = process || "傳統雙重水洗";
+                        altitude = altitude || "1800m";
+                        variety = variety || "SL28, SL34";
+                        top = top || "黑醋栗香、烏梅與聖女番茄";
+                        mid = mid || "黑莓果醬、多汁蔓越莓酸甜";
+                        base = base || "蔗糖甘甜、仙草茶韻悠長";
+                    } else {
+                        process = process || "精選微批次處理";
+                        altitude = altitude || "1700m - 2000m";
+                        variety = variety || "阿拉比卡原生種";
+                        top = top || `${data.origin || '精選產區'}高雅花香、初摘柑橘果香`;
+                        mid = mid || "多汁果蜜、明亮酸甜";
+                        base = base || "清雅白花餘韻、黑糖甘甜悠長";
                     }
 
                     cloudRecords.push({
@@ -872,10 +906,10 @@
                         name: bName,
                         englishName: `${data.origin || '精選產區'} · ${data.machine || '職人烘焙'}`,
                         roast: data.roastLevel || "淺焙",
-                        process: data.process || "微批次精緻處理",
+                        process: process,
                         origin: data.origin || "精選產區",
-                        variety: data.variety || "精品品種",
-                        altitude: data.altitude || "高海拔",
+                        variety: variety,
+                        altitude: altitude,
                         roastDate: data.roastDate || "",
                         flavors: [top, mid, base],
                         url: `./bean.html?id=${recId}`,

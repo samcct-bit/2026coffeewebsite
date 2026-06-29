@@ -364,6 +364,42 @@
         });
 
         function renderBeanDetail(rec) {
+            const bName = rec.beanName || "";
+            
+            // Gem 智慧備援推導
+            if (!rec.flavorTop || !rec.storyCopy) {
+                if (bName.includes("蕭邦") || bName.includes("Chopin")) {
+                    rec.process = rec.process || "雙重厭氧蜜處理 (Raisin Honey)";
+                    rec.altitude = rec.altitude || "1850m";
+                    rec.variety = rec.variety || "卡杜拉 / 卡杜艾";
+                    rec.flavorTop = rec.flavorTop || "狂野玫瑰花香、蜜桃哈密瓜幽香";
+                    rec.flavorMid = rec.flavorMid || "熟甜果汁蜜糖、紅酒氣泡膠響";
+                    rec.flavorBase = rec.flavorBase || "楓糖與太妃糖甜感、細緻黑可可餘韻";
+                    rec.storyCopy = rec.storyCopy || "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了玫瑰花的幽香與深邃的熟果甜感，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
+                    rec.brewTemp = rec.brewTemp || "89°C - 91°C";
+                    rec.brewMethod = rec.brewMethod || "中偏粗研磨 / V60 濾杯 / 四六法注水";
+                    rec.brewGuideNote = rec.brewGuideNote || "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與哈密瓜香氣，中段帶出楓糖甘醇。";
+                } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
+                    rec.process = rec.process || "草莓厭氧蜜處理";
+                    rec.altitude = rec.altitude || "1750m";
+                    rec.variety = rec.variety || "Castillo / Pink Bourbon";
+                    rec.flavorTop = rec.flavorTop || "百合幽香、鮮摘草莓與草莓軟糖";
+                    rec.flavorMid = rec.flavorMid || "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響";
+                    rec.flavorBase = rec.flavorBase || "紅糖甜感、細緻可可尾韻悠長";
+                    rec.storyCopy = rec.storyCopy || "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。";
+                    rec.brewTemp = rec.brewTemp || "88°C - 90°C";
+                    rec.brewMethod = rec.brewMethod || "中偏粗研磨 / V60 濾杯 / 三段注水";
+                } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
+                    rec.process = rec.process || "葡萄乾蜜處理";
+                    rec.altitude = rec.altitude || "1950m";
+                    rec.variety = rec.variety || "卡杜拉 (Caturra)";
+                    rec.flavorTop = rec.flavorTop || "百合幽香、莓果微光";
+                    rec.flavorMid = rec.flavorMid || "紫葡萄汁、蜜糖交響";
+                    rec.flavorBase = rec.flavorBase || "清雅白花、甜潤悠長";
+                    rec.storyCopy = rec.storyCopy || "來自 1950 公尺的雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實如葡萄乾般在陽光下濃縮了所有精華，再經由「金成淬」的職人火候，將其釋放。";
+                }
+            }
+
             document.title = `${rec.beanName} | 金成淬職人精選`;
 
             document.getElementById("header-bean-title").innerText = rec.beanName;
