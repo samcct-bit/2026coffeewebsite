@@ -442,7 +442,7 @@
                 variety: '卡杜拉 (Caturra)',
                 altitude: '1950m',
                 roastDate: '2026.05.29',
-                flavors: ['百合幽香、莓果微光', '紫葡萄汁、蜜糖交響', '清雅白花、甜潤悠長'],
+                flavors: ['馥郁玫瑰、紫羅蘭香', '紫葡萄汁、蜜糖交響', '花香甘甜、柔滑悠長'],
                 url: './bean.html?id=roast_003',
                 featured: true
             },
@@ -900,14 +900,12 @@
                             base = "紅糖甜感、細緻可可尾韻";
                         }
                     } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                        process = isGenericProcess ? "葡萄乾蜜處理" : process;
-                        altitude = (!altitude || altitude.includes("高海拔")) ? "1950m" : altitude;
-                        variety = (!variety || variety.includes("精品品種")) ? "卡杜拉 (Caturra)" : variety;
-                        if (isGenericTop) {
-                            top = "百合幽香、莓果微光";
-                            mid = "紫葡萄汁、蜜糖交響";
-                            base = "清雅白花、甜潤悠長";
-                        }
+                        process = "葡萄乾蜜處理";
+                        altitude = "1950m";
+                        variety = "卡杜拉 (Caturra)";
+                        top = "馥郁玫瑰、紫羅蘭香";
+                        mid = "紫葡萄汁、蜜糖交響";
+                        base = "花香甘甜、柔滑悠長";
                     } else if (bName.includes("藝伎") || bName.includes("Gesha") || bName.includes("Geisha")) {
                         process = isGenericProcess ? "精緻水洗 / 日曬" : process;
                         altitude = (!altitude || altitude.includes("高海拔")) ? "1950m" : altitude;

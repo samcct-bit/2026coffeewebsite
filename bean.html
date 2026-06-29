@@ -331,13 +331,13 @@
                 roastLevel: "淺焙",
                 lossRatio: "11.4%",
                 dtrRatio: "14.2%",
-                flavorTop: "百合幽香、莓果微光",
+                flavorTop: "馥郁玫瑰、紫羅蘭香",
                 flavorMid: "紫葡萄汁、蜜糖交響",
-                flavorBase: "清雅白花、甜潤悠長",
-                storyCopy: "來自 1950 公尺的雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實如葡萄乾般在陽光下濃縮了所有精華，再經由「金成淬」的職人火候，將其釋放。",
+                flavorBase: "花香甘甜、柔滑悠長",
+                storyCopy: "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。",
                 brewTemp: "88°C - 90°C",
                 brewMethod: "中偏粗研磨 / V60 濾杯",
-                brewGuideNote: "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的花香與果汁感，尾段盡速收水，讓小白花餘韻更乾淨仙氣。"
+                brewGuideNote: "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。"
             }
         ];
 
@@ -398,6 +398,17 @@
                 rec.brewTemp = "89°C - 91°C";
                 rec.brewMethod = "中偏粗研磨 / V60 濾杯 / 四六法注水";
                 rec.brewGuideNote = "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。";
+            } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
+                rec.process = "葡萄乾蜜處理 (Raisin Honey)";
+                rec.altitude = "1950m";
+                rec.variety = "卡杜拉 (Caturra)";
+                rec.flavorTop = "馥郁玫瑰、紫羅蘭香";
+                rec.flavorMid = "紫葡萄汁、蜜糖交響";
+                rec.flavorBase = "花香甘甜、柔滑悠長";
+                rec.storyCopy = "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。";
+                rec.brewTemp = "88°C - 90°C";
+                rec.brewMethod = "中偏粗研磨 / V60 濾杯";
+                rec.brewGuideNote = "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。";
             } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                 rec.process = (!rec.process || rec.process.includes("微批次")) ? "草莓厭氧蜜處理" : rec.process;
                 rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1750m" : rec.altitude;
