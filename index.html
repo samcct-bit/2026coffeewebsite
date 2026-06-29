@@ -803,25 +803,52 @@
                 const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
                 const querySnapshot = await getDocs(q);
                 const cloudRecords = [];
+                const seenBeans = new Set();
 
                 querySnapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const recId = docSnap.id;
+                    const bName = data.beanName ? data.beanName.trim() : "";
+
+                    // 嚴格過濾無效、空字串或未命名紀錄
+                    if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄") return;
+
+                    // 若同一款豆子有多筆烘焙紀錄，僅保留最新的一筆作為首頁微批次豆單代表
+                    const cleanNameKey = bName.replace(/\s*\(.*?\)\s*/g, "").trim();
+                    if (seenBeans.has(cleanNameKey)) return;
+                    seenBeans.add(cleanNameKey);
+
+                    // 自動補充 Gem 熟豆三段風味
+                    let top = data.flavorTop;
+                    let mid = data.flavorMid;
+                    let base = data.flavorBase;
+                    if (!top || !mid || !base) {
+                        if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
+                            top = top || "百合幽香、鮮摘草莓軟糖";
+                            mid = mid || "濃郁草莓水蜜桃汁、蜜糖交響";
+                            base = base || "紅糖甜感、細緻可可尾韻";
+                        } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
+                            top = top || "百合幽香、莓果微光";
+                            mid = mid || "紫葡萄汁、蜜糖交響";
+                            base = base || "清雅白花、甜潤悠長";
+                        } else {
+                            top = top || `${data.origin || ''}高雅花香、柑橘果香`;
+                            mid = mid || "多汁果蜜、明亮酸甜";
+                            base = base || "清雅白花、甘甜悠長";
+                        }
+                    }
+
                     cloudRecords.push({
                         id: recId,
-                        name: data.beanName || "精品熟豆",
-                        englishName: `${data.origin || ''} ${data.machine || ''}`,
+                        name: bName,
+                        englishName: `${data.origin || '精選產區'} · ${data.machine || '職人烘焙'}`,
                         roast: data.roastLevel || "淺焙",
-                        process: data.process || "微批次處理",
+                        process: data.process || "微批次精緻處理",
                         origin: data.origin || "精選產區",
                         variety: data.variety || "精品品種",
                         altitude: data.altitude || "高海拔",
                         roastDate: data.roastDate || "",
-                        flavors: [
-                            data.flavorTop || "高雅花香、初摘果香",
-                            data.flavorMid || "多汁果蜜、明亮酸甜",
-                            data.flavorBase || "清雅白花、甘甜悠長"
-                        ],
+                        flavors: [top, mid, base],
                         url: `./bean.html?id=${recId}`,
                         featured: true
                     });
@@ -829,8 +856,8 @@
 
                 if (cloudRecords.length > 0) {
                     // 將雲端動態資料與本地資料去重合併
-                    const existingIds = new Set(cloudRecords.map(r => r.id));
-                    const filteredLocal = coffeeDatabase.filter(b => !existingIds.has(b.id));
+                    const cloudNames = new Set(cloudRecords.map(r => r.name.replace(/\s*\(.*?\)\s*/g, "").trim()));
+                    const filteredLocal = coffeeDatabase.filter(b => !cloudNames.has(b.name.replace(/\s*\(.*?\)\s*/g, "").trim()));
                     coffeeDatabase = [...cloudRecords, ...filteredLocal];
                     renderGrid();
                 }
