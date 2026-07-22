@@ -1051,8 +1051,8 @@
             } else if (val === "tank200") {
                 html = `
                 <div class="space-y-4">
-                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">🔥 Tank-200 直火/半直火機型實戰守則</h5>
-                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 直火機熱穿透極強，前期需以強火短時間完成脫水，一爆前後嚴防 Crash 失溫或高溫焦化。</p>
+                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">🔥 Tank-200 直火/半直火機型實戰守則 (無風門手動排煙版)</h5>
+                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 本機型無傳統風門，仰賴「抽屜微開」與「外掛抽風扇 (Fan 0, 1, 2)」來手動排煙。直火機熱穿透極強，前期需以強火完成脫水，梅納後期才啟動排煙。</p>
                     
                     <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板</h6>
                     <div class="overflow-x-auto">
@@ -1060,31 +1060,32 @@
                             <thead class="bg-[#f5f2eb]">
                                 <tr>
                                     <th class="p-2 border-b border-[#c49a6c]/20">階段</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">火力</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">風門</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度 / 時間</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">火力 (%)</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">抽屜與風扇 (Fan)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆預熱</td><td class="p-2">200°C - 205°C</td><td class="p-2 font-bold text-red-600">85%</td><td class="p-2">3cm</td></tr>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">回溫 (TP)</td><td class="p-2">80°C - 100°C (1:15-1:20)</td><td class="p-2 font-bold text-red-600">85%</td><td class="p-2">3cm</td></tr>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃脫水</td><td class="p-2">155°C - 168°C</td><td class="p-2 font-bold text-red-600">75%</td><td class="p-2">3cm</td></tr>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">爆前煞車</td><td class="p-2">接近 200°C</td><td class="p-2">70% / 60%</td><td class="p-2">3cm</td></tr>
-                                <tr><td class="p-2 font-bold">一爆與發展</td><td class="p-2">202°C - 205°C</td><td class="p-2 font-bold">55% - 60%</td><td class="p-2 font-bold text-red-600">開半 或 70%</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆與回溫</td><td class="p-2">200°C~205°C ➔ TP</td><td class="p-2 font-bold text-red-600">85% 衝刺</td><td class="p-2 font-bold">抽屜關 / Fan: 0</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃 (Ye)</td><td class="p-2">155°C - 162°C (約 4:30)</td><td class="p-2 font-bold text-red-600">降至 75%</td><td class="p-2 font-bold">抽屜關 / Fan: 0</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">排煙啟動</td><td class="p-2">190°C - 195°C (梅納後期)</td><td class="p-2 font-bold">75% (視情況代償補火)</td><td class="p-2 font-bold text-red-600">微開抽屜 3-5cm / Fan: 1</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">爆前煞車</td><td class="p-2">200°C</td><td class="p-2 font-bold text-red-600">降至 70% (淺焙) 或 60% (中淺)</td><td class="p-2 font-bold text-red-600">維持微開 / Fan: 1</td></tr>
+                                <tr><td class="p-2 font-bold">一爆 (FCr) 與發展</td><td class="p-2">203°C - 208°C</td><td class="p-2 font-bold text-red-600">維持火力或急煞 60%</td><td class="p-2 font-bold text-red-600">抽屜開大 / Fan: 2</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h6 class="font-bold text-sm text-[#5c544c]">二、 重點操作與發展紀律</h6>
                     <ul class="list-disc list-inside text-xs space-y-1 mb-3 text-[#736b60]">
-                        <li><strong>初期高火力設定:</strong> 必須在入豆與 TP 時維持 85% 衝刺熱能，切忌忘了調火導致升溫遲緩拖泥帶水。</li>
-                        <li><strong>轉黃即降火:</strong> 脫水完成後馬上將火力退至 75%，避免直火燒焦豆表。</li>
-                        <li><strong>發展期:</strong> 大約 40 秒 ~ 1分02秒。下豆溫度多落在 214°C - 216°C。</li>
+                        <li><strong>前期極致鎖溫：</strong> 由於直火鍋無風門，前期 (190°C 之前) 完全不開風扇 (Fan 0) 與抽屜，利用 85% 強火把熱能打進豆芯。</li>
+                        <li><strong>排煙降溫的代償：</strong> 190°C 開啟抽屜與風扇 (Fan 1) 排煙時，會造成大量熱流失，此時火力切忌提早降太低，需維持 75% 甚至 80% 來代償熱能，避免失速。</li>
+                        <li><strong>極限短發展：</strong> 藝伎淺焙發展期可壓縮至極限的 <strong>39~44秒</strong> (下豆約 216°C)；肯亞中淺焙約 <strong>49秒~1分02秒</strong> (下豆 214°C~215°C)，酸質極度明亮奔放。</li>
                     </ul>
 
                     <h6 class="font-bold text-sm text-red-600">🚨 避坑指南</h6>
                     <ul class="list-disc list-inside text-xs space-y-1 text-red-700/80 bg-red-50 p-3 rounded-lg border border-red-100">
-                        <li><strong>小心 Crash:</strong> 一爆響起時可調降火力，但不可直接關火或降過低，否則直火鍋失溫極快，導致 RoR 斷層 (Crash)。</li>
+                        <li><strong>忘記開火的 Baked 陷阱：</strong> 若開局忘記給火導致嚴重失溫（例如 2:45 探底到 79°C），即使後段拉抬，風味也會產生嚴重 Baked (悶烤) 瑕疵。起步必須確認 85% 火力。</li>
+                        <li><strong>一爆後失速防禦：</strong> 抽屜開大與 Fan:2 排煙時，千萬不能直接關火，否則直火鍋失溫極快，導致 RoR 斷層 (Crash)。</li>
                     </ul>
                 </div>`;
             } else if (val === "yangchia") {
