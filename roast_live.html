@@ -243,6 +243,25 @@
                         </div>
                     </div>
 
+                    <!-- 0. 烘豆機風火配置與注意事項 (Machine SOP Reference) -->
+                    <div class="border-t border-[#c49a6c]/15 pt-6 space-y-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <h4 class="text-[#5c544c] font-serif font-bold text-sm md:text-base tracking-widest uppercase flex items-center gap-2">
+                                <svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                烘豆機風火配置與實戰守則 (SOP)
+                            </h4>
+                            <select id="machine-sop-selector" class="bg-[#fcfbfa] text-[#8d6e4f] text-xs font-bold border border-[#c49a6c]/35 rounded-lg px-3 py-1.5 focus:outline-none focus:border-brass-gold shadow-sm font-serif" onchange="renderMachineSOP()">
+                                <option value="">-- 請選擇機型參考指南 --</option>
+                                <option value="rubasse">盧貝思 1kg 全熱風</option>
+                                <option value="tank200">Tank-200 直火/半直火</option>
+                                <option value="yangchia">楊家 0.5kg 半熱風</option>
+                            </select>
+                        </div>
+                        <div id="machine-sop-content" class="hidden bg-[#fbfaf7] border border-[#c49a6c]/20 rounded-xl p-4 md:p-5 shadow-inner text-sm text-[#2b2621]">
+                            <!-- SOP Content dynamically injected here -->
+                        </div>
+                    </div>
+
                     <!-- 1. 即時 ROR 輸入觀測網格 -->
                     <div class="border-t border-[#c49a6c]/15 pt-6 space-y-4">
                         <div class="flex justify-between items-center flex-wrap gap-4">
@@ -971,7 +990,148 @@
             }
         }
 
+        // 11. 烘豆機風火配置與注意事項 (Machine SOP Rendering)
+        function renderMachineSOP() {
+            const selector = document.getElementById("machine-sop-selector");
+            const container = document.getElementById("machine-sop-content");
+            const val = selector.value;
+            
+            if (!val) {
+                container.classList.add("hidden");
+                return;
+            }
+            
+            container.classList.remove("hidden");
+            
+            let html = "";
+            
+            if (val === "rubasse") {
+                html = `
+                <div class="space-y-4">
+                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">☕ 盧貝思 1kg 機型 半載 (500g) 烘焙實戰守則</h5>
+                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 溫度標記重於時間。精準鎖定熱能，嚴防熱流失，並以 RoR（升溫斜率）決定煞車力道。</p>
+                    
+                    <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板（基礎軌跡）</h6>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs mb-3 border border-[#c49a6c]/20">
+                            <thead class="bg-[#f5f2eb]">
+                                <tr>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">階段</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">火力</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">風門</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">操作紀律</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆預熱</td><td class="p-2 text-red-600 font-bold">155°C - 165°C</td><td class="p-2">10%</td><td class="p-2 text-red-600 font-bold">25%</td><td class="p-2">嚴控初始風門，不可超過 25% 防止熱能抽離。</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">提早給火</td><td class="p-2">入豆後 30~40 秒</td><td class="p-2 text-red-600 font-bold">80-85%</td><td class="p-2 text-red-600 font-bold">25%</td><td class="p-2">破除 TP 迷思，探針降溫即推滿火力。</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">高速脫水</td><td class="p-2">給火 ➔ 135°C</td><td class="p-2">80-85%</td><td class="p-2 text-red-600 font-bold">25%</td><td class="p-2">死守風門，嚴禁微調。</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃煞車</td><td class="p-2 text-red-600 font-bold">135°C - 140°C</td><td class="p-2 text-red-600 font-bold">70%</td><td class="p-2 text-red-600 font-bold">50-60%</td><td class="p-2">見黃即煞，推大風門排出水氣。</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">梅納後期</td><td class="p-2 text-red-600 font-bold">175°C - 185°C</td><td class="p-2 text-red-600 font-bold">55%</td><td class="p-2 text-red-600 font-bold">70-80%</td><td class="p-2">預防自體放熱，開大風門排煙。</td></tr>
+                                <tr><td class="p-2 font-bold">一爆發展</td><td class="p-2">聽見第一聲爆裂</td><td class="p-2 font-bold">40-45%</td><td class="p-2 font-bold">80-100%</td><td class="p-2">看 RoR 決定火力 (勿低於 30%)。</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="font-bold text-sm text-[#5c544c]">二、 豆種差異化發展設定 (ΔT 控制法)</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 mb-3 text-[#736b60]">
+                        <li><strong>極硬豆/日曬 (果丁丁):</strong> ΔT +4.5~5.0°C (約 35-45 秒)。逼出果醬甜感。</li>
+                        <li><strong>重度發酵/雙重厭氧 (紅蘋果):</strong> ΔT +2.5~3.0°C (25-30 秒內)。極速鎖香，保護細緻花香。</li>
+                        <li><strong>中低海拔/厭氧日曬 (八月夜桂花):</strong> ΔT +3.5~4.0°C (30-40 秒)。溫和爬升轉化蜜甜。</li>
+                    </ul>
+
+                    <h6 class="font-bold text-sm text-red-600">🚨 致命避坑與防呆指南</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 text-red-700/80 bg-red-50 p-3 rounded-lg border border-red-100">
+                        <li><strong>嚴禁過度煞車 (Stall):</strong> 一爆後火力絕對不可低於 30%，否則瞬間抽乾熱能導致悶烤 (Baked)。</li>
+                        <li><strong>嚴防脫水熱能破口:</strong> 135°C 轉黃前風門死守 25%，超過 35% 會引發熱短路，拖長脫水期。</li>
+                        <li><strong>風味交叉污染防禦:</strong> 重氣味換鍋，火力 0% ＋ 風門 100% 空轉 2~3 分鐘。</li>
+                    </ul>
+                </div>`;
+            } else if (val === "tank200") {
+                html = `
+                <div class="space-y-4">
+                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">🔥 Tank-200 直火/半直火機型實戰守則</h5>
+                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 直火機熱穿透極強，前期需以強火短時間完成脫水，一爆前後嚴防 Crash 失溫或高溫焦化。</p>
+                    
+                    <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板</h6>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs mb-3 border border-[#c49a6c]/20">
+                            <thead class="bg-[#f5f2eb]">
+                                <tr>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">階段</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">火力</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">風門</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆預熱</td><td class="p-2">200°C - 205°C</td><td class="p-2 font-bold text-red-600">85%</td><td class="p-2">3cm</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">回溫 (TP)</td><td class="p-2">80°C - 100°C (1:15-1:20)</td><td class="p-2 font-bold text-red-600">85%</td><td class="p-2">3cm</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃脫水</td><td class="p-2">155°C - 168°C</td><td class="p-2 font-bold text-red-600">75%</td><td class="p-2">3cm</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">爆前煞車</td><td class="p-2">接近 200°C</td><td class="p-2">70% / 60%</td><td class="p-2">3cm</td></tr>
+                                <tr><td class="p-2 font-bold">一爆與發展</td><td class="p-2">202°C - 205°C</td><td class="p-2 font-bold">55% - 60%</td><td class="p-2 font-bold text-red-600">開半 或 70%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="font-bold text-sm text-[#5c544c]">二、 重點操作與發展紀律</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 mb-3 text-[#736b60]">
+                        <li><strong>初期高火力設定:</strong> 必須在入豆與 TP 時維持 85% 衝刺熱能，切忌忘了調火導致升溫遲緩拖泥帶水。</li>
+                        <li><strong>轉黃即降火:</strong> 脫水完成後馬上將火力退至 75%，避免直火燒焦豆表。</li>
+                        <li><strong>發展期:</strong> 大約 40 秒 ~ 1分02秒。下豆溫度多落在 214°C - 216°C。</li>
+                    </ul>
+
+                    <h6 class="font-bold text-sm text-red-600">🚨 避坑指南</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 text-red-700/80 bg-red-50 p-3 rounded-lg border border-red-100">
+                        <li><strong>小心 Crash:</strong> 一爆響起時可調降火力，但不可直接關火或降過低，否則直火鍋失溫極快，導致 RoR 斷層 (Crash)。</li>
+                    </ul>
+                </div>`;
+            } else if (val === "yangchia") {
+                html = `
+                <div class="space-y-4">
+                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">♨️ 楊家 0.5kg 半熱風機型實戰守則</h5>
+                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 著重紅外線火與風門配合。半熱風機種保溫性佳，對流熱與傳導熱並重，需利用風門調節對流熱以保護細緻風味。</p>
+                    
+                    <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板</h6>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs mb-3 border border-[#c49a6c]/20">
+                            <thead class="bg-[#f5f2eb]">
+                                <tr>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">階段</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">紅外線火力</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">風門</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆</td><td class="p-2">200°C</td><td class="p-2 font-bold">75%</td><td class="p-2 font-bold">30%</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">回溫 (TP)</td><td class="p-2">94°C (1:15)</td><td class="p-2 font-bold">80%</td><td class="p-2 font-bold">40%</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃與梅納</td><td class="p-2">166°C (5:50)</td><td class="p-2 font-bold text-red-600">降至 50%</td><td class="p-2 font-bold text-red-600">60%</td></tr>
+                                <tr><td class="p-2 font-bold">一爆與發展</td><td class="p-2">184°C (8:00)</td><td class="p-2 font-bold text-red-600">降至 10%</td><td class="p-2 font-bold text-red-600">90%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="font-bold text-sm text-[#5c544c]">二、 重點操作與發展紀律</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 mb-3 text-[#736b60]">
+                        <li><strong>蜜處理/高糖分豆：</strong> 入豆溫不可過高，起步溫和，過 TP 後逐步增加風門 40% 以對流熱傳防止焦化反應。</li>
+                        <li><strong>梅納期溫控：</strong> 進入中段果斷將火力砍至 50%，開風門 60%，溫和溫控以保留精緻白花香與發酵果香。</li>
+                        <li><strong>一爆排煙：</strong> 一爆階段極大幅度收火 (10%) 並全開風門排煙 (90%)，避免嗆喉發酵酸味殘留。</li>
+                    </ul>
+
+                    <h6 class="font-bold text-sm text-red-600">🚨 避坑指南</h6>
+                    <ul class="list-disc list-inside text-xs space-y-1 text-red-700/80 bg-red-50 p-3 rounded-lg border border-red-100">
+                        <li><strong>高糖分焦糖化陷阱：</strong> 厭氧與蜜處理在半熱風鍋內極易因接觸熱過高而焦糖化過度（產生苦味），梅納期請務必拉大風門轉為對流熱主導。</li>
+                    </ul>
+                </div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
         // 綁定全域函式至 window 以利 HTML 事件觸電
+        window.renderMachineSOP = renderMachineSOP;
         window.loadMozartTemplate = loadMozartTemplate;
         window.clearGrid = clearGrid;
         window.addGridRow = addGridRow;
