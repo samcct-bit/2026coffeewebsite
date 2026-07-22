@@ -1090,39 +1090,41 @@
             } else if (val === "yangchia") {
                 html = `
                 <div class="space-y-4">
-                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">♨️ 楊家 0.5kg 半熱風機型實戰守則</h5>
-                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 著重紅外線火與風門配合。半熱風機種保溫性佳，對流熱與傳導熱並重，需利用風門調節對流熱以保護細緻風味。</p>
+                    <h5 class="text-brass-gold font-bold text-base tracking-widest mb-2 border-b border-[#c49a6c]/20 pb-2">♨️ 楊家 0.5kg 半熱風機型實戰守則 (333g 批次)</h5>
+                    <p class="text-xs text-[#736b60] mb-3"><strong>核心原則：</strong> 楊家半熱風的探針讀數偏低（一爆約 176~180°C），瓦斯微壓表火力約在 1.1~1.3 kPa 之間操作。風門多半維持 2.5，下豆時才全開排煙。</p>
                     
-                    <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板</h6>
+                    <h6 class="font-bold text-sm text-[#5c544c]">一、 標準風火配置模板 (哥斯大黎加 莫札特 參考)</h6>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs mb-3 border border-[#c49a6c]/20">
                             <thead class="bg-[#f5f2eb]">
                                 <tr>
                                     <th class="p-2 border-b border-[#c49a6c]/20">階段</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">紅外線火力</th>
-                                    <th class="p-2 border-b border-[#c49a6c]/20">風門</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">目標溫度 / 時間</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">火力 (瓦斯 kPa)</th>
+                                    <th class="p-2 border-b border-[#c49a6c]/20">風門 (刻度)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆</td><td class="p-2">200°C</td><td class="p-2 font-bold">75%</td><td class="p-2 font-bold">30%</td></tr>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">回溫 (TP)</td><td class="p-2">94°C (1:15)</td><td class="p-2 font-bold">80%</td><td class="p-2 font-bold">40%</td></tr>
-                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃與梅納</td><td class="p-2">166°C (5:50)</td><td class="p-2 font-bold text-red-600">降至 50%</td><td class="p-2 font-bold text-red-600">60%</td></tr>
-                                <tr><td class="p-2 font-bold">一爆與發展</td><td class="p-2">184°C (8:00)</td><td class="p-2 font-bold text-red-600">降至 10%</td><td class="p-2 font-bold text-red-600">90%</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">入豆</td><td class="p-2 text-red-600 font-bold">175°C</td><td class="p-2 font-bold">1.2 - 1.3</td><td class="p-2 font-bold">2.5</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">回溫 (TP)</td><td class="p-2">約 115°C (1:15~1:30)</td><td class="p-2 font-bold">1.2 - 1.3</td><td class="p-2 font-bold">2.5</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">轉黃 (Ye)</td><td class="p-2">150°C (4:36~4:46)</td><td class="p-2 font-bold text-red-600">微降至 1.2</td><td class="p-2 font-bold">2.5</td></tr>
+                                <tr class="border-b border-[#c49a6c]/10"><td class="p-2 font-bold">一爆 (FC)</td><td class="p-2 text-red-600 font-bold">176°C - 180°C (7:45~8:59)</td><td class="p-2 font-bold text-red-600">降至 1.0 - 1.1</td><td class="p-2 font-bold">2.5</td></tr>
+                                <tr><td class="p-2 font-bold">下豆 (Drop)</td><td class="p-2 text-red-600 font-bold">181°C - 183°C</td><td class="p-2 font-bold text-red-600">0.0 (關火)</td><td class="p-2 font-bold text-red-600">5.0 (全開)</td></tr>
                             </tbody>
                         </table>
                     </div>
 
                     <h6 class="font-bold text-sm text-[#5c544c]">二、 重點操作與發展紀律</h6>
                     <ul class="list-disc list-inside text-xs space-y-1 mb-3 text-[#736b60]">
-                        <li><strong>蜜處理/高糖分豆：</strong> 入豆溫不可過高，起步溫和，過 TP 後逐步增加風門 40% 以對流熱傳防止焦化反應。</li>
-                        <li><strong>梅納期溫控：</strong> 進入中段果斷將火力砍至 50%，開風門 60%，溫和溫控以保留精緻白花香與發酵果香。</li>
-                        <li><strong>一爆排煙：</strong> 一爆階段極大幅度收火 (10%) 並全開風門排煙 (90%)，避免嗆喉發酵酸味殘留。</li>
+                        <li><strong>風門極簡化：</strong> 烘焙全程 (從入豆到一爆) 風門基本固定在 <strong>2.5</strong>，直到下豆才開至 <strong>5.0</strong> 排煙。</li>
+                        <li><strong>火力微調：</strong> 楊家的瓦斯微壓表很敏感。入豆起步給 <strong>1.25~1.3</strong>，轉黃後視 RoR 狀況微降至 <strong>1.2</strong>，一爆時退至 <strong>1.0~1.1</strong>。</li>
+                        <li><strong>低溫標記：</strong> 楊家探針反應與其他全熱風機不同，150°C 即進入轉黃，一爆通常落在 176°C~180°C，下豆溫度只需約 182°C 即可完成淺中焙發展，切勿用其他機器的 200°C 基準來烤，會嚴重焦化。</li>
                     </ul>
 
                     <h6 class="font-bold text-sm text-red-600">🚨 避坑指南</h6>
                     <ul class="list-disc list-inside text-xs space-y-1 text-red-700/80 bg-red-50 p-3 rounded-lg border border-red-100">
-                        <li><strong>高糖分焦糖化陷阱：</strong> 厭氧與蜜處理在半熱風鍋內極易因接觸熱過高而焦糖化過度（產生苦味），梅納期請務必拉大風門轉為對流熱主導。</li>
+                        <li><strong>不要被 RoR 假象騙：</strong> 第一分鐘 RoR 會出現劇烈負值 (-56~-59)，這是正常探針反應。</li>
+                        <li><strong>發展期極短：</strong> 從一爆 (178°C) 到下豆 (182°C) 的發展期只有 30~40 秒左右 (溫升約 4~5°C)，一爆後必須眼明手快，隨時準備開風門下豆。</li>
                     </ul>
                 </div>`;
             }
