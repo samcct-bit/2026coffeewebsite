@@ -402,8 +402,50 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 13款精品咖啡熟豆之完整數據庫 (備份與基礎資料)
+        // 精品咖啡熟豆之完整數據庫 (備份與基礎資料)
         let coffeeDatabase = [
+            {
+                id: 'roast_20260722_gotingting_2',
+                name: '衣索比亞 果丁丁 日曬 (優化微批次)',
+                englishName: 'Ethiopia Gedeo Gotiti Natural #2',
+                roast: '極淺焙',
+                process: '日曬 (Natural)',
+                origin: '衣索比亞',
+                variety: '原生種 (Heirloom)',
+                altitude: '2000m - 2200m',
+                roastDate: '2026.07.22',
+                flavors: ['茉莉花香、黃柑橘甜', '水蜜桃汁、荔枝果香', '佛手柑、清雅白茶'],
+                url: './bean.html?id=roast_20260722_gotingting_2',
+                featured: true
+            },
+            {
+                id: 'roast_20260722_redapple_4',
+                name: '哥倫比亞 紅蘋果香荔 雙重厭氧水洗',
+                englishName: 'Colombia Red Apple & Lychee Double Anaerobic',
+                roast: '極淺焙',
+                process: '雙重厭氧水洗',
+                origin: '哥倫比亞',
+                variety: 'Castillo / Caturra',
+                altitude: '1800m - 1950m',
+                roastDate: '2026.07.22',
+                flavors: ['脆蘋果、水蜜桃氣泡', '鮮荔枝、粉紅玫瑰', '白葡萄酒、清爽甜感'],
+                url: './bean.html?id=roast_20260722_redapple_4',
+                featured: true
+            },
+            {
+                id: 'roast_20260722_osmanthus_5',
+                name: '哥倫比亞 八月夜桂花 厭氧日曬',
+                englishName: 'Colombia August Osmanthus Anaerobic Natural',
+                roast: '淺焙',
+                process: '厭氧日曬',
+                origin: '哥倫比亞',
+                variety: 'Colombia / Castillo',
+                altitude: '1750m - 1900m',
+                roastDate: '2026.07.22',
+                flavors: ['夜桂花幽香、黃檸檬', '水蜜桃、桂花釀甜香', '清雅高山茶、蜂蜜'],
+                url: './bean.html?id=roast_20260722_osmanthus_5',
+                featured: true
+            },
             {
                 id: 'roast_chopin_0629',
                 name: '哥斯大黎加 音樂家系列 蕭邦',
@@ -962,6 +1004,8 @@
                             if (cloudBean.roastDate) target.roastDate = cloudBean.roastDate;
                             if (cloudBean.process && !cloudBean.process.includes("微批次")) target.process = cloudBean.process;
                             if (cloudBean.flavors && cloudBean.flavors[0] && !cloudBean.flavors[0].includes("高雅花香")) target.flavors = cloudBean.flavors;
+                        } else {
+                            coffeeDatabase.unshift(cloudBean);
                         }
                     });
                     renderGrid();
