@@ -795,8 +795,27 @@
             }
         }
 
-        // 設定過濾標籤狀態與按鈕選取高亮
         function setFilter(type, value, btnElement) {
+            // 自動重置另一組過濾器為 'all' 以防止使用者混淆
+            const otherType = type === 'origin' ? 'roast' : 'origin';
+            filters[otherType] = 'all';
+            
+            // 將另一組按鈕的視覺狀態重置為 '全部' 亮起
+            const otherParentId = otherType === 'origin' ? 'filter-origin' : 'filter-roast';
+            const otherContainer = document.getElementById(otherParentId);
+            if (otherContainer) {
+                const otherButtons = otherContainer.querySelectorAll('button');
+                otherButtons.forEach(btn => {
+                    if (btn.innerText === '全部' || btn.innerText.includes('all')) {
+                        btn.classList.add('active', 'text-brass-gold');
+                        btn.classList.remove('text-gray-400');
+                    } else {
+                        btn.classList.remove('active', 'text-brass-gold');
+                        btn.classList.add('text-gray-400');
+                    }
+                });
+            }
+
             filters[type] = value;
             
             // 去除同組所有按鈕高亮
