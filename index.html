@@ -896,8 +896,8 @@
             try {
                 const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
                 const querySnapshot = await getDocs(q);
-                const cloudRecords = [];
-                const seenBeans = new Set();
+                // 按「產區 + 處理法 + 豆名」進行分組，篩選出最新且同日最佳 ROR 曲線之代表批次
+                const groupedMap = new Map();
 
                 querySnapshot.forEach(docSnap => {
                     const data = docSnap.data();
@@ -907,10 +907,45 @@
                     // 嚴格過濾無效、空字串、未命名紀錄以及失速/瑕疵對比檔
                     if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄" || bName.includes("失速") || bName.includes("對比檔") || bName.includes("Baked") || bName.includes("Failed") || (data.status && data.status.includes("Failed"))) return;
 
-                    // 若同一款豆子有多筆烘焙紀錄，僅保留最新的一筆作為首頁微批次豆單代表
-                    const cleanNameKey = bName.replace(/\s*\(.*?\)\s*/g, "").trim();
-                    if (seenBeans.has(cleanNameKey)) return;
-                    seenBeans.add(cleanNameKey);
+                    const cleanNameKey = bName.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                    const originKey = (data.origin || "").trim();
+                    const processKey = (data.process || "").trim();
+                    const groupKey = `${originKey}_${processKey}_${cleanNameKey}`.toLowerCase();
+
+                    const recordObj = {
+                        id: recId,
+                        data: data,
+                        bName: bName,
+                        cleanNameKey: cleanNameKey,
+                        roastDate: data.roastDate || "",
+                        cuppingScore: parseFloat(data.cuppingScore) || 0,
+                        isOptimized: (data.status && data.status.includes("Optimized")) || bName.includes("優化")
+                    };
+
+                    if (!groupedMap.has(groupKey)) {
+                        groupedMap.set(groupKey, [recordObj]);
+                    } else {
+                        groupedMap.get(groupKey).push(recordObj);
+                    }
+                });
+
+                const cloudRecords = [];
+                groupedMap.forEach((batchList) => {
+                    // 同一豆款多批次排序：1. 最新烘焙日期；2. 同日則優先選擇最佳 ROR/優化批次 (Optimized > 杯測高分)
+                    batchList.sort((a, b) => {
+                        if (a.roastDate !== b.roastDate) {
+                            return b.roastDate.localeCompare(a.roastDate);
+                        }
+                        if (a.isOptimized !== b.isOptimized) {
+                            return a.isOptimized ? -1 : 1;
+                        }
+                        return b.cuppingScore - a.cuppingScore;
+                    });
+
+                    const best = batchList[0];
+                    const data = best.data;
+                    const bName = best.bName;
+                    const recId = best.id;
 
                     // 自動補充物理屬性 (處理法/海拔/品種)
                     let process = data.process;
@@ -992,11 +1027,10 @@
                 });
 
                 if (cloudRecords.length > 0) {
-                    // 精準匹配更新本地微批次豆單，確保總數固定為十五款不跳動
                     cloudRecords.forEach(cloudBean => {
-                        const cleanCloudKey = cloudBean.name.replace(/\s*\(.*?\)\s*/g, "").replace(/_/g, " ").trim();
+                        const cleanCloudKey = cloudBean.name.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                         const target = coffeeDatabase.find(localBean => {
-                            const cleanLocalKey = localBean.name.replace(/\s*\(.*?\)\s*/g, "").replace(/_/g, " ").trim();
+                            const cleanLocalKey = localBean.name.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                             return cleanLocalKey.includes(cleanCloudKey) || cleanCloudKey.includes(cleanLocalKey) || (localBean.id === cloudBean.id);
                         });
                         if (target) {
