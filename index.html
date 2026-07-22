@@ -904,8 +904,8 @@
                     const recId = docSnap.id;
                     const bName = data.beanName ? data.beanName.trim() : "";
 
-                    // 嚴格過濾無效、空字串或未命名紀錄
-                    if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄") return;
+                    // 嚴格過濾無效、空字串、未命名紀錄以及失速/瑕疵對比檔
+                    if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄" || bName.includes("失速") || bName.includes("對比檔") || bName.includes("Baked") || bName.includes("Failed") || (data.status && data.status.includes("Failed"))) return;
 
                     // 若同一款豆子有多筆烘焙紀錄，僅保留最新的一筆作為首頁微批次豆單代表
                     const cleanNameKey = bName.replace(/\s*\(.*?\)\s*/g, "").trim();
