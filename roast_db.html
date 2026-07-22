@@ -433,8 +433,283 @@
         // -------------------------------------------------
         
     let roastingDatabase = [
-            {
-                "id": "roast_chopin_0629",
+        {
+            "id": "roast_20260722_gotingting_1",
+            "beanName": "衣索比亞 果丁丁 (日曬) #1",
+            "origin": "衣索比亞 Gedeo",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "淺焙",
+            "process": "日曬 (Natural)",
+            "altitude": "2000-2200m",
+            "variety": "原生種 (Heirloom)",
+            "chargeMassG": 200,
+            "dropMassG": 176,
+            "chargeTemp": 165.0,
+            "tpTemp": 69.9,
+            "tpTime": "01:26",
+            "fcTemp": 203.9,
+            "fcTime": "08:19",
+            "dropTemp": 209.7,
+            "dropTime": "08:42",
+            "dtrRatio": "4.4%",
+            "lossRatio": "12.0%",
+            "cuppingScore": 88.5,
+            "status": "Success",
+            "flavorTop": "白花香、柑橘甜香",
+            "flavorMid": "熱帶水果、水蜜桃汁",
+            "flavorBase": "紅茶尾韻、蜂蜜甘甜",
+            "storyCopy": "今天利用 Gemini 3.6 Flash 輔助紀錄的精品烘焙。果丁丁日曬微批次展現極致乾淨的熱帶水果與花香層次。",
+            "brewTemp": "90°C - 92°C",
+            "brewMethod": "V60 濾杯 / 手沖",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 165.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 86, "beanTemp": 69.9, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:26" },
+                { "timeS": 300, "beanTemp": 135.0, "ror": 12.5, "note": "Yellowing 轉黃", "timeStr": "05:00" },
+                { "timeS": 499, "beanTemp": 203.9, "ror": 6.0, "note": "FC 一爆", "timeStr": "08:19" },
+                { "timeS": 522, "beanTemp": 209.7, "ror": 3.5, "note": "Drop 下豆", "timeStr": "08:42" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 165.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 125.0, "burner": "火力 85%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "05:00", "temp": 135.0, "burner": "火力 70%", "damper": "風門 50%", "note": "Yellowing / Brake 1 (轉黃點 / 一次收火)" },
+                { "time": "07:20", "temp": 190.0, "burner": "火力 55%", "damper": "風門 70%", "note": "Maillard Late (梅納末期)" },
+                { "time": "08:19", "temp": 203.9, "burner": "火力 45%", "damper": "風門 80%", "note": "First Crack (FC) (一爆)" },
+                { "time": "08:42", "temp": 209.7, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop (下豆)" }
+            ]
+        },
+        {
+            "id": "roast_20260722_gotingting_2",
+            "beanName": "衣索比亞 果丁丁 (日曬) #2 (優化版)",
+            "origin": "衣索比亞 Gedeo",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "極淺焙",
+            "process": "日曬 (Natural)",
+            "altitude": "2000-2200m",
+            "variety": "原生種 (Heirloom)",
+            "chargeMassG": 200,
+            "dropMassG": 176.4,
+            "chargeTemp": 165.0,
+            "tpTemp": 68.8,
+            "tpTime": "01:25",
+            "fcTemp": 204.7,
+            "fcTime": "08:18",
+            "dropTemp": 210.9,
+            "dropTime": "08:46",
+            "dtrRatio": "5.3%",
+            "lossRatio": "11.8%",
+            "cuppingScore": 90.0,
+            "status": "Success - Optimized",
+            "flavorTop": "茉莉花香、黃柑橘甜",
+            "flavorMid": "水蜜桃汁、荔枝果香",
+            "flavorBase": "佛手柑、清雅白茶",
+            "storyCopy": "果丁丁第 2 批次優化版：在爆前進行預煞車 (Pre-FC Brake)，控溫拉長發展曲線，風味表現更乾淨且果酸層次更精細。",
+            "brewTemp": "91°C - 93°C",
+            "brewMethod": "V60 濾杯 / 中細研磨",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 165.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 85, "beanTemp": 68.8, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:25" },
+                { "timeS": 295, "beanTemp": 135.0, "ror": 13.0, "note": "Yellowing 轉黃", "timeStr": "04:55" },
+                { "timeS": 498, "beanTemp": 204.7, "ror": 5.5, "note": "FC 一爆", "timeStr": "08:18" },
+                { "timeS": 526, "beanTemp": 210.9, "ror": 3.0, "note": "Drop 下豆", "timeStr": "08:46" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 165.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 125.0, "burner": "火力 85%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "04:55", "temp": 135.0, "burner": "火力 70%", "damper": "風門 50%", "note": "Yellowing / Brake 1 (轉黃點)" },
+                { "time": "07:15", "temp": 190.0, "burner": "火力 55%", "damper": "風門 70%", "note": "Maillard Late (梅納末期)" },
+                { "time": "08:05", "temp": 201.0, "burner": "火力 40%", "damper": "風門 100%", "note": "Pre-FC Brake (爆前煞車)" },
+                { "time": "08:18", "temp": 204.7, "burner": "火力 40%", "damper": "風門 100%", "note": "First Crack (FC) (一爆)" },
+                { "time": "08:46", "temp": 210.9, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop (下豆)" }
+            ]
+        },
+        {
+            "id": "roast_20260722_redapple_3",
+            "beanName": "哥倫比亞 紅蘋果香荔 (雙重厭氧水洗) #1",
+            "origin": "哥倫比亞",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "淺焙",
+            "process": "雙重厭氧水洗",
+            "altitude": "1800-1950m",
+            "variety": "Castillo / Caturra",
+            "chargeMassG": 200,
+            "dropMassG": 175.6,
+            "chargeTemp": 155.0,
+            "tpTemp": 65.6,
+            "tpTime": "01:24",
+            "fcTemp": 201.8,
+            "fcTime": "09:00",
+            "dropTemp": 206.6,
+            "dropTime": "09:30",
+            "dtrRatio": "5.3%",
+            "lossRatio": "12.2%",
+            "cuppingScore": 89.0,
+            "status": "Success",
+            "flavorTop": "紅蘋果香、荔枝甜甜圈",
+            "flavorMid": "水蜜桃、覆盆子",
+            "flavorBase": "蔗糖、粉紅氣泡酒",
+            "storyCopy": "哥倫比亞雙重厭氧水洗批次，強烈紅蘋果與荔枝發酵香氣，經由平穩控溫展現飽滿口感與飽滿甜感。",
+            "brewTemp": "90°C",
+            "brewMethod": "V60 濾杯",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 155.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 84, "beanTemp": 65.6, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:24" },
+                { "timeS": 310, "beanTemp": 135.0, "ror": 12.0, "note": "Yellowing 轉黃", "timeStr": "05:10" },
+                { "timeS": 540, "beanTemp": 201.8, "ror": 5.0, "note": "FC 一爆", "timeStr": "09:00" },
+                { "timeS": 570, "beanTemp": 206.6, "ror": 3.5, "note": "Drop 下豆", "timeStr": "09:30" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 155.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 120.0, "burner": "火力 80%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "05:10", "temp": 135.0, "burner": "火力 70%", "damper": "風門 55%", "note": "Yellowing / Brake 1 (轉黃點)" },
+                { "time": "07:45", "temp": 185.0, "burner": "火力 55%", "damper": "風門 80%", "note": "Maillard Late (梅納末期)" },
+                { "time": "09:00", "temp": 201.8, "burner": "火力 40%", "damper": "風門 100%", "note": "First Crack (FC) (一爆)" },
+                { "time": "09:30", "temp": 206.6, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop (下豆)" }
+            ]
+        },
+        {
+            "id": "roast_20260722_redapple_4",
+            "beanName": "哥倫比亞 紅蘋果香荔 (雙重厭氧水洗) #2 (優化版)",
+            "origin": "哥倫比亞",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "極淺焙",
+            "process": "雙重厭氧水洗",
+            "altitude": "1800-1950m",
+            "variety": "Castillo / Caturra",
+            "chargeMassG": 200,
+            "dropMassG": 176.0,
+            "chargeTemp": 155.0,
+            "tpTemp": 65.9,
+            "tpTime": "01:24",
+            "fcTemp": 202.7,
+            "fcTime": "08:58",
+            "dropTemp": 206.0,
+            "dropTime": "09:20",
+            "dtrRatio": "3.9%",
+            "lossRatio": "12.0%",
+            "cuppingScore": 91.0,
+            "status": "Success - Optimized",
+            "flavorTop": "脆蘋果、水蜜桃氣泡",
+            "flavorMid": "鮮荔枝、粉紅玫瑰",
+            "flavorBase": "白葡萄酒、清爽甜感",
+            "storyCopy": "紅蘋果香荔第 2 批次優化版：爆前煞車避免高溫焦化，成功鎖住鮮極蘋果酸與精緻發酵荔枝香。",
+            "brewTemp": "91°C",
+            "brewMethod": "V60 濾杯 / 快流速",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 155.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 84, "beanTemp": 65.9, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:24" },
+                { "timeS": 305, "beanTemp": 135.0, "ror": 12.2, "note": "Yellowing 轉黃", "timeStr": "05:05" },
+                { "timeS": 538, "beanTemp": 202.7, "ror": 4.5, "note": "FC 一爆", "timeStr": "08:58" },
+                { "timeS": 560, "beanTemp": 206.0, "ror": 2.5, "note": "Drop 下豆", "timeStr": "09:20" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 155.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 120.0, "burner": "火力 80%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "05:05", "temp": 135.0, "burner": "火力 70%", "damper": "風門 55%", "note": "Yellowing / Brake 1 (轉黃點)" },
+                { "time": "07:40", "temp": 185.0, "burner": "火力 55%", "damper": "風門 80%", "note": "Maillard Late (梅納末期)" },
+                { "time": "08:45", "temp": 199.0, "burner": "火力 35%", "damper": "風門 100%", "note": "Pre-FC Brake (爆前煞車)" },
+                { "time": "08:58", "temp": 202.7, "burner": "火力 35%", "damper": "風門 100%", "note": "First Crack (FC) (一爆)" },
+                { "time": "09:20", "temp": 206.0, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop (下豆)" }
+            ]
+        },
+        {
+            "id": "roast_20260722_osmanthus_5",
+            "beanName": "哥倫比亞 八月夜桂花 (厭氧日曬) #1",
+            "origin": "哥倫比亞",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "淺焙",
+            "process": "厭氧日曬",
+            "altitude": "1750-1900m",
+            "variety": "Colombia / Castillo",
+            "chargeMassG": 200,
+            "dropMassG": 175.4,
+            "chargeTemp": 155.0,
+            "tpTemp": 65.9,
+            "tpTime": "01:25",
+            "fcTemp": 202.9,
+            "fcTime": "08:56",
+            "dropTemp": 206.4,
+            "dropTime": "09:17",
+            "dtrRatio": "3.8%",
+            "lossRatio": "12.3%",
+            "cuppingScore": 89.5,
+            "status": "Success",
+            "flavorTop": "夜桂花幽香、黃檸檬",
+            "flavorMid": "水蜜桃、桂花釀甜香",
+            "flavorBase": "清雅高山茶、蜂蜜",
+            "storyCopy": "哥倫比亞八月夜桂花厭氧日曬，桂花釀香氣顯著，烘焙節奏暢快，前段花香顯著。",
+            "brewTemp": "90°C",
+            "brewMethod": "V60 濾杯",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 155.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 85, "beanTemp": 65.9, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:25" },
+                { "timeS": 300, "beanTemp": 135.0, "ror": 12.5, "note": "Yellowing 轉黃", "timeStr": "05:00" },
+                { "timeS": 536, "beanTemp": 202.9, "ror": 5.5, "note": "FC 一爆", "timeStr": "08:56" },
+                { "timeS": 557, "beanTemp": 206.4, "ror": 4.0, "note": "Drop 下豆", "timeStr": "09:17" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 155.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 120.0, "burner": "火力 80%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "05:00", "temp": 135.0, "burner": "火力 70%", "damper": "風門 60%", "note": "Yellowing / Brake 1 (轉黃點)" },
+                { "time": "07:35", "temp": 185.0, "burner": "火力 55%", "damper": "風門 80%", "note": "Maillard Late (梅納末期)" },
+                { "time": "08:56", "temp": 202.9, "burner": "火力 40%", "damper": "風門 100%", "note": "First Crack (FC) (一爆)" },
+                { "time": "09:17", "temp": 206.4, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop (下豆)" }
+            ]
+        },
+        {
+            "id": "roast_20260722_osmanthus_6",
+            "beanName": "哥倫比亞 八月夜桂花 (厭氧日曬) #2 (失速失控對比檔)",
+            "origin": "哥倫比亞",
+            "machine": "Tank-200",
+            "roastDate": "2026-07-22",
+            "roastLevel": "中淺焙 (Baked)",
+            "process": "厭氧日曬",
+            "altitude": "1750-1900m",
+            "variety": "Colombia / Castillo",
+            "chargeMassG": 200,
+            "dropMassG": 173.0,
+            "chargeTemp": 155.0,
+            "tpTemp": 65.4,
+            "tpTime": "01:24",
+            "fcTemp": 201.5,
+            "fcTime": "09:36",
+            "dropTemp": 200.5,
+            "dropTime": "10:25",
+            "dtrRatio": "7.8%",
+            "lossRatio": "13.5%",
+            "cuppingScore": 81.0,
+            "status": "Failed - Baked/Stalled",
+            "flavorTop": "枯平木質香、雜味",
+            "flavorMid": "淡桂花香、平淡酸質",
+            "flavorBase": "烘烤焦苦尾韻",
+            "storyCopy": "八月夜桂花對照組：於 07:10 過早煞車導致熱能不足失速 (Stalled)，爆後 ROR 轉負 (-0.5)，呈現平淡且帶木質雜味的 Bake 烘烤瑕疵風味檔，作為科學對比教學記錄。",
+            "brewTemp": "88°C",
+            "brewMethod": "V60 濾杯",
+            "rorDatapoints": [
+                { "timeS": 0, "beanTemp": 155.0, "ror": 0, "note": "入豆", "timeStr": "00:00" },
+                { "timeS": 84, "beanTemp": 65.4, "ror": 0.0, "note": "TP 回溫點", "timeStr": "01:24" },
+                { "timeS": 300, "beanTemp": 135.0, "ror": 12.5, "note": "Yellowing 轉黃", "timeStr": "05:00" },
+                { "timeS": 430, "beanTemp": 183.0, "ror": 4.0, "note": "Momentum Loss 失去動能", "timeStr": "07:10" },
+                { "timeS": 576, "beanTemp": 201.5, "ror": 1.5, "note": "FC (Stalled) 一爆失速", "timeStr": "09:36" },
+                { "timeS": 625, "beanTemp": 200.5, "ror": -0.5, "note": "Negative RoR 負溫升率", "timeStr": "10:25" }
+            ],
+            "timelineActions": [
+                { "time": "00:00", "temp": 155.0, "burner": "火力 10%", "damper": "風門 25%", "note": "Charge (入豆)" },
+                { "time": "00:35", "temp": 120.0, "burner": "火力 80%", "damper": "風門 25%", "note": "Heat Push (催火)" },
+                { "time": "05:00", "temp": 135.0, "burner": "火力 70%", "damper": "風門 60%", "note": "Yellowing / Brake 1 (轉黃點)" },
+                { "time": "07:10", "temp": 183.0, "burner": "火力 45%", "damper": "風門 80%", "note": "Early Brake (過早煞車)" },
+                { "time": "08:40", "temp": 198.0, "burner": "火力 35%", "damper": "風門 100%", "note": "Pre-FC Heavy Brake (爆前過度煞車)" },
+                { "time": "09:36", "temp": 201.5, "burner": "火力 35%", "damper": "風門 100%", "note": "First Crack (FC) Delayed (一爆延遲失速)" },
+                { "time": "10:25", "temp": 200.5, "burner": "關火 0%", "damper": "風門 100%", "note": "Drop - Temp Drop (降溫下豆/失速烘烤)" }
+            ]
+        },
+        {
+            "id": "roast_chopin_0629",
+            "beanName": "哥斯大黎加 音樂家系列 蕭邦 (Costa Rica Musician Chopin)",
                 "beanName": "哥斯大黎加 音樂家系列 蕭邦 (Costa Rica Musician Chopin)",
                 "origin": "哥斯大黎加 塔拉珠",
                 "machine": "盧貝斯1kg全熱風",
@@ -2113,7 +2388,23 @@
                     }
                     console.log("[+] 雲端種子資料寫入完成。");
                 } else {
-                    // 覆蓋本地靜態數據為雲端最新資料
+                    // 檢查並自動上傳新增之本地紀錄至雲端
+                    const existingIds = new Set(fetchedRecords.map(r => r.id));
+                    for (let rec of roastingDatabase) {
+                        if (!existingIds.has(rec.id)) {
+                            try {
+                                const seedData = { ...rec };
+                                seedData.rorDatapointsJson = JSON.stringify(rec.rorDatapoints);
+                                seedData.timelineActionsJson = JSON.stringify(rec.timelineActions);
+                                delete seedData.rorDatapoints;
+                                delete seedData.timelineActions;
+                                await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
+                                fetchedRecords.unshift(rec);
+                            } catch (e) {
+                                console.warn("[-] 同步新紀錄至雲端失敗:", rec.id, e);
+                            }
+                        }
+                    }
                     roastingDatabase = fetchedRecords;
                 }
 
