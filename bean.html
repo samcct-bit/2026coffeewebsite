@@ -406,6 +406,11 @@
         function renderBeanDetail(rec) {
             const bName = rec.beanName || "";
             
+            // 今日 2026-07-22 烘焙批次統一更正烘豆機型為 盧貝斯1kg全熱風
+            if (rec.roastDate === "2026-07-22" || (rec.id && rec.id.includes("20260722")) || rec.machine === "Tank-200") {
+                rec.machine = "盧貝斯1kg全熱風";
+            }
+            
             const isGenericStory = !rec.storyCopy || rec.storyCopy.includes("微批次精品豆") || rec.storyCopy.includes("風土特色");
             const isGenericFlavor = !rec.flavorTop || rec.flavorTop.includes("高雅花香") || rec.flavorTop.includes("初摘");
 

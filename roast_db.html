@@ -2388,10 +2388,11 @@
                     }
                     console.log("[+] 雲端種子資料寫入完成。");
                 } else {
-                    // 檢查並自動上傳新增之本地紀錄至雲端
-                    const existingIds = new Set(fetchedRecords.map(r => r.id));
+                    // 檢查並自動上傳新增或更新之本地紀錄至雲端
+                    const existingMap = new Map(fetchedRecords.map(r => [r.id, r]));
                     for (let rec of roastingDatabase) {
-                        if (!existingIds.has(rec.id)) {
+                        const existing = existingMap.get(rec.id);
+                        if (!existing || existing.machine === "Tank-200") {
                             try {
                                 const seedData = { ...rec };
                                 seedData.rorDatapointsJson = JSON.stringify(rec.rorDatapoints);
@@ -2399,9 +2400,10 @@
                                 delete seedData.rorDatapoints;
                                 delete seedData.timelineActions;
                                 await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
-                                fetchedRecords.unshift(rec);
+                                if (!existing) fetchedRecords.unshift(rec);
+                                else existing.machine = rec.machine;
                             } catch (e) {
-                                console.warn("[-] 同步新紀錄至雲端失敗:", rec.id, e);
+                                console.warn("[-] 同步紀錄至雲端失敗:", rec.id, e);
                             }
                         }
                     }
