@@ -881,7 +881,7 @@
                     // 嚴格過濾無效、空字串、未命名紀錄以及失速/瑕疵對比檔
                     if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄" || bName.includes("失速") || bName.includes("對比檔") || bName.includes("Baked") || bName.includes("Failed") || (data.status && data.status.includes("Failed"))) return;
 
-                    const cleanNameKey = bName.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                    const cleanNameKey = bName.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                     const originKey = (data.origin || "").trim();
                     const processKey = (data.process || "").trim();
                     const groupKey = `${originKey}_${processKey}_${cleanNameKey}`.toLowerCase();
@@ -986,7 +986,7 @@
 
                     cloudRecords.push({
                         id: recId,
-                        name: bName,
+                        name: cleanNameKey,
                         englishName: `${data.origin || '精選產區'} · ${data.machine || '職人烘焙'}`,
                         roast: data.roastLevel || "淺焙",
                         process: process,
@@ -1002,7 +1002,7 @@
 
                 if (cloudRecords.length > 0) {
                     cloudRecords.forEach(cloudBean => {
-                        const cleanCloudKey = cloudBean.name.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                        const cleanCloudKey = cloudBean.name.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                         const target = coffeeDatabase.find(localBean => {
                             const cleanLocalKey = localBean.name.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                             return cleanLocalKey.includes(cleanCloudKey) || cleanCloudKey.includes(cleanLocalKey) || (localBean.id === cloudBean.id);
