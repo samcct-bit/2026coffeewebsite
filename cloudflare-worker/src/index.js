@@ -11,6 +11,7 @@ const ALLOWED_ORIGINS = [
     "http://localhost:5500",
     "http://localhost:3000",
     "https://gansingkim.com", // 預設正式網址
+    "https://samcct-bit.github.io" // GitHub Pages 網址
 ];
 
 export default {
