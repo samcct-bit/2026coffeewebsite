@@ -198,23 +198,23 @@
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 border-t border-[#c49a6c]/15 pt-4">
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">入豆克數 (g)</label>
-                            <input type="number" id="form-input-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="1000" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm">
+                            <input type="number" step="0.1" id="form-input-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="1000" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">出豆克數 (g)</label>
-                            <input type="number" id="form-output-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="880" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm">
+                            <input type="number" step="0.1" id="form-output-mass" oninput="autoCalculate(); liveUpdateChartPreview();" placeholder="880" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">入豆溫 (°C)</label>
-                            <input type="number" id="form-charge-temp" placeholder="200" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
+                            <input type="number" step="0.1" id="form-charge-temp" placeholder="200" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">一爆溫 (°C)</label>
-                            <input type="number" id="form-fc-temp" placeholder="185" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
+                            <input type="number" step="0.1" id="form-fc-temp" placeholder="185" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">出豆溫 (°C)</label>
-                            <input type="number" id="form-drop-temp" placeholder="193" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
+                            <input type="number" step="0.1" id="form-drop-temp" placeholder="193" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">烘焙度</label>
@@ -929,6 +929,17 @@
         function autoGenerateGemSensory() {
             const bean = document.getElementById("form-bean").value || "";
             const origin = document.getElementById("form-origin").value || "";
+            const roastLevel = document.getElementById("form-roast-level").value || "";
+
+            // 動態判斷推薦水溫
+            let brewTemp = "88°C - 90°C";
+            if (roastLevel.includes("極淺") || (roastLevel.includes("淺焙") && !roastLevel.includes("中"))) {
+                brewTemp = "92°C - 94°C";
+            } else if (roastLevel.includes("淺中") || roastLevel.includes("中淺")) {
+                brewTemp = "90°C - 92°C";
+            } else if (roastLevel.includes("中焙") || roastLevel.includes("中深") || roastLevel.includes("深焙")) {
+                brewTemp = "88°C - 90°C";
+            }
 
             if (bean.includes("蕭邦") || bean.includes("Chopin")) {
                 document.getElementById("form-process").value = "雙重厭氧蜜處理 (Raisin Honey / Anaerobic)";
@@ -938,7 +949,7 @@
                 document.getElementById("form-flavor-mid").value = "熟甜香瓜、紅酒交響";
                 document.getElementById("form-flavor-base").value = "絲滑奶油、楓糖甘甜";
                 document.getElementById("form-story-copy").value = "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
-                document.getElementById("form-brew-temp").value = "89°C - 91°C";
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯 / 四六法注水";
             } else if (bean.includes("瑪格麗特") || bean.includes("草莓")) {
                 document.getElementById("form-process").value = "草莓厭氧蜜處理";
@@ -948,7 +959,7 @@
                 document.getElementById("form-flavor-mid").value = "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響";
                 document.getElementById("form-flavor-base").value = "紅糖甜感、細緻可可尾韻悠長";
                 document.getElementById("form-story-copy").value = "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。";
-                document.getElementById("form-brew-temp").value = "88°C - 90°C";
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯 / 三段注水";
             } else if (bean.includes("莫札特") || bean.includes("Mozart")) {
                 document.getElementById("form-process").value = "葡萄乾蜜處理";
@@ -958,7 +969,7 @@
                 document.getElementById("form-flavor-mid").value = "紫葡萄汁、蜜糖交響";
                 document.getElementById("form-flavor-base").value = "花香甘甜、柔滑悠長";
                 document.getElementById("form-story-copy").value = "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。";
-                document.getElementById("form-brew-temp").value = "90°C - 92°C";
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
             } else if (bean.includes("藝伎") || bean.includes("Gesha") || bean.includes("Geisha")) {
                 document.getElementById("form-process").value = "精緻水洗 / 日曬";
@@ -968,7 +979,7 @@
                 document.getElementById("form-flavor-mid").value = "鮮採水蜜桃汁、荔枝甜感交響";
                 document.getElementById("form-flavor-base").value = "高雅白茶餘韻、蜂蜜甘甜悠長";
                 document.getElementById("form-story-copy").value = `來自高海拔產區的尊貴藝伎品種，擁有如香水般層次分明的茉莉花香與清新柑橘風味。經過金成淬職人精密控溫，完美呈現極致乾淨與精緻的杯測風味。`;
-                document.getElementById("form-brew-temp").value = "90°C - 92°C";
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中偏細研磨 / V60 濾杯";
             } else if (bean.includes("肯亞") || bean.includes("Kenya")) {
                 document.getElementById("form-process").value = "傳統雙重水洗";
@@ -978,14 +989,23 @@
                 document.getElementById("form-flavor-mid").value = "黑莓果醬、多汁蔓越莓酸甜";
                 document.getElementById("form-flavor-base").value = "蔗糖甘甜、仙草茶韻悠長";
                 document.getElementById("form-story-copy").value = `高海拔火山灰土壤培育出的精選肯亞批次，採用火山岩對流熱傳與精密 ROR 控制，將肯亞特有的爆發力酸甜與黑醋栗果香發揮得淋漓盡致。`;
-                document.getElementById("form-brew-temp").value = "89°C - 91°C";
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中度研磨 / V60 濾杯";
             } else {
-                document.getElementById("form-flavor-top").value = `${origin || '精選產區'}高雅花香、初摘柑橘果香`;
-                document.getElementById("form-flavor-mid").value = `明亮果汁感、堅果與蜂蜜交響`;
-                document.getElementById("form-flavor-base").value = `清雅白花餘韻、黑糖甘甜悠長`;
-                document.getElementById("form-story-copy").value = `來自 ${origin || '精選產區'} 的微批次精品豆，經過金成淬職人精密控溫與 ROR 升溫率管轄，釋放出極致風土特色與乾淨優雅的杯測層次。`;
-                document.getElementById("form-brew-temp").value = "88°C - 90°C";
+                // 隨機多樣性風味文案
+                const topNotes = ['高雅花香、初摘柑橘', '清新茉莉、佛手柑皮', '微風白花、脆甜青蘋果', '明亮橙花、水蜜桃香', '野薑花香、紅漿果'];
+                const midNotes = ['明亮果汁感、堅果與蜂蜜', '黑莓果醬、多汁蔓越莓', '紫葡萄汁、蜜糖交響', '百香果酸甜、焦糖瑪奇朵', '熱帶水果、奶油滑順感'];
+                const baseNotes = ['清雅白花餘韻、黑糖甘甜', '仙草茶韻、餘韻悠長', '榛果巧克力、蜂蜜回甘', '烏龍茶感、焦糖甜香', '柔和可可、細緻長韻'];
+                
+                const randomTop = topNotes[Math.floor(Math.random() * topNotes.length)];
+                const randomMid = midNotes[Math.floor(Math.random() * midNotes.length)];
+                const randomBase = baseNotes[Math.floor(Math.random() * baseNotes.length)];
+                
+                document.getElementById("form-flavor-top").value = (origin ? `${origin}` : '') + randomTop;
+                document.getElementById("form-flavor-mid").value = randomMid;
+                document.getElementById("form-flavor-base").value = randomBase;
+                document.getElementById("form-story-copy").value = `來自 ${origin || '精選產區'} 的微批次精品豆，經過金成淬職人精密控溫與 ROR 升溫率管轄，釋放出獨特的風土特色，帶給您乾淨且富有層次的杯測體驗。`;
+                document.getElementById("form-brew-temp").value = brewTemp;
                 document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
             }
         }

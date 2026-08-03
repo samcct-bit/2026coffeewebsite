@@ -139,7 +139,7 @@
             
             <p class="text-gray-400 font-serif text-sm md:text-base leading-relaxed tracking-wider max-w-xl mx-auto mt-4 drop-shadow-md">
                 融合 SCA 咖啡師的化學理智，與金成淬的匠人視覺美學。<br>
-                為您呈現 <span id="hero-bean-count" class="text-brass-gold font-bold">十三</span> 款微批次珍稀熟豆的深邃履歷。
+                為您呈現 <span id="hero-bean-count" class="text-brass-gold font-bold">十五</span> 款微批次珍稀熟豆的深邃履歷。
             </p>
             
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 z-20">
@@ -184,7 +184,7 @@
                         「金成淬」由 具有SCA Brewing 咖啡萃取(金杯理論)及SCA Roasting 咖啡烘焙中級國際認證的咖啡師監製，每一批次生豆皆經過高標準物理特徵篩選（焦糖化潛力與脫水率科學測算），再由極致烘焙曲線（RoR 精密控溫與 DTR 發展比控管）完美還原。
                     </p>
                     <p>
-                        本專屬網站集合了 <span id="philosophy-bean-count" class="text-brass-gold font-bold">十三</span> 款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
+                        本專屬網站集合了 <span id="philosophy-bean-count" class="text-brass-gold font-bold">十五</span> 款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
                     </p>
                 </div>
             </div>
@@ -315,7 +315,7 @@
             
             <div class="text-center">
                 <span class="text-brass-gold text-xs tracking-widest uppercase font-outfit">COFFEE BEAN FLAVOR MAP</span>
-                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">金成淬微批次豆單 <span id="portal-bean-count" class="text-brass-gold text-2xl ml-1 font-normal">(十三款)</span></h3>
+                <h3 class="text-3xl font-serif font-bold text-white tracking-widest mt-1">金成淬微批次豆單 <span id="portal-bean-count" class="text-brass-gold text-2xl ml-1 font-normal">(十五款)</span></h3>
                 <p class="text-gray-400 text-xs md:text-sm mt-2 tracking-widest">點擊篩選標籤，精準尋找最契合您今日心境的職人咖啡風味</p>
             </div>
 
@@ -404,6 +404,34 @@
 
         // 精品咖啡熟豆之完整數據庫 (備份與基礎資料)
         let coffeeDatabase = [
+            {
+                id: 'roast_1785572776684',
+                name: '哥斯大黎加 海頓#1',
+                englishName: 'Costa Rica Haydn',
+                roast: '中淺焙',
+                process: '葡萄乾蜜處理',
+                origin: '哥斯大黎加',
+                variety: '卡杜拉',
+                altitude: '1850m',
+                roastDate: '2026.08.01',
+                flavors: ['哥斯大黎加高雅花香、初摘瓜果香', '明亮葡萄果汁感、熱帶水果酸甜', '清柔花香餘韻、黑糖甘甜悠長'],
+                url: './haydn/index.html',
+                featured: true
+            },
+            {
+                id: 'roast_1785567096800',
+                name: '哥倫比亞 白岩莊園 爪哇日曬#1',
+                englishName: 'Colombia White Rock Java Natural',
+                roast: '中淺焙',
+                process: '日曬',
+                origin: '哥倫比亞',
+                variety: '爪哇Java',
+                altitude: '1800m',
+                roastDate: '2026.08.01',
+                flavors: ['高雅茉莉花香、藍莓櫻桃果香', '葡萄果汁感、哈密瓜與莓果交響', '水果酸甜餘韻、回甘柔順細緻'],
+                url: './white_rock/index.html',
+                featured: true
+            },
             {
                 id: 'roast_20260722_gotingting_2',
                 name: '衣索比亞 果丁丁 日曬 (優化微批次)',
