@@ -179,7 +179,12 @@
                 </div>
 
                 <div class="border-t border-white/10 pt-4 space-y-3">
-                    <h4 class="text-brass-gold font-bold text-xs uppercase tracking-widest">🌿 Gem 熟豆風味與 SCA 手沖指南設定</h4>
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-brass-gold font-bold text-xs uppercase tracking-widest">🌿 Gem 熟豆風味與 SCA 手沖指南設定</h4>
+                        <button type="button" id="edit-ai-btn" onclick="generateEditModalFlavor()" class="text-[10px] bg-white/5 hover:bg-brass-gold/20 text-brass-gold border border-brass-gold/30 px-3 py-1 rounded-full transition-all">
+                            ✨ Groq AI 重新生成風味
+                        </button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-gray-400 mb-1">初韻 (Top Note)</label>
@@ -222,21 +227,35 @@
         </div>
     </div>
 
+    <!-- 引入共用 AI 引擎模組 -->
+    <script src="./js/ai_engine.js"></script>
     <script>
-        function verifyPassword(event) {
+        // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
+        async function verifyPassword(event) {
             event.preventDefault();
             const input = document.getElementById("password-input").value;
-            if (input === "Samcct6744") {
-                sessionStorage.setItem("roast_db_auth", "true");
-                document.getElementById("password-overlay").style.display = "none";
-            } else {
-                document.getElementById("password-error").classList.remove("hidden");
-                document.getElementById("password-input").value = "";
-                document.getElementById("password-input").focus();
+            const btn = event.target.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.textContent = '驗證中...'; }
+            try {
+                const isValid = await window.GansingKimAI.verifyPasswordSecure(input);
+                if (isValid) {
+                    sessionStorage.setItem("roast_db_auth", "true");
+                    // 方案 B：中繼層代理，不再需要注入金鑰
+                    document.getElementById("password-overlay").style.display = "none";
+                } else {
+                    document.getElementById("password-error").classList.remove("hidden");
+                    document.getElementById("password-input").value = "";
+                    document.getElementById("password-input").focus();
+                }
+            } catch(e) {
+                console.error('密碼驗證錯誤', e);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
         if (sessionStorage.getItem("roast_db_auth") === "true") {
             document.write('<style>#password-overlay { display: none !important; }</style>');
+            // 已驗證
         }
     </script>
 
@@ -4644,9 +4663,44 @@
 
         
         // 8.// 8. 匯出 Obsidian Markdown Exporter (YAML)
-        function generateObsidianYAML() {
+        async function generateObsidianYAML() {
             const rec = selectedRecord;
-            
+            const obsidianBtn = document.querySelector('[onclick="generateObsidianYAML()"]');
+
+            // 顯示 AI 生成中狀態
+            if (obsidianBtn) {
+                obsidianBtn._origText = obsidianBtn.innerHTML;
+                obsidianBtn.innerHTML = '<span class="animate-pulse">⏳ AI 生成詩句中...</span>';
+                obsidianBtn.disabled = true;
+            }
+
+            // 呼叫 Groq 生成 Obsidian 詩意品鑑段落
+            let poetry = { haiku: '', tasting: '', craftNote: '' };
+            const AI = window.GansingKimAI;
+            if (AI && AI.isKeyReady()) {
+                try {
+                    poetry = await AI.generateObsidianPoetry({
+                        beanName:   rec.beanName   || '',
+                        origin:     rec.origin     || '',
+                        process:    rec.process    || '',
+                        roastLevel: rec.roastLevel || '',
+                        dtrRatio:   rec.dtrRatio   || '',
+                        lossRatio:  rec.lossRatio  || '',
+                        flavorTop:  rec.flavorTop  || '',
+                        flavorMid:  rec.flavorMid  || '',
+                        flavorBase: rec.flavorBase || ''
+                    });
+                } catch(e) {
+                    console.warn('[Obsidian] AI 詩句生成失敗，使用預設文案', e);
+                }
+            }
+
+            // 復原按鈕
+            if (obsidianBtn) {
+                obsidianBtn.innerHTML = obsidianBtn._origText || '📋 匯出 Obsidian 筆記';
+                obsidianBtn.disabled = false;
+            }
+
             // 生成 YAML Markdown 內容
             const obsidianMarkdown = `---
 type: roasting_log
@@ -4686,7 +4740,21 @@ ${rec.timelineActions.map(act => `| ${act.time} | ${act.temp}°C | ${act.burner}
 ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':' + (dp.timeS % 60 < 10 ? '0' : '') + dp.timeS % 60)} | ${dp.beanTemp}°C | ${typeof dp.ror === 'number' ? dp.ror.toFixed(1) : dp.ror} | ${dp.note || ''} |`).join('\n')}
 
 ---
-*本筆記由金成淬科學化烘焙資料庫自動匯出生成，已同步寫入 Obsidian 黑金極簡日誌。*
+
+## ✨ 金成淬 AI 品鑑詩稿
+
+> ${poetry.haiku ? poetry.haiku.split('\n').join('\n> ') : `${rec.origin || '產區'}山嵐起\n> 職人火候淬精魂\n> 杯中見風土`}
+
+**品鑑記錄**
+
+${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘焙之作。`}
+
+**工藝備忘**
+
+*${poetry.craftNote || `DTR ${rec.dtrRatio}，失重 ${rec.lossRatio}，本批次曲線穩定，風味發展均衡。`}*
+
+---
+*本筆記由金成淬科學化烘焙資料庫自動匯出生成，AI 詩稿由 Groq llama-3.3-70b 生成，已同步寫入 Obsidian 黑金極簡日誌。*
 `;
 
             const container = document.getElementById("obsidian-output-container");
@@ -4913,8 +4981,57 @@ ${rec.rorDatapoints.map(dp => `| ${dp.timeStr || (Math.floor(dp.timeS / 60) + ':
                 window.location.href = `./bean.html`;
             }
         }
+        // -----------------------------------------------------------------
+        // Groq AI 風味生成（Edit Modal 用）
+        // -----------------------------------------------------------------
+        async function generateEditModalFlavor() {
+            const btn = document.getElementById('edit-ai-btn');
+            const AI = window.GansingKimAI;
+            if (!AI) { alert('AI 引擎載入中，請稍後再試。'); return; }
+
+            const beanData = {
+                name:       document.getElementById('edit-beanName')?.value || '',
+                origin:     document.getElementById('edit-origin')?.value || '',
+                process:    document.getElementById('edit-process')?.value || '',
+                roastLevel: document.getElementById('edit-roastLevel')?.value || '',
+                altitude:   document.getElementById('edit-altitude')?.value || '',
+                variety:    document.getElementById('edit-variety')?.value || '',
+                dtr:        document.getElementById('edit-dtrRatio')?.value || '',
+                lossRatio:  document.getElementById('edit-lossRatio')?.value || ''
+            };
+
+            AI.showAILoading(btn, '⏳ AI 思考中...');
+
+            const result = await AI.generateCoffeeFlavorAI(beanData);
+
+            // 填入 Edit Modal 欄位（不用打字機，直接填入比較快）
+            const topEl  = document.getElementById('edit-flavorTop');
+            const midEl  = document.getElementById('edit-flavorMid');
+            const baseEl = document.getElementById('edit-flavorBase');
+            const copyEl = document.getElementById('edit-storyCopy');
+            const tempEl = document.getElementById('edit-brewTemp');
+
+            if (topEl)  { topEl.value  = result.topNote;   topEl.style.borderColor  = '#c49a6c'; }
+            if (midEl)  { midEl.value  = result.midNote;   midEl.style.borderColor  = '#c49a6c'; }
+            if (baseEl) { baseEl.value = result.baseNote;  baseEl.style.borderColor = '#c49a6c'; }
+            if (copyEl) { copyEl.value = result.storyCopy; copyEl.style.borderColor = '#c49a6c'; }
+            if (tempEl && result.brewTip) {
+                const match = result.brewTip.match(/(\d{2,3})°C[^,]*?-[^,]*(\d{2,3})°C/);
+                if (match) tempEl.value = `${match[1]}°C - ${match[2]}°C`;
+            }
+
+            // 短暫高亮後還原邊框
+            setTimeout(() => {
+                [topEl, midEl, baseEl, copyEl].forEach(el => {
+                    if (el) el.style.borderColor = '';
+                });
+            }, 3000);
+
+            AI.hideAILoading(btn);
+        }
 
         // --- 手動綁定全域函數至 window 以相容 HTML onClick/onSubmit 事件 ---
+        window.generateEditModalFlavor = generateEditModalFlavor;
         window.showRecordDetail = showRecordDetail;
         window.exportJSON = exportJSON;
         window.importJSON = importJSON;

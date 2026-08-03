@@ -108,23 +108,101 @@
             </a>
         </div>
     </div>
+    <!-- 引入共用 AI 引擎模組 -->
+    <script src="./js/ai_engine.js"></script>
     <script>
-        function verifyPassword(event) {
+        // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
+        async function verifyPassword(event) {
             event.preventDefault();
             const input = document.getElementById("password-input").value;
-            if (input === "Samcct6744") {
-                sessionStorage.setItem("roast_db_auth", "true");
-                document.getElementById("password-overlay").style.display = "none";
-            } else {
-                document.getElementById("password-error").classList.remove("hidden");
-                document.getElementById("password-input").value = "";
-                document.getElementById("password-input").focus();
+            const btn = event.target.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.textContent = '驗證中...'; }
+            try {
+                const isValid = await window.GansingKimAI.verifyPasswordSecure(input);
+                if (isValid) {
+                    sessionStorage.setItem("roast_db_auth", "true");
+                    // 方案 B：中繼層代理，不再需要注入金鑰
+                    document.getElementById("password-overlay").style.display = "none";
+                    // 密碼驗證成功後初始化自動觸發監聽器
+                    setupAutoAITrigger();
+                } else {
+                    document.getElementById("password-error").classList.remove("hidden");
+                    document.getElementById("password-input").value = "";
+                    document.getElementById("password-input").focus();
+                }
+            } catch(e) {
+                console.error('密碼驗證錯誤', e);
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
+        // 已有驗證記錄時自動注入 Key（頁面重整時）
         if (sessionStorage.getItem("roast_db_auth") === "true") {
             document.write('<style>#password-overlay { display: none !important; }</style>');
+            // 已驗證
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.GansingKimAI) {
+                    setupAutoAITrigger();
+                }
+            });
+        }
+
+        // ══════════════════════════════════════════════
+        // 方案 B：自動觸發 AI 風味生成（Debounce 2 秒）
+        // 條件：豆名 + 產區均已填寫，且 2 秒內無新輸入
+        // ══════════════════════════════════════════════
+        let _autoAITimer = null;
+        let _autoAIFired = false;  // 本批次已自動觸發過，避免重複呼叫
+
+        function setupAutoAITrigger() {
+            const triggerFields = ['form-bean', 'form-origin', 'form-process', 'form-roast'];
+            
+            triggerFields.forEach(function(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('input', onTriggerFieldChange);
+                el.addEventListener('change', onTriggerFieldChange);
+            });
+        }
+
+        function onTriggerFieldChange() {
+            // 每次輸入重置計時器
+            clearTimeout(_autoAITimer);
+            _autoAIFired = false;
+
+            const beanVal   = (document.getElementById('form-bean')?.value   || '').trim();
+            const originVal = (document.getElementById('form-origin')?.value || '').trim();
+
+            // 必須豆名 + 產區都填寫才啟動倒計時
+            if (!beanVal || !originVal) return;
+
+            // 顯示「AI 即將自動生成」提示
+            showAutoAIHint(true);
+
+            _autoAITimer = setTimeout(async function() {
+                if (_autoAIFired) return;
+                _autoAIFired = true;
+                showAutoAIHint(false);
+                // 呼叫 AI 生成（與手動按鈕共用同一函式）
+                if (typeof autoGenerateGemSensory === 'function') {
+                    await autoGenerateGemSensory();
+                }
+            }, 2000);
+        }
+
+        function showAutoAIHint(show) {
+            let hint = document.getElementById('auto-ai-hint');
+            if (!hint) {
+                hint = document.createElement('div');
+                hint.id = 'auto-ai-hint';
+                hint.className = 'fixed bottom-6 right-6 bg-[#c49a6c] text-white text-xs font-serif font-bold px-4 py-2.5 rounded-xl shadow-lg z-50 flex items-center gap-2 transition-all duration-300';
+                hint.innerHTML = '<span class="animate-pulse">⚡</span> AI 將於 2 秒後自動生成風味描述...';
+                document.body.appendChild(hint);
+            }
+            hint.style.display = show ? 'flex' : 'none';
         }
     </script>
+
 
     <!-- 1. 頂部導航 -->
     <header class="w-full border-b border-[#c49a6c]/15 py-4 px-6 md:px-12 flex justify-between items-center z-10 glass-panel sticky top-0">
@@ -299,14 +377,34 @@
                         <button type="button" onclick="addGridRow('', '', '')" class="w-full bg-[#f5f2eb] hover:bg-brass-gold/10 text-[#5c544c] hover:text-[#8d6e4f] border border-[#c49a6c]/30 border-dashed py-3 rounded-xl text-sm font-serif font-bold tracking-widest transition-all">
                             ➕ 新增烘焙觀測點 (BT/ROR)
                         </button>
+                        <!-- AI 烘焙曲線診斷按鈕 -->
+                        <button type="button" id="ai-ror-btn" onclick="triggerRORDiagnosis()" class="w-full bg-[#2b2621]/5 hover:bg-[#c49a6c]/15 text-[#5c544c] hover:text-[#8d6e4f] border border-[#c49a6c]/20 border-dashed py-2.5 rounded-xl text-xs font-serif font-bold tracking-widest transition-all flex items-center justify-center gap-1.5">
+                            🤖 AI 分析本批次 ROR 曲線
+                        </button>
+                        <!-- ROR 診斷結果面板（預設隱藏）-->
+                        <div id="ror-diagnosis-panel" class="hidden bg-[#fbfaf7] border border-[#c49a6c]/25 rounded-xl p-4 shadow-inner space-y-2">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[#5c544c] font-bold text-xs tracking-widest uppercase">🤖 AI 烘焙曲線診斷報告</span>
+                                <span id="ror-overall-badge" class="bg-[#c49a6c]/15 text-[#8d6e4f] text-[10px] font-bold px-2 py-0.5 rounded-full">分析中...</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-1.5 text-xs text-[#5c544c]">
+                                <p><span class="font-bold">📊 DTR：</span><span id="ror-dtr-eval">—</span></p>
+                                <p><span class="font-bold">⚖️ 失重：</span><span id="ror-loss-eval">—</span></p>
+                                <p><span class="font-bold">📈 走勢：</span><span id="ror-trend-eval">—</span></p>
+                                <div id="ror-suggestion-wrap">
+                                    <p class="font-bold mt-1">💡 下批次建議：</p>
+                                    <ul id="ror-suggestion-list" class="list-disc list-inside space-y-0.5 pl-1"></ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 2. Gem 熟豆三段風味與職人手沖指南 -->
                     <div class="border-t border-[#c49a6c]/15 pt-6 space-y-4">
                         <div class="flex justify-between items-center flex-wrap gap-2">
                             <h4 class="text-[#5c544c] font-serif font-bold text-sm md:text-base tracking-widest uppercase">🌿 Gem 熟豆三段風味與職人手沖指南</h4>
-                            <button type="button" onclick="autoGenerateGemSensory()" class="bg-[#c49a6c] hover:bg-[#d4af37] text-white text-xs px-3.5 py-2 rounded-lg transition-all font-serif font-bold shadow-md flex items-center gap-1.5">
-                                ✨ AI Gem 智慧帶入風味文案
+                            <button type="button" id="ai-flavor-btn" onclick="autoGenerateGemSensory()" class="bg-[#c49a6c] hover:bg-[#d4af37] text-white text-xs px-3.5 py-2 rounded-lg transition-all font-serif font-bold shadow-md flex items-center gap-1.5">
+                                ✨ Groq AI 生成風味文案
                             </button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -926,88 +1024,123 @@
             }
         }
 
-        function autoGenerateGemSensory() {
-            const bean = document.getElementById("form-bean").value || "";
-            const origin = document.getElementById("form-origin").value || "";
-            const roastLevel = document.getElementById("form-roast-level").value || "";
-
-            // 動態判斷推薦水溫
-            let brewTemp = "88°C - 90°C";
-            if (roastLevel.includes("極淺") || (roastLevel.includes("淺焙") && !roastLevel.includes("中"))) {
-                brewTemp = "92°C - 94°C";
-            } else if (roastLevel.includes("淺中") || roastLevel.includes("中淺")) {
-                brewTemp = "90°C - 92°C";
-            } else if (roastLevel.includes("中焙") || roastLevel.includes("中深") || roastLevel.includes("深焙")) {
-                brewTemp = "88°C - 90°C";
+        // ══════════════════════════════════════════════
+        // Groq AI 真實風味文案生成（替代舊版 if/else 硬編碼）
+        // ══════════════════════════════════════════════
+        async function autoGenerateGemSensory() {
+            const btn = document.getElementById('ai-flavor-btn');
+            const AI = window.GansingKimAI;
+            if (!AI) {
+                alert('AI 引擎載入中，請稍後再試。');
+                return;
             }
 
-            if (bean.includes("蕭邦") || bean.includes("Chopin")) {
-                document.getElementById("form-process").value = "雙重厭氧蜜處理 (Raisin Honey / Anaerobic)";
-                document.getElementById("form-altitude").value = "1850m";
-                document.getElementById("form-variety").value = "卡杜拉 / 卡杜艾 (Caturra / Catuai)";
-                document.getElementById("form-flavor-top").value = "狂野玫瑰、香瓜幽香";
-                document.getElementById("form-flavor-mid").value = "熟甜香瓜、紅酒交響";
-                document.getElementById("form-flavor-base").value = "絲滑奶油、楓糖甘甜";
-                document.getElementById("form-story-copy").value = "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯 / 四六法注水";
-            } else if (bean.includes("瑪格麗特") || bean.includes("草莓")) {
-                document.getElementById("form-process").value = "草莓厭氧蜜處理";
-                document.getElementById("form-altitude").value = "1750m";
-                document.getElementById("form-variety").value = "Castillo / Pink Bourbon";
-                document.getElementById("form-flavor-top").value = "百合幽香、鮮摘草莓與草莓軟糖";
-                document.getElementById("form-flavor-mid").value = "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響";
-                document.getElementById("form-flavor-base").value = "紅糖甜感、細緻可可尾韻悠長";
-                document.getElementById("form-story-copy").value = "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。";
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯 / 三段注水";
-            } else if (bean.includes("莫札特") || bean.includes("Mozart")) {
-                document.getElementById("form-process").value = "葡萄乾蜜處理";
-                document.getElementById("form-altitude").value = "1950m";
-                document.getElementById("form-variety").value = "卡杜拉 (Caturra)";
-                document.getElementById("form-flavor-top").value = "馥郁玫瑰、紫羅蘭香";
-                document.getElementById("form-flavor-mid").value = "紫葡萄汁、蜜糖交響";
-                document.getElementById("form-flavor-base").value = "花香甘甜、柔滑悠長";
-                document.getElementById("form-story-copy").value = "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。";
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
-            } else if (bean.includes("藝伎") || bean.includes("Gesha") || bean.includes("Geisha")) {
-                document.getElementById("form-process").value = "精緻水洗 / 日曬";
-                document.getElementById("form-altitude").value = "1900m - 2000m";
-                document.getElementById("form-variety").value = "藝伎 (Gesha)";
-                document.getElementById("form-flavor-top").value = "白色茉莉花香、佛手柑皮清香";
-                document.getElementById("form-flavor-mid").value = "鮮採水蜜桃汁、荔枝甜感交響";
-                document.getElementById("form-flavor-base").value = "高雅白茶餘韻、蜂蜜甘甜悠長";
-                document.getElementById("form-story-copy").value = `來自高海拔產區的尊貴藝伎品種，擁有如香水般層次分明的茉莉花香與清新柑橘風味。經過金成淬職人精密控溫，完美呈現極致乾淨與精緻的杯測風味。`;
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中偏細研磨 / V60 濾杯";
-            } else if (bean.includes("肯亞") || bean.includes("Kenya")) {
-                document.getElementById("form-process").value = "傳統雙重水洗";
-                document.getElementById("form-altitude").value = "1800m";
-                document.getElementById("form-variety").value = "SL28, SL34";
-                document.getElementById("form-flavor-top").value = "黑醋栗香、烏梅與聖女番茄";
-                document.getElementById("form-flavor-mid").value = "黑莓果醬、多汁蔓越莓酸甜";
-                document.getElementById("form-flavor-base").value = "蔗糖甘甜、仙草茶韻悠長";
-                document.getElementById("form-story-copy").value = `高海拔火山灰土壤培育出的精選肯亞批次，採用火山岩對流熱傳與精密 ROR 控制，將肯亞特有的爆發力酸甜與黑醋栗果香發揮得淋漓盡致。`;
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中度研磨 / V60 濾杯";
+            // 收集表單資料
+            const beanData = {
+                name:       document.getElementById('form-bean')?.value || '',
+                origin:     document.getElementById('form-origin')?.value || '',
+                process:    document.getElementById('form-process')?.value || '',
+                roastLevel: document.getElementById('form-roast')?.value || '',
+                altitude:   document.getElementById('form-altitude')?.value || '',
+                variety:    document.getElementById('form-variety')?.value || '',
+                machine:    document.getElementById('form-machine')?.value || '',
+                dtr:        document.getElementById('form-calc-dtr')?.innerText?.replace('%','') || '',
+                lossRatio:  document.getElementById('form-calc-loss')?.innerText?.replace('%','') || ''
+            };
+
+            // 顯示 Loading 狀態
+            AI.showAILoading(btn, '⏳ Groq AI 思考中...');
+
+            // 呼叫 Groq API
+            const result = await AI.generateCoffeeFlavorAI(beanData);
+
+            // 打字機效果依序填入欄位
+            await AI.typewriterFill('form-flavor-top', result.topNote, 20);
+            await AI.typewriterFill('form-flavor-mid', result.midNote, 20);
+            await AI.typewriterFill('form-flavor-base', result.baseNote, 20);
+            await AI.typewriterFill('form-story-copy', result.storyCopy, 12);
+
+            // 更新沖煮建議
+            if (result.brewTip) {
+                const brewTipMatch = result.brewTip.match(/(\d{2,3})°C[^,]*?-[^,]*(\d{2,3})°C/);
+                if (brewTipMatch) {
+                    const tempField = document.getElementById('form-brew-temp');
+                    if (tempField) tempField.value = `${brewTipMatch[1]}°C - ${brewTipMatch[2]}°C`;
+                } else {
+                    const roastLevel = beanData.roastLevel;
+                    const tempField = document.getElementById('form-brew-temp');
+                    if (tempField) {
+                        if (roastLevel.includes('極淺')) tempField.value = '92°C - 94°C';
+                        else if (roastLevel.includes('中淺') || roastLevel.includes('淺中')) tempField.value = '90°C - 92°C';
+                        else if (roastLevel.includes('中焙') || roastLevel.includes('深')) tempField.value = '87°C - 89°C';
+                        else tempField.value = '88°C - 91°C';
+                    }
+                }
+            }
+
+            // 恢復按鈕
+            AI.hideAILoading(btn);
+        }
+
+        // ══════════════════════════════════════════════
+        // ROR 曲線 AI 診斷
+        // ══════════════════════════════════════════════
+        async function triggerRORDiagnosis() {
+            const btn = document.getElementById('ai-ror-btn');
+            const panel = document.getElementById('ror-diagnosis-panel');
+            const AI = window.GansingKimAI;
+            if (!AI) return;
+
+            // 收集 ROR 觀測點
+            const rows = document.querySelectorAll('#ror-grid-body tr');
+            const rorPoints = [];
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td input, td');
+                const time = row.querySelector('input[placeholder*=":"')?.value || '';
+                const bt   = row.querySelector('input[type="number"')?.value || '';
+                const ror  = row.querySelectorAll('td')[2]?.innerText || '';
+                if (time && bt) rorPoints.push({ time, bt, ror });
+            });
+
+            const beanName   = document.getElementById('form-bean')?.value || '精品豆';
+            const roastLevel = document.getElementById('form-roast')?.value || '';
+            const dtr  = document.getElementById('form-calc-dtr')?.innerText?.replace('%','') || '';
+            const loss = document.getElementById('form-calc-loss')?.innerText?.replace('%','') || '';
+
+            AI.showAILoading(btn, '🤖 AI 分析中...');
+            panel.classList.add('hidden');
+
+            const diag = await AI.generateRORDiagnosis({ rorPoints, dtr, lossRatio: loss, beanName, roastLevel });
+
+            // 填入診斷結果
+            document.getElementById('ror-overall-badge').textContent = diag.badge || '職人批次';
+            document.getElementById('ror-dtr-eval').textContent    = diag.dtrEval || '—';
+            document.getElementById('ror-loss-eval').textContent   = diag.lossEval || '—';
+            document.getElementById('ror-trend-eval').textContent  = diag.rorTrend || '—';
+
+            const suggList = document.getElementById('ror-suggestion-list');
+            suggList.innerHTML = '';
+            const suggestions = Array.isArray(diag.suggestion) ? diag.suggestion : [diag.suggestion];
+            suggestions.forEach(s => {
+                if (!s) return;
+                const li = document.createElement('li');
+                li.textContent = s;
+                li.className = 'text-[#5c544c]';
+                suggList.appendChild(li);
+            });
+
+            // 根據整體評分設定 badge 顏色
+            const badgeEl = document.getElementById('ror-overall-badge');
+            if (diag.overallScore === '優秀') {
+                badgeEl.className = 'bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full';
+            } else if (diag.overallScore === '需改善') {
+                badgeEl.className = 'bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full';
             } else {
-                // 隨機多樣性風味文案
-                const topNotes = ['高雅花香、初摘柑橘', '清新茉莉、佛手柑皮', '微風白花、脆甜青蘋果', '明亮橙花、水蜜桃香', '野薑花香、紅漿果'];
-                const midNotes = ['明亮果汁感、堅果與蜂蜜', '黑莓果醬、多汁蔓越莓', '紫葡萄汁、蜜糖交響', '百香果酸甜、焦糖瑪奇朵', '熱帶水果、奶油滑順感'];
-                const baseNotes = ['清雅白花餘韻、黑糖甘甜', '仙草茶韻、餘韻悠長', '榛果巧克力、蜂蜜回甘', '烏龍茶感、焦糖甜香', '柔和可可、細緻長韻'];
-                
-                const randomTop = topNotes[Math.floor(Math.random() * topNotes.length)];
-                const randomMid = midNotes[Math.floor(Math.random() * midNotes.length)];
-                const randomBase = baseNotes[Math.floor(Math.random() * baseNotes.length)];
-                
-                document.getElementById("form-flavor-top").value = (origin ? `${origin}` : '') + randomTop;
-                document.getElementById("form-flavor-mid").value = randomMid;
-                document.getElementById("form-flavor-base").value = randomBase;
-                document.getElementById("form-story-copy").value = `來自 ${origin || '精選產區'} 的微批次精品豆，經過金成淬職人精密控溫與 ROR 升溫率管轄，釋放出獨特的風土特色，帶給您乾淨且富有層次的杯測體驗。`;
-                document.getElementById("form-brew-temp").value = brewTemp;
-                document.getElementById("form-brew-method").value = "中偏粗研磨 / V60 濾杯";
+                badgeEl.className = 'bg-[#c49a6c]/15 text-[#8d6e4f] text-[10px] font-bold px-2 py-0.5 rounded-full';
             }
+
+            panel.classList.remove('hidden');
+            AI.hideAILoading(btn);
         }
 
         // 11. 烘豆機風火配置與注意事項 (Machine SOP Rendering)
