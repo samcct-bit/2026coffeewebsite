@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哥斯大黎加 莫札特 #3 · 2026.08.04 | 金成淬精選</title>
+    <meta name="description" content="金成淬精品咖啡 · 哥斯大黎加音樂家系列莫札特 Batch #3，2026年8月4日烘焙。白玫瑰花瓣、青蘋果清香、薄荷葉晨露——卡杜拉葡萄乾蜜處理的極致淺焙體驗。">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'obsidian': '#0c0c0e',
+                        'ivory': '#fcfaf7',
+                        'brass-gold': '#c49a6c',
+                        'refined-gold': '#d4af37',
+                    },
+                    fontFamily: {
+                        sans:  ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                        outfit:[''"Outfit"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── 全域背景 ── */
+        body {
+            background-color: #0a0a0c;
+            background-image:
+                radial-gradient(ellipse 80% 40% at 50% -10%, rgba(255,255,240,0.04) 0%, transparent 60%),
+                radial-gradient(circle at 90% 80%, rgba(196,154,108,0.04) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* ── 玻璃磨砂面板 ── */
+        .glass {
+            background: rgba(18,16,14,0.70);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(196,154,108,0.13);
+        }
+
+        /* ── 實體標籤（宣紙質感）── */
+        .paper-label {
+            background: linear-gradient(160deg, #fefdf9 0%, #f9f6ee 60%, #f5f0e4 100%);
+            box-shadow:
+                0 40px 100px -20px rgba(0,0,0,0.85),
+                0 0 0 1px rgba(196,154,108,0.18),
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                inset 0 -1px 0 rgba(196,154,108,0.08);
+            position: relative;
+        }
+        /* 雙線裝飾框 */
+        .paper-label::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border: 1px solid rgba(196,154,108,0.22);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .paper-label::after {
+            content: '';
+            position: absolute;
+            inset: 13px;
+            border: 1px solid rgba(196,154,108,0.10);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ── 燙金漸層文字 ── */
+        .foil {
+            background: linear-gradient(135deg, #b8892a 0%, #d4af37 30%, #e8c97b 55%, #c49a6c 80%, #a07840 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: foilShimmer 5s ease-in-out infinite;
+        }
+        @keyframes foilShimmer {
+            0%   { background-position: 0%   50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0%   50%; }
+        }
+
+        /* ── 分隔線 ── */
+        .divider { height:1px; background:linear-gradient(90deg,transparent,rgba(196,154,108,0.45),transparent); }
+
+        /* ── 風味 Bar ── */
+        .flavor-bar {
+            height: 3px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #c49a6c, #e8c97b, #d4af37);
+            transform-origin: left;
+            transform: scaleX(0);
+            animation: barGrow 1.4s cubic-bezier(.22,1,.36,1) forwards;
+        }
+        @keyframes barGrow { to { transform: scaleX(1); } }
+
+        /* ── ROR 時間軸 ── */
+        .timeline-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            border: 2px solid #c49a6c;
+            background: #0a0a0c;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+        .timeline-dot.active { background: #c49a6c; box-shadow: 0 0 8px rgba(196,154,108,0.6); }
+        .timeline-line {
+            width: 2px;
+            background: linear-gradient(to bottom, #c49a6c, rgba(196,154,108,0.2));
+            flex-grow: 1;
+            margin: 0 auto;
+        }
+
+        /* ── 數據卡片 Hover ── */
+        .data-card {
+            transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+            border: 1px solid rgba(196,154,108,0.10);
+        }
+        .data-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(196,154,108,0.45);
+            box-shadow: 0 12px 28px rgba(196,154,108,0.12);
+        }
+
+        /* ── 淡入動畫 ── */
+        .fade-in { opacity:0; transform:translateY(28px); transition: opacity .9s ease, transform .9s ease; }
+        .fade-in.visible { opacity:1; transform:none; }
+
+        /* ── 脈動光暈 ── */
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 14px rgba(196,154,108,0.18); }
+            50%      { box-shadow: 0 0 32px rgba(212,175,55,0.38); }
+        }
+        .pulse-glow { animation: pulseGlow 3.5s ease-in-out infinite; }
+
+        /* ── 徽章閃爍 ── */
+        @keyframes badgePulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:0.65; }
+        }
+        .badge-pulse { animation: badgePulse 2.2s ease-in-out infinite; }
+
+        /* ── 捲軸 ── */
+        ::-webkit-scrollbar { width:7px; }
+        ::-webkit-scrollbar-track { background:#0a0a0c; }
+        ::-webkit-scrollbar-thumb { background:#1e1a16; border-radius:4px; border:2px solid #0a0a0c; }
+        ::-webkit-scrollbar-thumb:hover { background:#c49a6c; }
+    </style>
+</head>
+<body class="text-[#f0ece4] font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
+
+<!-- ══════════════════════════════
+     HERO HEADER
+══════════════════════════════ -->
+<header class="relative w-full pt-16 pb-12 flex flex-col items-center overflow-hidden">
+    <!-- 背景光暈 -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[280px] bg-[#c49a6c]/6 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-0 left-1/4 w-[300px] h-[180px] bg-white/2 rounded-full blur-[80px]"></div>
+    </div>
+
+    <!-- Logo -->
+    <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="z-10 mb-7 block hover:opacity-90 transition-opacity" title="返回首頁">
+        <div class="w-24 h-24 rounded-full overflow-hidden bg-white/95 p-1 pulse-glow hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center">
+            <img src="../7204.png" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div style="display:none" class="w-full h-full flex items-center justify-center text-gray-700 font-serif font-bold text-xl">金</div>
+        </div>
+    </a>
+
+    <!-- 標題文字 -->
+    <div class="text-center space-y-3 px-4 z-10">
+        <span class="block text-[#c49a6c] tracking-[0.42em] text-[10px] font-outfit uppercase">GOLDEN COFFEE SELECTION · ALCHEMY OF REFINEMENT</span>
+        <h1 class="text-4xl md:text-6xl font-serif font-bold tracking-widest text-white mt-3 leading-tight">
+            莫札特 <span class="foil">#3</span>
+        </h1>
+        <p class="text-gray-500 tracking-[0.28em] text-xs md:text-sm font-outfit mt-2 uppercase">Costa Rica Musician Mozart · Batch 3</p>
+
+        <!-- 標籤群 -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-5">
+            <span class="badge-pulse inline-flex items-center gap-1.5 bg-[#d4af37]/12 border border-[#d4af37]/35 text-[#d4af37] text-[10px] font-bold px-3 py-1 rounded-full font-outfit tracking-widest uppercase">
+                ✦ 2026.08.04 烘焙
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 text-gray-400 text-[10px] font-bold px-3 py-1 rounded-full font-outfit tracking-widest uppercase">
+                葡萄乾蜜處理
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 text-gray-400 text-[10px] font-bold px-3 py-1 rounded-full font-outfit tracking-widest uppercase">
+                淺焙 · 1950m
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 text-gray-400 text-[10px] font-bold px-3 py-1 rounded-full font-outfit tracking-widest uppercase">
+                楊家半熱風 0.5kg
+            </span>
+        </div>
+    </div>
+</header>
+
+<!-- ══════════════════════════════
+     MAIN CONTENT
+══════════════════════════════ -->
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pb-28 space-y-20">
+
+    <!-- ─────────────────────────────
+         A. 精品標籤（宣紙質感）
+    ───────────────────────────── -->
+    <section class="fade-in">
+        <div class="text-center mb-8">
+            <span class="text-[#c49a6c]/60 tracking-[0.32em] text-[10px] font-outfit uppercase">Premium Label · 精品標籤</span>
+            <h2 class="text-white font-serif text-xl mt-2 tracking-widest">哥斯大黎加 音樂家系列 莫札特 #3</h2>
+        </div>
+
+        <!-- 標籤卡 -->
+        <div class="max-w-[520px] mx-auto paper-label rounded-sm p-8 md:p-12">
+            <div class="relative z-10 space-y-7">
+
+                <!-- 標籤頭 -->
+                <div class="flex items-center justify-between gap-4 border-b border-[#c49a6c]/25 pb-6">
+                    <div class="w-16 h-16 shrink-0 opacity-70 mix-blend-multiply">
+                        <img src="../7204.png" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale">
+                    </div>
+                    <div class="text-right flex-1">
+                        <h3 class="text-lg md:text-xl font-serif font-bold text-[#1a1410] leading-tight tracking-wide">
+                            哥斯大黎加 音樂家・莫札特
+                        </h3>
+                        <p class="text-gray-400 text-[10px] tracking-widest uppercase font-outfit mt-1">Costa Rica Musician Mozart</p>
+                        <div class="flex items-center justify-end gap-2 mt-2">
+                            <span class="bg-[#2b2621] text-[#c49a6c] text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase">BATCH #3</span>
+                            <span class="bg-[#f0ece4] text-[#8d6e4f] text-[9px] font-bold px-2 py-0.5 rounded border border-[#c49a6c]/30 font-outfit tracking-widest">淺焙</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 物理資訊格 -->
+                <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[#4a4035] font-serif border-b border-[#c49a6c]/18 pb-6">
+                    <!-- 左欄 -->
+                    <div class="space-y-3">
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">產區 Origin</p>
+                            <p class="font-bold text-[#1a1410] text-sm mt-0.5">哥斯大黎加</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">品種 Variety</p>
+                            <p class="font-bold text-[#1a1410] text-sm mt-0.5">卡杜拉 Caturra</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">海拔 Altitude</p>
+                            <p class="font-bold text-[#1a1410] text-sm mt-0.5">1950m</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">入豆溫 Charge</p>
+                            <p class="font-bold text-[#1a1410] text-sm font-mono mt-0.5">175.5°C</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">一爆溫 FC Temp</p>
+                            <p class="font-bold text-[#1a1410] text-sm font-mono mt-0.5">178.6°C @ 08:00</p>
+                        </div>
+                    </div>
+                    <!-- 右欄 -->
+                    <div class="space-y-3">
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">處理法 Process</p>
+                            <p class="font-bold text-[#c49a6c] text-sm mt-0.5">葡萄乾蜜處理</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">烘焙日 Roasted</p>
+                            <p class="font-bold text-[#1a1410] text-sm font-mono mt-0.5">2026.08.04</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">發展比 DTR</p>
+                            <p class="font-bold text-[#c49a6c] text-sm font-mono mt-0.5">7.3%</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">出豆溫 Drop</p>
+                            <p class="font-bold text-[#1a1410] text-sm font-mono mt-0.5">182.8°C @ 08:38</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-1.5">
+                            <p class="text-[9px] text-gray-400 tracking-widest uppercase font-outfit">失重 / 出豆量</p>
+                            <p class="font-bold text-[#1a1410] text-sm font-mono mt-0.5">11.1% · 296.2g</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 風味三段 -->
+                <div class="space-y-4">
+                    <p class="text-[9px] tracking-[0.32em] text-[#c49a6c]/70 uppercase font-outfit">Flavor Profile · 風味輪廓</p>
+                    <div class="space-y-4">
+                        <!-- Top -->
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <span class="shrink-0 bg-[#c49a6c] text-white text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase mt-0.5">Top · 初韻</span>
+                                <span class="text-[#2b2218] text-sm font-serif font-semibold tracking-wide text-right leading-snug">白玫瑰花瓣、青蘋果清香、薄荷葉晨露</span>
+                            </div>
+                            <div class="flavor-bar" style="width:92%; animation-delay:.15s;"></div>
+                        </div>
+                        <!-- Mid -->
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <span class="shrink-0 bg-[#c49a6c]/75 text-white text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase mt-0.5">Mid · 中調</span>
+                                <span class="text-[#2b2218] text-sm font-serif font-semibold tracking-wide text-right leading-snug">柑橘汁感、蜂蜜甜韻、口感層次豐富</span>
+                            </div>
+                            <div class="flavor-bar" style="width:80%; animation-delay:.4s;"></div>
+                        </div>
+                        <!-- Base -->
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-2">
+                                <span class="shrink-0 bg-[#c49a6c]/55 text-white text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase mt-0.5">Base · 尾韻</span>
+                                <span class="text-[#2b2218] text-sm font-serif font-semibold tracking-wide text-right leading-snug">榛果回甘、黑糖餘韻、尾段細膩</span>
+                            </div>
+                            <div class="flavor-bar" style="width:72%; animation-delay:.65s;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 沖煮建議欄 -->
+                <div class="bg-[#f8f4ec] border border-[#c49a6c]/20 rounded p-4">
+                    <p class="text-[9px] tracking-[0.3em] text-[#c49a6c]/70 uppercase font-outfit mb-3">Brew Guide · 沖煮建議</p>
+                    <div class="flex items-center justify-between text-center">
+                        <div>
+                            <p class="text-base font-bold text-[#1a1410] font-mono">88–91°C</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">推薦水溫</p>
+                        </div>
+                        <div class="w-px h-8 bg-[#c49a6c]/20"></div>
+                        <div>
+                            <p class="text-sm font-bold text-[#1a1410]">中偏粗研磨</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">研磨度</p>
+                        </div>
+                        <div class="w-px h-8 bg-[#c49a6c]/20"></div>
+                        <div>
+                            <p class="text-sm font-bold text-[#1a1410]">V60 濾杯</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">推薦器具</p>
+                        </div>
+                        <div class="w-px h-8 bg-[#c49a6c]/20"></div>
+                        <div>
+                            <p class="text-sm font-bold text-[#c49a6c]">333g→296g</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">入豆→出豆</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 品牌底印 -->
+                <div class="text-center pt-1 border-t border-[#c49a6c]/12">
+                    <p class="text-[9px] tracking-[0.42em] text-gray-400 font-outfit uppercase">金成淬 · GAN-SING-KIM · SCA CERTIFIED · 2026.08.04</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────
+         B. 烘焙數據儀表板
+    ───────────────────────────── -->
+    <section class="fade-in">
+        <div class="text-center mb-10">
+            <span class="text-[#c49a6c]/60 tracking-[0.3em] text-[10px] font-outfit uppercase">Roast Analytics · 烘焙數據儀表板</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-white tracking-widest mt-2">職人烘焙關鍵數據</h2>
+            <div class="divider w-48 mx-auto mt-4"></div>
+        </div>
+
+        <!-- 六格核心數據 -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">入豆溫 Charge</p>
+                <p class="text-3xl font-mono font-bold text-white">175.5<span class="text-lg text-[#c49a6c]">°C</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">火力 1.25 起步</p>
+            </div>
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">回溫點 TP</p>
+                <p class="text-3xl font-mono font-bold text-white">118.2<span class="text-lg text-[#c49a6c]">°C</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">01:20 回溫成立</p>
+            </div>
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">一爆溫 FC</p>
+                <p class="text-3xl font-mono font-bold text-[#c49a6c]">178.6<span class="text-lg">°C</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">08:00 一爆響起</p>
+            </div>
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">出豆溫 Drop</p>
+                <p class="text-3xl font-mono font-bold text-white">182.8<span class="text-lg text-[#c49a6c]">°C</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">08:38 精準下豆</p>
+            </div>
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">發展比 DTR</p>
+                <p class="text-3xl font-mono font-bold text-[#d4af37]">7.3<span class="text-lg">%</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">38秒發展期</p>
+            </div>
+            <div class="glass data-card rounded-2xl p-5 text-center">
+                <p class="text-[10px] text-gray-500 tracking-widest uppercase font-outfit mb-2">失重比 Loss</p>
+                <p class="text-3xl font-mono font-bold text-white">11.1<span class="text-lg text-[#c49a6c]">%</span></p>
+                <p class="text-[10px] text-gray-500 mt-1">333g → 296.2g</p>
+            </div>
+        </div>
+
+        <!-- ROR 曲線圖 -->
+        <div class="glass rounded-2xl p-6 md:p-8 relative">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#c49a6c]/20 via-[#d4af37] to-[#c49a6c]/20 rounded-t-2xl"></div>
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-white font-serif font-bold tracking-widest text-lg">ROR 升溫率曲線</h3>
+                    <p class="text-gray-500 text-xs font-outfit mt-0.5">Bean Temperature &amp; Rate of Rise · Batch #3</p>
+                </div>
+                <div class="flex gap-3 text-[10px]">
+                    <span class="flex items-center gap-1.5 text-[#c49a6c]"><span class="inline-block w-6 h-[3px] bg-[#c49a6c] rounded"></span>豆溫 BT</span>
+                    <span class="flex items-center gap-1.5 text-[#8d7daf]"><span class="inline-block w-6 h-[2px] bg-[#8d7daf] rounded" style="border-top:2px dashed #8d7daf; height:0"></span>ROR</span>
+                </div>
+            </div>
+            <div class="relative h-[300px] md:h-[360px]">
+                <canvas id="rorChart"></canvas>
+            </div>
+            <!-- 關鍵節點標記 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/6">
+                <div class="text-center">
+                    <p class="text-[9px] text-gray-500 tracking-widest font-outfit uppercase">入豆</p>
+                    <p class="text-[#c49a6c] font-mono font-bold text-sm">00:00</p>
+                    <p class="text-white text-xs font-mono">175.5°C</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-gray-500 tracking-widest font-outfit uppercase">回溫點</p>
+                    <p class="text-[#c49a6c] font-mono font-bold text-sm">01:20</p>
+                    <p class="text-white text-xs font-mono">118.2°C</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-gray-500 tracking-widest font-outfit uppercase">一爆</p>
+                    <p class="text-[#c49a6c] font-mono font-bold text-sm">08:00</p>
+                    <p class="text-white text-xs font-mono">178.6°C</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-gray-500 tracking-widest font-outfit uppercase">下豆</p>
+                    <p class="text-[#d4af37] font-mono font-bold text-sm">08:38</p>
+                    <p class="text-white text-xs font-mono">182.8°C</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────
+         C. 烘焙時間軸
+    ───────────────────────────── -->
+    <section class="fade-in">
+        <div class="text-center mb-10">
+            <span class="text-[#c49a6c]/60 tracking-[0.3em] text-[10px] font-outfit uppercase">Roast Timeline · 烘焙時間軸</span>
+            <h2 class="text-2xl font-serif font-bold text-white tracking-widest mt-2">風火操作時序</h2>
+            <div class="divider w-48 mx-auto mt-4"></div>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+            <div class="space-y-0">
+                <!-- 節點 1 -->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active"></div>
+                        <div class="timeline-line h-16"></div>
+                    </div>
+                    <div class="glass data-card rounded-xl p-4 flex-1 mb-3">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#c49a6c] font-mono font-bold text-lg">00:00</span>
+                                <p class="text-white font-serif font-bold mt-0.5">入豆溫 · 火力 1.25 起步</p>
+                                <p class="text-gray-400 text-xs mt-1">入豆溫 175.5°C，風門 2.5，瓦斯壓力 1.25kPa 強力給熱</p>
+                            </div>
+                            <span class="text-[#c49a6c] font-mono text-xl font-bold shrink-0">175.5°C</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 節點 2 -->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active"></div>
+                        <div class="timeline-line h-16"></div>
+                    </div>
+                    <div class="glass data-card rounded-xl p-4 flex-1 mb-3">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#c49a6c] font-mono font-bold text-lg">01:20</span>
+                                <p class="text-white font-serif font-bold mt-0.5">回溫點成立</p>
+                                <p class="text-gray-400 text-xs mt-1">探針最低點 118.2°C，回溫確立，脫水期正式開始</p>
+                            </div>
+                            <span class="text-[#c49a6c] font-mono text-xl font-bold shrink-0">118.2°C</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 節點 3 -->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active"></div>
+                        <div class="timeline-line h-16"></div>
+                    </div>
+                    <div class="glass data-card rounded-xl p-4 flex-1 mb-3">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#c49a6c] font-mono font-bold text-lg">04:00</span>
+                                <p class="text-white font-serif font-bold mt-0.5">轉黃點 · 火力微降 1.15</p>
+                                <p class="text-gray-400 text-xs mt-1">151°C 轉黃色，火力從 1.25 微降至 1.15，控制梅納加速段</p>
+                            </div>
+                            <span class="text-[#c49a6c] font-mono text-xl font-bold shrink-0">151°C</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 節點 4 -->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active"></div>
+                        <div class="timeline-line h-16"></div>
+                    </div>
+                    <div class="glass data-card rounded-xl p-4 flex-1 mb-3">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#c49a6c] font-mono font-bold text-lg">06:00</span>
+                                <p class="text-white font-serif font-bold mt-0.5">轉黃點完成脫水</p>
+                                <p class="text-gray-400 text-xs mt-1">166.5°C 脫水完畢，梅納反應進入後期，ROR 穩定在 5.9~6.9</p>
+                            </div>
+                            <span class="text-[#c49a6c] font-mono text-xl font-bold shrink-0">166.5°C</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 節點 5 -->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active"></div>
+                        <div class="timeline-line h-16"></div>
+                    </div>
+                    <div class="glass data-card rounded-xl p-4 flex-1 mb-3 border-[#c49a6c]/30">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#d4af37] font-mono font-bold text-lg">08:00</span>
+                                <p class="text-white font-serif font-bold mt-0.5">⚡ 一爆開始</p>
+                                <p class="text-gray-400 text-xs mt-1">178.6°C 一爆響起，ROR 6.2，進入 38 秒精準發展期</p>
+                            </div>
+                            <span class="text-[#d4af37] font-mono text-xl font-bold shrink-0">178.6°C</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 節點 6（下豆）-->
+                <div class="flex gap-5">
+                    <div class="flex flex-col items-center">
+                        <div class="timeline-dot active" style="background:#d4af37; border-color:#d4af37; box-shadow:0 0 12px rgba(212,175,55,0.7);"></div>
+                    </div>
+                    <div class="rounded-xl p-4 flex-1 mb-3" style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.35);">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[#d4af37] font-mono font-bold text-lg">08:38</span>
+                                <p class="text-white font-serif font-bold mt-0.5">🏆 精準下豆</p>
+                                <p class="text-gray-400 text-xs mt-1">182.8°C 出豆，DTR 7.3%，發展期 38 秒完美收尾，風味最大化</p>
+                            </div>
+                            <span class="text-[#d4af37] font-mono text-xl font-bold shrink-0">182.8°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────
+         D. 品牌故事
+    ───────────────────────────── -->
+    <section class="fade-in max-w-3xl mx-auto px-4 text-center space-y-8">
+        <div class="w-px h-16 bg-gradient-to-b from-transparent via-[#c49a6c]/55 to-transparent mx-auto"></div>
+
+        <h2 class="text-xl md:text-2xl text-[#c49a6c] tracking-[0.22em] font-serif font-medium">白玫瑰的晨光 · 薄荷的微風</h2>
+
+        <div class="space-y-6 text-base md:text-lg leading-loose tracking-[0.10em] text-gray-300 font-serif text-justify md:text-center">
+            <p>在哥斯大黎加 1950 公尺的雲霧縈繞中，卡杜拉品種的果實緩慢熟透。葡萄乾蜜處理讓果肉的甜感深深滲入生豆，成就了這款莫札特 #3 獨特而細膩的靈魂。</p>
+            <p>2026 年 8 月 4 日，金成淬職人以楊家半熱風 0.5kg 豆機，以 175.5°C 精準入豆，以穩定的 1.25kPa 火力推進脫水，在第 8 分 38 秒的一爆後 38 秒，於 182.8°C 果斷下豆。DTR 7.3% 的黃金發展比，讓白玫瑰的花香與青蘋果的清亮在杯中完美共鳴。</p>
+        </div>
+
+        <p class="text-xl md:text-2xl text-[#c49a6c] font-serif font-light italic pt-6 border-t border-white/5">
+            「白玫瑰的清雅，青蘋果的脆亮，薄荷葉的晨涼——這是莫札特 #3 留給時光的低語。」
+        </p>
+
+        <div class="w-px h-16 bg-gradient-to-b from-transparent via-[#c49a6c]/55 to-transparent mx-auto"></div>
+    </section>
+
+    <!-- ─────────────────────────────
+         E. SCA 職人沖煮指南
+    ───────────────────────────── -->
+    <section class="fade-in">
+        <div class="max-w-4xl mx-auto bg-gradient-to-br from-[#1a1410] to-[#0a0a0c] rounded-3xl p-8 md:p-12 border border-[#c49a6c]/18 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-[#c49a6c]/20 via-[#d4af37] to-[#c49a6c]/20"></div>
+            <div class="absolute -right-24 -top-24 w-64 h-64 bg-[#c49a6c]/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <div class="flex items-center gap-5 mb-10 border-b border-white/8 pb-8">
+                    <div class="w-14 h-14 bg-[#c49a6c]/10 rounded-full flex items-center justify-center shrink-0 border border-[#c49a6c]/20">
+                        <svg class="w-7 h-7 text-[#c49a6c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-serif font-bold text-white tracking-widest">職人手沖沖煮指南</h3>
+                        <p class="text-[#c49a6c]/70 text-xs font-outfit tracking-widest uppercase mt-1">SCA Professional Brewing · Batch #3 專屬建議</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- 水溫 -->
+                    <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-[#c49a6c]/20 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-[#c49a6c] text-obsidian text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase">Temp</span>
+                            <h4 class="font-bold text-white tracking-wide">萃取水溫</h4>
+                        </div>
+                        <p class="text-3xl font-serif text-[#c49a6c] mb-3">88°C – 91°C</p>
+                        <p class="text-gray-400 text-xs leading-relaxed font-serif">此批次 DTR 7.3%，較 #6 批次（5.3%）長，甜感發展更充分。建議 89°C 最佳，能完美釋放白玫瑰花香與青蘋果的清脆酸質，避免過熱使薄荷葉晨露的清涼感消散。</p>
+                    </div>
+                    <!-- 研磨 -->
+                    <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-[#c49a6c]/20 transition-all duration-300">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-[#c49a6c] text-obsidian text-[9px] font-bold px-2 py-0.5 rounded font-outfit tracking-widest uppercase">Method</span>
+                            <h4 class="font-bold text-white tracking-wide">研磨與手法</h4>
+                        </div>
+                        <p class="text-xl font-serif text-[#c49a6c] mb-3">中偏粗 / V60 濾杯</p>
+                        <p class="text-gray-400 text-xs leading-relaxed font-serif">Commandante 研磨盤建議 24~27 格（中偏粗）。先以豆重 × 2 的水量悶蒸 35 秒，讓花香充分釋放；後段以均速注水，3 分鐘內完成萃取，以保留榛果回甘與黑糖尾韻的細膩層次。</p>
+                    </div>
+                </div>
+
+                <!-- 職人小貼士 -->
+                <div class="bg-[#c49a6c]/5 border border-[#c49a6c]/18 rounded-2xl p-5">
+                    <p class="text-[#c49a6c] text-xs font-bold tracking-widest uppercase font-outfit mb-4">⚡ 職人特別提示 · Batch #3</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-300 font-serif">
+                        <div class="flex items-start gap-2">
+                            <span class="text-[#c49a6c] shrink-0 mt-0.5 font-bold">▸</span>
+                            <span>本批次轉黃點（04:00 / 151°C）早於一般批次，梅納反應已充分展開，建議沖煮前靜置 7~10 天讓熟成進一步完善。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-[#c49a6c] shrink-0 mt-0.5 font-bold">▸</span>
+                            <span>冷卻後品飲（55°C 以下），榛果回甘與黑糖尾韻會更加突顯，是本批次最值得期待的尾韻特色。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-[#c49a6c] shrink-0 mt-0.5 font-bold">▸</span>
+                            <span>適合製作冰手沖（Hot Bloom Cold Pour），青蘋果的清亮酸質在冰品中格外迷人。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-[#c49a6c] shrink-0 mt-0.5 font-bold">▸</span>
+                            <span>本批次 DTR 7.3%（今日六批次中最高），甜感層次最為飽滿，推薦給喜愛蜂蜜甜韻的品飲者。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─────────────────────────────
+         F. 批次比較（今日六批次）
+    ───────────────────────────── -->
+    <section class="fade-in">
+        <div class="text-center mb-8">
+            <span class="text-[#c49a6c]/60 tracking-[0.3em] text-[10px] font-outfit uppercase">Today's Batches · 今日批次對照</span>
+            <h2 class="text-2xl font-serif font-bold text-white tracking-widest mt-2">2026.08.04 六批次比較</h2>
+            <div class="divider w-48 mx-auto mt-4"></div>
+        </div>
+
+        <div class="glass rounded-2xl overflow-hidden">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-white/8" style="background:rgba(196,154,108,0.08)">
+                        <th class="p-4 text-left text-[#c49a6c] tracking-widest font-outfit uppercase">批次</th>
+                        <th class="p-4 text-center text-[#c49a6c] tracking-widest font-outfit uppercase">出豆溫</th>
+                        <th class="p-4 text-center text-[#c49a6c] tracking-widest font-outfit uppercase">DTR</th>
+                        <th class="p-4 text-center text-[#c49a6c] tracking-widest font-outfit uppercase">失重比</th>
+                        <th class="p-4 text-left text-[#c49a6c] tracking-widest font-outfit uppercase hidden md:table-cell">初韻</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td class="p-3 text-gray-400 font-outfit">#1</td><td class="p-3 text-center text-gray-300 font-mono">178.4°C</td><td class="p-3 text-center text-gray-300 font-mono">5.9%</td><td class="p-3 text-center text-gray-300 font-mono">10.7%</td><td class="p-3 text-gray-400 hidden md:table-cell">玫瑰花瓣、野莓果實、柑橘皮</td></tr>
+                    <tr class="border-b border-white/5"><td class="p-3 text-gray-400 font-outfit">#2</td><td class="p-3 text-center text-gray-300 font-mono">178.4°C</td><td class="p-3 text-center text-gray-300 font-mono">5.4%</td><td class="p-3 text-center text-gray-300 font-mono">10.7%</td><td class="p-3 text-gray-400 hidden md:table-cell">柑橘花瓣、玫瑰花蕊、白葡萄</td></tr>
+                    <tr class="border-b border-white/5" style="background:rgba(212,175,55,0.06); border-left:3px solid #d4af37">
+                        <td class="p-3 font-outfit font-bold text-[#d4af37]">#3 ★</td>
+                        <td class="p-3 text-center text-white font-mono font-bold">182.8°C</td>
+                        <td class="p-3 text-center font-mono font-bold text-[#d4af37]">7.3%</td>
+                        <td class="p-3 text-center text-white font-mono font-bold">11.1%</td>
+                        <td class="p-3 text-[#d4af37] hidden md:table-cell font-bold">白玫瑰花瓣、青蘋果清香、薄荷晨露</td>
+                    </tr>
+                    <tr class="border-b border-white/5"><td class="p-3 text-gray-400 font-outfit">#4</td><td class="p-3 text-center text-gray-300 font-mono">181.2°C</td><td class="p-3 text-center text-gray-300 font-mono">6.9%</td><td class="p-3 text-center text-gray-300 font-mono">9.9%</td><td class="p-3 text-gray-400 hidden md:table-cell">晨露玫瑰、野莓綻放、白桃清香</td></tr>
+                    <tr class="border-b border-white/5"><td class="p-3 text-gray-400 font-outfit">#5</td><td class="p-3 text-center text-gray-300 font-mono">182.0°C</td><td class="p-3 text-center text-gray-300 font-mono">5.3%</td><td class="p-3 text-center text-gray-300 font-mono">10.9%</td><td class="p-3 text-gray-400 hidden md:table-cell">晨露玫瑰、白蘭花韻</td></tr>
+                    <tr><td class="p-3 text-gray-400 font-outfit">#6</td><td class="p-3 text-center text-gray-300 font-mono">182.9°C</td><td class="p-3 text-center text-gray-300 font-mono">5.3%</td><td class="p-3 text-center text-gray-300 font-mono">10.2%</td><td class="p-3 text-gray-400 hidden md:table-cell">白茅香、玫瑰花瓣、柑橘綻放</td></tr>
+                </tbody>
+            </table>
+            <div class="p-4 border-t border-white/5">
+                <p class="text-[10px] text-gray-500 font-outfit"><span class="text-[#d4af37]">★ 本批次 #3</span> 擁有今日最高 DTR（7.3%）與最高出豆溫（182.8°C），甜感發展最充分。</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ══════════════════════════════
+     FOOTER
+══════════════════════════════ -->
+<footer class="bg-[#07070a] py-16 text-center flex flex-col items-center border-t border-white/5">
+    <a href="https://samcct-bit.github.io/2026coffeewebsite/" class="block hover:opacity-90 transition-opacity mb-6" title="返回首頁">
+        <div class="w-14 h-14 rounded-full overflow-hidden bg-white/90 p-1 hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center mix-blend-multiply grayscale">
+            <img src="../7204.png" alt="金成淬 Logo" class="w-full h-full object-contain">
+        </div>
+    </a>
+    <p class="text-white font-serif font-bold tracking-[0.32em] mb-2 text-sm">金成淬 · 淬成金</p>
+    <p class="text-gray-600 text-[10px] tracking-[0.35em] mb-6 uppercase font-outfit">Alchemy of Refinement</p>
+    <div class="flex gap-4 mb-6 text-[10px] text-gray-600 font-outfit tracking-widest uppercase">
+        <a href="../roast_db.html" class="hover:text-[#c49a6c] transition-colors">烘焙日誌資料庫</a>
+        <span>·</span>
+        <a href="../mozart_coffee/" class="hover:text-[#c49a6c] transition-colors">莫札特系列</a>
+        <span>·</span>
+        <a href="../index.html" class="hover:text-[#c49a6c] transition-colors">首頁</a>
+    </div>
+    <p class="text-gray-700 text-[10px] tracking-widest font-sans uppercase">© 2026 金成淬咖啡工作室. ALL RIGHTS RESERVED.</p>
+</footer>
+
+<script>
+// ── ROR 觀測數據（來自 Firestore roast_1785827649104）──
+const rorDatapoints = [
+    { timeS:0,   beanTemp:175.5, ror:0,    note:"入豆溫/火力1.25", timeStr:"00:00" },
+    { timeS:30,  beanTemp:133.4, ror:-84.2, note:"",                timeStr:"00:30" },
+    { timeS:60,  beanTemp:119.3, ror:-28.2, note:"",                timeStr:"01:00" },
+    { timeS:80,  beanTemp:118.2, ror:-3.3,  note:"回溫點成立",      timeStr:"01:20" },
+    { timeS:120, beanTemp:126.2, ror:12,    note:"",                timeStr:"02:00" },
+    { timeS:180, beanTemp:139.7, ror:13.5,  note:"",                timeStr:"03:00" },
+    { timeS:240, beanTemp:151,   ror:11.3,  note:"轉黃點/火力1.15", timeStr:"04:00" },
+    { timeS:300, beanTemp:159.6, ror:8.6,   note:"",                timeStr:"05:00" },
+    { timeS:360, beanTemp:166.5, ror:6.9,   note:"轉黃點完成脫水", timeStr:"06:00" },
+    { timeS:420, beanTemp:172.4, ror:5.9,   note:"",                timeStr:"07:00" },
+    { timeS:450, beanTemp:175.5, ror:6.2,   note:"",                timeStr:"07:30" },
+    { timeS:480, beanTemp:178.6, ror:6.2,   note:"一爆開始",        timeStr:"08:00" },
+    { timeS:510, beanTemp:181.8, ror:6.4,   note:"",                timeStr:"08:30" },
+    { timeS:518, beanTemp:182.8, ror:7.5,   note:"下豆",            timeStr:"08:38" }
+];
+
+// ── 繪製 ROR 雙軸圖 ──
+window.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('rorChart').getContext('2d');
+    const labels   = rorDatapoints.map(d => d.timeStr);
+    const btValues = rorDatapoints.map(d => d.beanTemp);
+    // 入豆瞬間 ROR 不顯示（異常值），前兩點設 null
+    const rorValues = rorDatapoints.map((d, i) => i === 0 ? null : d.ror);
+
+    // 關鍵節點標記
+    const keyIndices = [0, 3, 6, 11, 13]; // 入豆、回溫、轉黃、一爆、下豆
+    const btPointColors = labels.map((_, i) => keyIndices.includes(i) ? '#d4af37' : '#c49a6c');
+    const btPointRadius = labels.map((_, i) => keyIndices.includes(i) ? 7 : 3);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: '豆溫 BT (°C)',
+                    data: btValues,
+                    borderColor: '#c49a6c',
+                    backgroundColor: 'rgba(196,154,108,0.06)',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: btPointColors,
+                    pointBorderColor: btPointColors,
+                    pointRadius: btPointRadius,
+                    pointHoverRadius: 8,
+                    tension: 0.38,
+                    yAxisID: 'yBT',
+                    fill: true
+                },
+                {
+                    label: 'ROR (°C/min)',
+                    data: rorValues,
+                    borderColor: '#8d7daf',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 4],
+                    pointBackgroundColor: '#8d7daf',
+                    pointRadius: 2.5,
+                    pointHoverRadius: 6,
+                    tension: 0.32,
+                    yAxisID: 'yROR',
+                    spanGaps: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#6b6358', font: { family: 'Outfit', size: 10, weight: 'bold' } }
+                },
+                yBT: {
+                    type: 'linear',
+                    position: 'left',
+                    min: 60,
+                    max: 200,
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: {
+                        color: '#c49a6c',
+                        font: { family: 'Outfit', size: 10, weight: 'bold' },
+                        callback: v => v + '°C'
+                    },
+                    title: { display: true, text: '豆溫 BT', color: '#c49a6c', font: { family: 'Noto Serif TC', weight: 'bold', size: 11 } }
+                },
+                yROR: {
+                    type: 'linear',
+                    position: 'right',
+                    min: -30,
+                    max: 25,
+                    grid: { display: false },
+                    ticks: {
+                        color: '#7b6c9b',
+                        font: { family: 'Outfit', size: 10, weight: 'bold' },
+                        callback: v => v
+                    },
+                    title: { display: true, text: 'ROR', color: '#7b6c9b', font: { family: 'Noto Serif TC', weight: 'bold', size: 11 } }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#a09080', font: { family: 'Noto Sans TC', size: 10 }, boxWidth: 28 } },
+                tooltip: {
+                    backgroundColor: 'rgba(18,14,10,0.92)',
+                    borderColor: 'rgba(196,154,108,0.35)',
+                    borderWidth: 1,
+                    titleColor: '#c49a6c',
+                    bodyColor: '#d0c8bc',
+                    titleFont: { family: 'Outfit', weight: 'bold', size: 11 },
+                    bodyFont: { family: 'Noto Sans TC', size: 10 },
+                    callbacks: {
+                        afterBody: (items) => {
+                            const idx = items[0]?.dataIndex;
+                            const note = rorDatapoints[idx]?.note;
+                            return note ? [`📍 ${note}`] : [];
+                        }
+                    }
+                },
+                // 垂直標記線（關鍵節點）
+                annotation: undefined
+            }
+        }
+    });
+
+    // ── Intersection Observer 淡入 ──
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+});
+</script>
+</body>
+</html>
