@@ -514,9 +514,9 @@
                 origin: '哥斯大黎加',
                 variety: '卡杜拉 (Caturra)',
                 altitude: '1950m',
-                roastDate: '2026.06.26',
-                flavors: ['馥郁玫瑰、紫羅蘭香', '紫葡萄汁、蜜糖交響', '花香甘甜、柔滑悠長'],
-                url: './bean.html?id=roast_1782745489390',
+                roastDate: '2026.08.04',
+                flavors: ['白玫瑰花瓣、青蘋果清香', '柑橘汁感、蜂蜜甜韻', '榛果回甘、黑糖餘韻'],
+                url: './mozart_coffee/index.html',
                 featured: true
             },
             {
@@ -802,16 +802,6 @@
                             </div>
                         </div>
 
-                        <!-- AI 風味生成按鈕（懸停顯示） -->
-                        <div class="pt-3 pb-1">
-                            <button
-                                onclick="generateCardFlavor(this, '${bean.id}', '${bean.name}', '${bean.origin}', '${bean.process}', '${bean.roast}', '${bean.variety || ''}', '${bean.altitude || ''}')"
-                                class="w-full flex items-center justify-center gap-1.5 bg-brass-gold/10 hover:bg-brass-gold/25 text-brass-gold border border-brass-gold/20 hover:border-brass-gold/50 py-2 px-4 rounded-xl text-[10px] font-serif tracking-[0.15em] uppercase font-bold transition-all duration-300 opacity-0 group-hover:opacity-100"
-                            >
-                                ✨ Groq AI 即時生成風味描述
-                            </button>
-                        </div>
-
                         <!-- 卡片底端沖煮連結按鈕 -->
                         <div class="pt-2 border-t border-white/5">
                             <a 
@@ -1086,53 +1076,7 @@
         window.setFilter = setFilter;
         window.calculateBrewing = calculateBrewing;
 
-        // ──────────────────────────────────────────────────
-        // 首頁咖啡豆卡片 AI 風味即時生成
-        // ──────────────────────────────────────────────────
-        async function generateCardFlavor(btnEl, beanId, beanName, origin, process, roastLevel, variety, altitude) {
-            const AI = window.GansingKimAI;
-            if (!AI) {
-                alert('AI 引擎載入中，請稍後再試。');
-                return;
-            }
 
-            // 找到父卡片容器
-            const card = btnEl.closest('.glass-card');
-
-            // 顯示按鈕 Loading
-            AI.showAILoading(btnEl, '⏳ AI 分析中...');
-
-            const beanData = { name: beanName, origin, process, roastLevel, variety, altitude };
-            const result = await AI.generateCoffeeFlavorAI(beanData);
-
-            // 更新卡片上的風味文字
-            if (card) {
-                const flavorSpans = card.querySelectorAll('.flex.items-start.gap-3 span:last-child');
-                if (flavorSpans[0]) flavorSpans[0].textContent = result.topNote;
-                if (flavorSpans[1]) flavorSpans[1].textContent = result.midNote;
-                if (flavorSpans[2]) flavorSpans[2].textContent = result.baseNote;
-
-                // 在風味區塊下方顯示 AI 品牌文案彈出框
-                const existingStory = card.querySelector('.ai-story-box');
-                if (existingStory) existingStory.remove();
-
-                const storyBox = document.createElement('div');
-                storyBox.className = 'ai-story-box mt-3 bg-brass-gold/5 border border-brass-gold/20 rounded-xl p-3 text-[11px] font-serif text-gray-300 leading-relaxed tracking-wider italic';
-                storyBox.innerHTML = `<span class="text-brass-gold text-[9px] font-outfit font-bold tracking-widest uppercase not-italic block mb-1">✨ AI 將語</span>${result.storyCopy}`;
-
-                // 插入在風味區塊後
-                const flavorSection = card.querySelector('.space-y-3.font-serif');
-                if (flavorSection) flavorSection.insertAdjacentElement('afterend', storyBox);
-            }
-
-            // 恢復按鈕
-            AI.hideAILoading(btnEl);
-            btnEl.innerHTML = '✅ AI 風味已更新';
-            btnEl.classList.add('text-green-400', 'border-green-400/30');
-            btnEl.classList.remove('text-brass-gold');
-        }
-
-        window.generateCardFlavor = generateCardFlavor;
     </script>
 </body>
 </html>
