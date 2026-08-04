@@ -427,18 +427,25 @@
                 rec.brewMethod = "中偏粗研磨 / V60 濾杯 / 四六法注水";
                 rec.brewGuideNote = "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。";
             } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                rec.machine = "楊家半熱風0.5Kg";
-                rec.roastDate = "2026-06-26";
-                rec.process = "葡萄乾蜜處理 (Raisin Honey)";
-                rec.altitude = "1950m";
-                rec.variety = "卡杜拉 (Caturra)";
-                rec.flavorTop = "馥郁玫瑰、紫羅蘭香";
-                rec.flavorMid = "紫葡萄汁、蜜糖交響";
-                rec.flavorBase = "花香甘甜、柔滑悠長";
-                rec.storyCopy = "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。";
-                rec.brewTemp = rec.brewTemp || "90°C - 92°C";
+                rec.machine = (!rec.machine || rec.machine.includes("未知")) ? "盧貝斯1kg全熱風" : rec.machine;
+                if (!rec.roastDate || rec.roastDate === "2026-06-26" || rec.roastDate === "-") {
+                    rec.roastDate = "2026-08-04";
+                }
+                rec.process = (!rec.process || rec.process.includes("微批次")) ? "葡萄乾蜜處理" : rec.process;
+                rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1950m" : rec.altitude;
+                rec.variety = (!rec.variety || rec.variety.includes("精品品種")) ? "卡杜拉 (Caturra)" : rec.variety;
+                
+                if (isGenericFlavor || rec.flavorTop === "馥郁玫瑰、紫羅蘭香") {
+                    rec.flavorTop = "白玫瑰花瓣、青蘋果清香";
+                    rec.flavorMid = "柑橘汁感、蜂蜜甜韻";
+                    rec.flavorBase = "榛果回甘、黑糖餘韻";
+                }
+                if (isGenericStory || rec.storyCopy.includes("這款舉世聞名的「莫札特」")) {
+                    rec.storyCopy = "在哥斯大黎加 1950 公尺的雲霧縈繞中，卡杜拉品種的果實緩慢熟透。葡萄乾蜜處理讓果肉的甜感深深滲入生豆，成就了這款莫札特獨特而細膩的靈魂。\n我們以精準的淺焙工藝，賦予這支豆子最明亮的展現。乾香呈現清雅的白玫瑰花瓣與青蘋果清香；熱水注入的瞬間，柑橘汁感與蜂蜜甜感層層展開；尾韻則是迷人的榛果回甘與薄荷葉般的晨露清涼。";
+                }
+                rec.brewTemp = rec.brewTemp || "88°C - 91°C";
                 rec.brewMethod = rec.brewMethod || "中偏粗研磨 / V60 濾杯";
-                rec.brewGuideNote = rec.brewGuideNote || "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。";
+                rec.brewGuideNote = rec.brewGuideNote || "建議以此溫段萃取，能完美釋放白玫瑰花香與青蘋果的清脆酸質，避免過熱使薄荷涼感消散。前段以慢速注水強調花香，3 分鐘內完成萃取，保留榛果與黑糖的細膩尾韻。";
             } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                 rec.process = (!rec.process || rec.process.includes("微批次")) ? "草莓厭氧蜜處理" : rec.process;
                 rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1750m" : rec.altitude;
