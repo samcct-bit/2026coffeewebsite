@@ -252,7 +252,11 @@
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">烘豆設備 *</label>
-                            <input type="text" id="form-machine" required placeholder="如：盧貝斯1kg全熱風" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
+                            <select id="form-machine" required class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm cursor-pointer" onchange="liveUpdateChartPreview()">
+                                <option value="盧貝斯1kg全熱風">盧貝斯1kg全熱風</option>
+                                <option value="楊家 0.5kg 半熱風">楊家 0.5kg 半熱風</option>
+                                <option value="Tank-200">Tank-200</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">烘焙日期 *</label>
@@ -507,6 +511,32 @@
         let rorChartInstance = null;
         let editingRecordId = null;
 
+        // 安全設定 Select 下拉選單的值
+        function setSelectValueSafely(selectEl, val) {
+            if (!selectEl) return;
+            if (!val) return;
+            // 統一化舊名
+            let targetVal = val;
+            if (val.includes("楊家")) targetVal = "楊家 0.5kg 半熱風";
+            else if (val.includes("盧貝斯")) targetVal = "盧貝斯1kg全熱風";
+            else if (val.includes("Tank")) targetVal = "Tank-200";
+
+            let exists = false;
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value === targetVal) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                const opt = document.createElement("option");
+                opt.value = targetVal;
+                opt.textContent = targetVal;
+                selectEl.appendChild(opt);
+            }
+            selectEl.value = targetVal;
+        }
+
         // 1. 初始化頁面
         document.addEventListener("DOMContentLoaded", async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -527,6 +557,41 @@
                 document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
                 // 初始化空白觀測點
                 initializeEmptyGrid();
+
+                // 檢查是否有「複製豆款連續烘焙」範本資料
+                let copyData = null;
+                const copyStorage = sessionStorage.getItem('copy_roast_template');
+                if (copyStorage) {
+                    try { copyData = JSON.parse(copyStorage); } catch(e){}
+                    sessionStorage.removeItem('copy_roast_template');
+                } else if (urlParams.get('copy') === 'true' || urlParams.get('bean')) {
+                    copyData = {
+                        beanName: urlParams.get('bean') || '',
+                        origin: urlParams.get('origin') || '',
+                        machine: urlParams.get('machine') || '',
+                        process: urlParams.get('process') || '',
+                        altitude: urlParams.get('altitude') || '',
+                        variety: urlParams.get('variety') || ''
+                    };
+                }
+
+                if (copyData) {
+                    if (copyData.beanName) document.getElementById('form-bean').value = copyData.beanName;
+                    if (copyData.origin) document.getElementById('form-origin').value = copyData.origin;
+                    if (copyData.machine) setSelectValueSafely(document.getElementById('form-machine'), copyData.machine);
+                    if (copyData.process) document.getElementById('form-process').value = copyData.process;
+                    if (copyData.altitude) document.getElementById('form-altitude').value = copyData.altitude;
+                    if (copyData.variety) document.getElementById('form-variety').value = copyData.variety;
+
+                    liveUpdateChartPreview();
+
+                    // 跳出提示 Toast
+                    const toast = document.createElement("div");
+                    toast.className = "fixed top-20 right-6 z-50 bg-[#c49a6c] text-[#0c0c0e] px-5 py-3 rounded-xl shadow-2xl font-serif font-bold text-xs flex items-center gap-2 border border-[#d4af37] animate-bounce";
+                    toast.innerHTML = `📋 已成功載入「${copyData.beanName || '豆款'}」基本資料！可直接開始新一輪烘焙。`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 4500);
+                }
             }
 
             // 更新雲端連線狀態燈號
@@ -557,7 +622,7 @@
 
                     document.getElementById("form-bean").value = data.beanName || "";
                     document.getElementById("form-origin").value = data.origin || "";
-                    document.getElementById("form-machine").value = data.machine || "";
+                    setSelectValueSafely(document.getElementById("form-machine"), data.machine);
                     document.getElementById("form-date").value = data.roastDate || new Date().toISOString().split('T')[0];
                     document.getElementById("form-process").value = data.process || "";
                     document.getElementById("form-altitude").value = data.altitude || "";

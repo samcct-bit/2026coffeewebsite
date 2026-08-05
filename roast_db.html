@@ -138,7 +138,11 @@
                     </div>
                     <div>
                         <label class="block text-brass-gold mb-1 font-bold">烘豆設備</label>
-                        <input type="text" id="edit-machine" required class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
+                        <select id="edit-machine" required class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none cursor-pointer">
+                            <option value="盧貝斯1kg全熱風">盧貝斯1kg全熱風</option>
+                            <option value="楊家 0.5kg 半熱風">楊家 0.5kg 半熱風</option>
+                            <option value="Tank-200">Tank-200</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-brass-gold mb-1 font-bold">烘焙日期</label>
@@ -363,6 +367,9 @@
                     <div class="flex flex-wrap gap-2">
                         <button onclick="openBeanPage()" title="查看此熟豆風土故事與 SCA 沖煮指南" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-3 py-1.5 rounded-lg text-xs font-serif transition-all flex items-center gap-1.5 shadow">
                             📖 豆款專頁與手沖指南
+                        </button>
+                        <button onclick="copyBeanToLive()" title="複製此豆基本資料（生豆名稱/產區/設備/處理法/海拔/品種）至即時烘焙系統進行連續烘焙" class="bg-emerald-500/10 hover:bg-emerald-500 hover:text-obsidian border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
+                            📋 複製資料連續烘焙
                         </button>
                         <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
                             🔥 實況台修改風火備註
@@ -4512,6 +4519,9 @@
                         <button onclick="event.stopPropagation(); openBeanPage('${rec.id}')" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-2.5 py-1 rounded-lg text-[10px] font-serif transition-all flex items-center gap-1 shadow">
                             📖 豆款專頁
                         </button>
+                        <button onclick="event.stopPropagation(); copyBeanToLive('${rec.id}')" title="複製此豆基本資料進行連續烘焙" class="bg-emerald-500/10 hover:bg-emerald-500 hover:text-obsidian text-emerald-400 px-2 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-emerald-500/30 shadow">
+                            📋 續烘
+                        </button>
                         <button onclick="event.stopPropagation(); openLiveControl('${rec.id}')" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
                             🔥 實況台備註
                         </button>
@@ -4828,6 +4838,63 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             reader.readAsText(file);
         }
     
+        // 安全設定 Select 下拉選單的值
+        function setSelectValueSafely(selectEl, val) {
+            if (!selectEl) return;
+            if (!val) return;
+            let targetVal = val;
+            if (val.includes("楊家")) targetVal = "楊家 0.5kg 半熱風";
+            else if (val.includes("盧貝斯")) targetVal = "盧貝斯1kg全熱風";
+            else if (val.includes("Tank")) targetVal = "Tank-200";
+
+            let exists = false;
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value === targetVal) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                const opt = document.createElement("option");
+                opt.value = targetVal;
+                opt.textContent = targetVal;
+                selectEl.appendChild(opt);
+            }
+            selectEl.value = targetVal;
+        }
+
+        // 複製豆款基本資料並前往即時烘焙紀錄系統 (連續烘焙)
+        function copyBeanToLive(targetId) {
+            const rec = targetId ? roastingDatabase.find(r => r.id === targetId) : selectedRecord;
+            if (!rec) {
+                alert("請先選擇要複製的烘焙紀錄！");
+                return;
+            }
+            const copyData = {
+                beanName: rec.beanName || "",
+                origin: rec.origin || "",
+                machine: rec.machine || "盧貝斯1kg全熱風",
+                process: rec.process || "",
+                altitude: rec.altitude || "",
+                variety: rec.variety || ""
+            };
+            
+            // 寫入 sessionStorage 跨頁帶入
+            sessionStorage.setItem("copy_roast_template", JSON.stringify(copyData));
+
+            // 以 URL Query Params 作為備援跳轉
+            const params = new URLSearchParams({
+                copy: 'true',
+                bean: copyData.beanName,
+                origin: copyData.origin,
+                machine: copyData.machine,
+                process: copyData.process,
+                altitude: copyData.altitude,
+                variety: copyData.variety
+            });
+            window.location.href = `./roast_live.html?${params.toString()}`;
+        }
+
         // 11. 編輯與刪除紀錄核心功能
         function openEditModal(targetId) {
             const rec = targetId ? roastingDatabase.find(r => r.id === targetId) : selectedRecord;
@@ -4838,7 +4905,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             document.getElementById("edit-beanName").value = selectedRecord.beanName || "";
             document.getElementById("edit-origin").value = selectedRecord.origin || "";
             document.getElementById("edit-roastLevel").value = selectedRecord.roastLevel || "淺焙";
-            document.getElementById("edit-machine").value = selectedRecord.machine || "";
+            setSelectValueSafely(document.getElementById("edit-machine"), selectedRecord.machine);
             document.getElementById("edit-roastDate").value = selectedRecord.roastDate || "";
             document.getElementById("edit-process").value = selectedRecord.process || "";
             document.getElementById("edit-altitude").value = selectedRecord.altitude || "";
@@ -5046,6 +5113,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
         window.deleteRecordById = deleteRecordById;
         window.openLiveControl = openLiveControl;
         window.openBeanPage = openBeanPage;
+        window.copyBeanToLive = copyBeanToLive;
         // -----------------------------------------------------------------
     
     </script>
