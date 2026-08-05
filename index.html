@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content-Security-Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; connect-src 'self' https:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
     <title>金成淬 · 職人精品咖啡誌 | ALCHEMY OF REFINEMENT</title>
     <meta name="description" content="金成淬微批次精選，整合SCA咖啡專業杯測與職人美學，為您呈獻十三款頂級精品咖啡的風味履歷與沖煮指南。">
     <!-- Tailwind CSS -->
@@ -120,7 +122,7 @@
             
             <div class="w-32 h-32 md:w-36 md:h-36 mb-10 rounded-full overflow-hidden bg-white/95 p-1.5 shadow-[0_0_50px_rgba(196,154,108,0.25)] hover:shadow-[0_0_60px_rgba(196,154,108,0.4)] transition-all duration-500 hover:scale-105">
                 <img 
-                    src="./7204.png" 
+                    src="./7204.webp" 
                     alt="金成淬 Logo" 
                     class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
                 >
@@ -370,7 +372,7 @@
     <!-- 5. 頁尾 -->
     <footer class="bg-[#08080a] py-20 mt-24 border-t border-white/5 text-center flex flex-col items-center">
         <div class="w-20 h-20 mb-6 opacity-60 hover:opacity-100 transition-opacity duration-500 cursor-pointer">
-             <img src="./7204.png" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale invert">
+             <img src="./7204.webp" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale invert">
         </div>
         <p class="text-white font-serif font-semibold tracking-[0.3em] mb-3 text-base">金成淬咖啡誌 · ALCHEMY OF REFINEMENT</p>
         <p class="text-gray-500 text-[10px] tracking-[0.2em] font-light uppercase font-outfit">SCA EXPERT SELECTION & ARTISAN ROASTER</p>

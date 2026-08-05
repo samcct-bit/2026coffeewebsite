@@ -6,4 +6,16 @@ compatibility_date = "2024-03-29"
 # You can put non-sensitive environment variables here
 
 # Note: GROQ_API_KEY should be added as a Secret via:
-# npx wrangler secret put GROQ_API_KEY
+#   npx wrangler secret put GROQ_API_KEY
+#
+# Note: PASSWORD_HASH should be added as a Secret via:
+#   npx wrangler secret put PASSWORD_HASH
+#   (輸入 SHA-256 hash 字串，不要輸入明文密碼)
+#
+# Note: 若要啟用 Rate Limiting，需建立一個 KV Namespace：
+#   npx wrangler kv:namespace create "RATE_LIMIT_KV"
+#   然後將產生的 id 填入下面 (取消以下二行注解)
+
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "YOUR_KV_NAMESPACE_ID_HERE"

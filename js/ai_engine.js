@@ -48,7 +48,7 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 // sessionStorage 快取層（同豆款不重複呼叫 API）
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 分鐘 TTL
+const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
 
 /**
  * 產生快取 Key（根據豆款核心特徵）
@@ -70,14 +70,14 @@ function _buildCacheKey(beanData) {
     return CACHE_PREFIX + Math.abs(h).toString(36);
 }
 
-/** 從快取讀取（TTL 過期則視為 miss） */
+/** 從快取讀取（TTL 過期則視為 miss）— 使用 localStorage 跨分頁保留 72 小時 */
 function _readCache(cacheKey) {
     try {
-        const raw = sessionStorage.getItem(cacheKey);
+        const raw = localStorage.getItem(cacheKey);
         if (!raw) return null;
         const { ts, data } = JSON.parse(raw);
         if (Date.now() - ts > CACHE_TTL_MS) {
-            sessionStorage.removeItem(cacheKey);
+            localStorage.removeItem(cacheKey);
             return null;
         }
         return data;
@@ -89,9 +89,13 @@ function _readCache(cacheKey) {
 /** 寫入快取 */
 function _writeCache(cacheKey, data) {
     try {
-        sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+        localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
     } catch {
-        // sessionStorage 可能已滿，忽略
+        // localStorage 可能已滿，清除舊快取後重試
+        try {
+            clearAICache();
+            localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+        } catch { /* 忽略 */ }
     }
 }
 
@@ -399,21 +403,32 @@ function hideAILoading(buttonEl) {
 }
 
 // ──────────────────────────────────────────────
-// 安全性：密碼 SHA-256 Hash 驗證
+// 安全性：密碼驗證（改由 Cloudflare Worker 伺服器端比對，Hash 不再存於前端）
 // ──────────────────────────────────────────────
-async function sha256(text) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-const PASSWORD_HASH = "dbe3b8af8cdd756c190a4191ee6ceb2335502bda22238d0d603afe8cd366b99a";
-
+/**
+ * 向 Cloudflare Worker 的 /verify-password endpoint 驗證密碼
+ * Hash 儲存於 Worker Secret（PASSWORD_HASH），前端不再持有
+ * @param {string} inputPassword - 使用者輸入的密碼（明文，透過 HTTPS 傳輸）
+ * @returns {Promise<boolean>}
+ */
 async function verifyPasswordSecure(inputPassword) {
-    const hash = await sha256(inputPassword);
-    return hash === PASSWORD_HASH;
+    try {
+        const response = await fetch(`${GROQ_CONFIG.endpoint}/verify-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: inputPassword })
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        // 若驗證成功，將 session token 存入 sessionStorage（更安全：可在 Worker 端登出）
+        if (result.success && result.token) {
+            sessionStorage.setItem("roast_db_token", result.token);
+        }
+        return result.success === true;
+    } catch (err) {
+        console.error("[Auth] 密碼驗證請求失敗:", err);
+        return false;
+    }
 }
 
 // ──────────────────────────────────────────────
@@ -421,8 +436,8 @@ async function verifyPasswordSecure(inputPassword) {
 // ──────────────────────────────────────────────
 /** 清除所有 AI 快取（供使用者手動清除時使用） */
 function clearAICache() {
-    const keys = Object.keys(sessionStorage).filter(k => k.startsWith(CACHE_PREFIX));
-    keys.forEach(k => sessionStorage.removeItem(k));
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+    keys.forEach(k => localStorage.removeItem(k));
     console.log(`[AI Cache] 已清除 ${keys.length} 筆快取`);
     return keys.length;
 }
@@ -435,10 +450,8 @@ window.GansingKimAI = {
     typewriterFill,
     showAILoading,
     hideAILoading,
-    sha256,
     verifyPasswordSecure,
-    PASSWORD_HASH,
     clearAICache,
-    // 不再需要前端 Key 管理，一律回傳 true 讓程式繼續向 Worker 請求
     isKeyReady: () => true
+    // PASSWORD_HASH 已從前端移除，改由 Cloudflare Worker 伺服器端保管
 };

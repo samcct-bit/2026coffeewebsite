@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content-Security-Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; connect-src 'self' https:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
     <title>金成淬精品咖啡誌 | 熟豆履歷與職人手沖指南</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,10 +101,10 @@
         <a href="./index.html" class="block hover:opacity-90 transition-opacity duration-300 z-30 mb-6" title="返回首頁">
             <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white/95 p-1 shadow-[0_0_30px_rgba(196,154,108,0.25)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center">
                 <img 
-                    src="./logo/7204.png" 
+                    src="./logo/7204.webp" 
                     alt="金成淬 Logo" 
                     class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
-                    onerror="this.src='./7204.png';"
+                    onerror="this.src='./7204.webp';"
                 >
             </div>
         </a>
@@ -125,7 +127,7 @@
                     <!-- 標籤頭部 -->
                     <div class="flex flex-col sm:flex-row items-center justify-between border-b border-brass-gold/30 pb-6 gap-4">
                         <div class="w-14 h-14 shrink-0 opacity-80 mix-blend-multiply">
-                            <img src="./logo/7204.png" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale" onerror="this.src='./7204.png';">
+                            <img src="./logo/7204.webp" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale" onerror="this.src='./7204.webp';">
                         </div>
                         <div class="text-center sm:text-right">
                             <h2 class="text-xl md:text-2xl font-serif font-bold text-obsidian tracking-wider" id="card-bean-name">載入中...</h2>
@@ -261,7 +263,7 @@
     <footer class="bg-[#08080a] py-12 text-center flex flex-col items-center justify-center border-t border-white/5 mt-auto">
         <a href="./index.html" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-4" title="返回首頁">
             <div class="w-12 h-12 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_20px_rgba(196,154,108,0.2)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center mix-blend-multiply grayscale">
-                <img src="./logo/7204.png" alt="金成淬 Logo" class="w-full h-full object-contain" onerror="this.src='./7204.png';">
+                <img src="./logo/7204.webp" alt="金成淬 Logo" class="w-full h-full object-contain" onerror="this.src='./7204.webp';">
             </div>
         </a>
         <p class="text-white font-serif font-bold tracking-[0.3em] mb-1 text-xs">金成淬 · 淬成金</p>
@@ -405,7 +407,14 @@
 
         function renderBeanDetail(rec) {
             const bName = rec.beanName || "";
-            
+
+            // ── 動態 SEO：更新 <title> 與 <meta description>（依豆款資料動態設定）
+            document.title = `${bName} · 金成淬精品咖啡 | 職人烘焙履歷`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc && rec.flavorTop) {
+                metaDesc.content = `${bName}｜${rec.flavorTop}、${rec.flavorMid}、${rec.flavorBase}。金成淬精品咖啡，職人手沖指南與烘焙履歷。`;
+            }
+
             // 今日 2026-07-22 烘焙批次統一更正烘豆機型為 盧貝斯1kg全熱風
             if (rec.roastDate === "2026-07-22" || (rec.id && rec.id.includes("20260722")) || rec.machine === "Tank-200") {
                 rec.machine = "盧貝斯1kg全熱風";
@@ -413,6 +422,7 @@
             
             const isGenericStory = !rec.storyCopy || rec.storyCopy.includes("微批次精品豆") || rec.storyCopy.includes("風土特色");
             const isGenericFlavor = !rec.flavorTop || rec.flavorTop.includes("高雅花香") || rec.flavorTop.includes("初摘");
+
 
             // Gem 智慧備援推導 (若內容為通用備援字樣，強制作業更新為專屬 Gem 風味)
             if (bName.includes("蕭邦") || bName.includes("Chopin")) {
