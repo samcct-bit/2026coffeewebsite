@@ -585,16 +585,46 @@
                     
                     // 匯入網格資料
                     let copyDatapoints = copyData.rorDatapoints || [];
+                    let copyTimeline = copyData.timelineActions || [];
+                    
                     if (copyDatapoints.length > 0) {
                         const gridBody = document.getElementById("ror-grid-body");
                         gridBody.innerHTML = "";
-                        copyDatapoints.forEach(dp => {
-                            if (Array.isArray(dp)) {
-                                addGridRow(dp[0], dp[1], dp[3] || "");
-                            } else {
-                                const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
-                                addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                        
+                        // 將 timelineActions 建立成以時間為 key 的 Map
+                        const timelineMap = new Map();
+                        copyTimeline.forEach(action => {
+                            if (Array.isArray(action) && action.length >= 4) {
+                                timelineMap.set(action[0], `火力 ${action[2]}, 風門 ${action[3]}`);
                             }
+                        });
+                        
+                        copyDatapoints.forEach(dp => {
+                            let timeStr = "";
+                            let tempVal = "";
+                            let noteVal = "";
+                            
+                            if (Array.isArray(dp)) {
+                                timeStr = dp[0];
+                                tempVal = dp[1];
+                                noteVal = dp[3] || "";
+                            } else {
+                                timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
+                                tempVal = dp.beanTemp;
+                                noteVal = dp.note || "";
+                            }
+                            
+                            // 若此時間點有對應的 timelineAction，將其合併到備註中
+                            if (timelineMap.has(timeStr)) {
+                                const actionNote = timelineMap.get(timeStr);
+                                if (noteVal) {
+                                    noteVal = noteVal + " (" + actionNote + ")";
+                                } else {
+                                    noteVal = actionNote;
+                                }
+                            }
+                            
+                            addGridRow(timeStr, tempVal, noteVal);
                         });
                     }
 
@@ -668,15 +698,48 @@
                     } else if (data.rorDatapoints) {
                         datapoints = data.rorDatapoints;
                     }
+                    
+                    let timelineActions = [];
+                    if (data.timelineActionsJson) {
+                        timelineActions = JSON.parse(data.timelineActionsJson);
+                    } else if (data.timelineActions) {
+                        timelineActions = data.timelineActions;
+                    }
 
                     if (datapoints && datapoints.length > 0) {
-                        datapoints.forEach(dp => {
-                            if (Array.isArray(dp)) {
-                                addGridRow(dp[0], dp[1], dp[3] || "");
-                            } else {
-                                const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
-                                addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                        // 將 timelineActions 建立成以時間為 key 的 Map
+                        const timelineMap = new Map();
+                        timelineActions.forEach(action => {
+                            if (Array.isArray(action) && action.length >= 4) {
+                                timelineMap.set(action[0], `火力 ${action[2]}, 風門 ${action[3]}`);
                             }
+                        });
+                        
+                        datapoints.forEach(dp => {
+                            let timeStr = "";
+                            let tempVal = "";
+                            let noteVal = "";
+                            
+                            if (Array.isArray(dp)) {
+                                timeStr = dp[0];
+                                tempVal = dp[1];
+                                noteVal = dp[3] || "";
+                            } else {
+                                timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
+                                tempVal = dp.beanTemp;
+                                noteVal = dp.note || "";
+                            }
+                            
+                            if (timelineMap.has(timeStr)) {
+                                const actionNote = timelineMap.get(timeStr);
+                                if (noteVal) {
+                                    noteVal = noteVal + " (" + actionNote + ")";
+                                } else {
+                                    noteVal = actionNote;
+                                }
+                            }
+                            
+                            addGridRow(timeStr, tempVal, noteVal);
                         });
                     } else {
                         initializeEmptyGrid();
