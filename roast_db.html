@@ -4783,6 +4783,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             alert("已成功複製 Obsidian 筆記語法！現在您可以直接在您的 Obsidian 倉庫中建立一個新檔案並貼上了。");
         }
 
+
         // 9. 過濾功能
         function filterRecords() {
             const query = document.getElementById("search-input").value.toLowerCase();
@@ -4881,7 +4882,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             selectEl.value = targetVal;
         }
 
-        // 複製豆款基本資料並前往即時烘焙紀錄系統 (連續烘焙)
+        // 複製豆款基本資料與網格數據並前往即時烘焙紀錄系統 (連續烘焙)
         function copyBeanToLive(targetId) {
             const rec = targetId ? roastingDatabase.find(r => r.id === targetId) : selectedRecord;
             if (!rec) {
@@ -4894,23 +4895,15 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 machine: rec.machine || "盧貝斯1kg全熱風",
                 process: rec.process || "",
                 altitude: rec.altitude || "",
-                variety: rec.variety || ""
+                variety: rec.variety || "",
+                rorDatapoints: rec.rorDatapoints || [],
+                timelineActions: rec.timelineActions || []
             };
             
-            // 寫入 sessionStorage 跨頁帶入
+            // 寫入 sessionStorage 跨頁帶入 (因為數據較大，URL query params 可能會超過長度限制，所以主要依賴 sessionStorage)
             sessionStorage.setItem("copy_roast_template", JSON.stringify(copyData));
 
-            // 以 URL Query Params 作為備援跳轉
-            const params = new URLSearchParams({
-                copy: 'true',
-                bean: copyData.beanName,
-                origin: copyData.origin,
-                machine: copyData.machine,
-                process: copyData.process,
-                altitude: copyData.altitude,
-                variety: copyData.variety
-            });
-            window.location.href = `./roast_live.html?${params.toString()}`;
+            window.location.href = `./roast_live.html?copy=true`;
         }
 
         // 11. 編輯與刪除紀錄核心功能

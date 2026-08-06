@@ -582,6 +582,21 @@
                     if (copyData.process) document.getElementById('form-process').value = copyData.process;
                     if (copyData.altitude) document.getElementById('form-altitude').value = copyData.altitude;
                     if (copyData.variety) document.getElementById('form-variety').value = copyData.variety;
+                    
+                    // 匯入網格資料
+                    let copyDatapoints = copyData.rorDatapoints || [];
+                    if (copyDatapoints.length > 0) {
+                        const gridBody = document.getElementById("ror-grid-body");
+                        gridBody.innerHTML = "";
+                        copyDatapoints.forEach(dp => {
+                            if (Array.isArray(dp)) {
+                                addGridRow(dp[0], dp[1], dp[3] || "");
+                            } else {
+                                const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
+                                addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                            }
+                        });
+                    }
 
                     liveUpdateChartPreview();
 
@@ -656,8 +671,12 @@
 
                     if (datapoints && datapoints.length > 0) {
                         datapoints.forEach(dp => {
-                            const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
-                            addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                            if (Array.isArray(dp)) {
+                                addGridRow(dp[0], dp[1], dp[3] || "");
+                            } else {
+                                const timeStr = dp.timeStr || (dp.timeS !== undefined ? `${Math.floor(dp.timeS / 60)}:${dp.timeS % 60 < 10 ? '0' : ''}${dp.timeS % 60}` : "");
+                                addGridRow(timeStr, dp.beanTemp, dp.note || "");
+                            }
                         });
                     } else {
                         initializeEmptyGrid();
