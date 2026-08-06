@@ -933,10 +933,29 @@
                     // 嚴格過濾無效、空字串、未命名紀錄以及失速/瑕疵對比檔
                     if (!bName || bName.includes("未命名") || bName === "精品熟豆" || bName === "未命名紀錄" || bName.includes("失速") || bName.includes("對比檔") || bName.includes("Baked") || bName.includes("Failed") || (data.status && data.status.includes("Failed"))) return;
 
-                    const cleanNameKey = bName.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                    let cleanNameKey = bName.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                    // 強制過濾未閉合或奇怪的括號
+                    cleanNameKey = cleanNameKey.replace(/[(（][^()（）]*[)）]?/g, "").trim();
+
+                    // 針對知名豆款進行統一正規化，避免因命名差異產生重複卡片
+                    if (bName.includes("蕭邦") || bName.includes("Chopin")) {
+                        cleanNameKey = "哥斯大黎加 蕭邦";
+                    } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
+                        cleanNameKey = "哥斯大黎加 莫札特";
+                    } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
+                        cleanNameKey = "哥倫比亞 瑪格麗特";
+                    } else if (bName.includes("紫風鈴")) {
+                        cleanNameKey = "紫風鈴";
+                    }
+
                     const originKey = (data.origin || "").trim();
                     const processKey = (data.process || "").trim();
-                    const groupKey = `${originKey}_${processKey}_${cleanNameKey}`.toLowerCase();
+                    let groupKey = `${originKey}_${processKey}_${cleanNameKey}`.toLowerCase();
+                    
+                    // 針對強制正規化的豆款，直接使用名稱作為群組鍵，忽略產區與處理法的文字差異
+                    if (cleanNameKey === "哥斯大黎加 蕭邦" || cleanNameKey === "哥斯大黎加 莫札特" || cleanNameKey === "哥倫比亞 瑪格麗特" || cleanNameKey === "紫風鈴") {
+                        groupKey = cleanNameKey.toLowerCase();
+                    }
 
                     const recordObj = {
                         id: recId,
