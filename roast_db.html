@@ -4815,21 +4815,39 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             return JSON.stringify(obj, null, 2);
         }
 
-        function importJSON(event) {
+        async function importJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (Array.isArray(imported)) {
                         roastingDatabase = imported;
                         renderRecordsList();
-                        showRecordDetail(roastingDatabase[0].id);
-                        alert("資料庫匯入成功！已加載所有烘焙曲線檔案。");
+                        if (roastingDatabase.length > 0) showRecordDetail(roastingDatabase[0].id);
+                        
+                        alert("格式正確，前端載入成功！開始自動同步至雲端資料庫，請稍候...");
+                        
+                        let successCount = 0;
+                        for (let rec of imported) {
+                            try {
+                                const seedData = { ...rec };
+                                seedData.rorDatapointsJson = JSON.stringify(rec.rorDatapoints || []);
+                                seedData.timelineActionsJson = JSON.stringify(rec.timelineActions || []);
+                                delete seedData.rorDatapoints;
+                                delete seedData.timelineActions;
+                                await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
+                                successCount++;
+                            } catch (err) {
+                                console.error("匯入單筆資料失敗:", rec.id, err);
+                            }
+                        }
+                        alert(`雲端匯入完成！成功同步 ${successCount} / ${imported.length} 筆烘焙曲線檔案。`);
+                        window.location.reload();
                     } else {
-                        alert("匯入失敗：JSON 格式不正確，必須是烘焙日誌陣列。");
+                        alert("匯入失敗：JSON 格式不正確，必須是 JSON 陣列。");
                     }
                 } catch(err) {
                     alert("匯入發生錯誤，請確保上傳的是正確的 Gàn-sîng-Kim 資料庫備份 JSON 檔案。");
