@@ -718,8 +718,8 @@
             let matchedCount = 0;
 
             coffeeDatabase.forEach(bean => {
-                // 過濾判斷
-                const matchOrigin = (filters.origin === 'all' || bean.origin === filters.origin);
+                // 過濾判斷 (如果 origin 沒有精準匹配國名，但品名有寫，也可以匹配)
+                const matchOrigin = (filters.origin === 'all' || bean.origin === filters.origin || (bean.name && bean.name.includes(filters.origin)));
                 
                 // 焙度判斷細分（極淺焙與淺焙歸為一類，或精準匹配）
                 let matchRoast = false;
@@ -946,6 +946,8 @@
                         cleanNameKey = "哥倫比亞 瑪格麗特";
                     } else if (bName.includes("紫風鈴")) {
                         cleanNameKey = "紫風鈴";
+                    } else if (bName.includes("星星茉莉花")) {
+                        cleanNameKey = "瓜地馬拉 星星茉莉花";
                     }
 
                     const originKey = (data.origin || "").trim();
@@ -953,7 +955,7 @@
                     let groupKey = `${originKey}_${processKey}_${cleanNameKey}`.toLowerCase();
                     
                     // 針對強制正規化的豆款，直接使用名稱作為群組鍵，忽略產區與處理法的文字差異
-                    if (cleanNameKey === "哥斯大黎加 蕭邦" || cleanNameKey === "哥斯大黎加 莫札特" || cleanNameKey === "哥倫比亞 瑪格麗特" || cleanNameKey === "紫風鈴") {
+                    if (cleanNameKey === "哥斯大黎加 蕭邦" || cleanNameKey === "哥斯大黎加 莫札特" || cleanNameKey === "哥倫比亞 瑪格麗特" || cleanNameKey === "紫風鈴" || cleanNameKey === "瓜地馬拉 星星茉莉花") {
                         groupKey = cleanNameKey.toLowerCase();
                     }
 
