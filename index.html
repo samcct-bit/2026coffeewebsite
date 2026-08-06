@@ -965,7 +965,11 @@
                         if (a.isOptimized !== b.isOptimized) {
                             return a.isOptimized ? -1 : 1;
                         }
-                        return b.cuppingScore - a.cuppingScore;
+                        if (a.cuppingScore !== b.cuppingScore) {
+                            return b.cuppingScore - a.cuppingScore;
+                        }
+                        // 同一天、同為優化/非優化、分數也相同時，比較 id（因為 id 是 roast_時間戳，降冪排列確保最新的在最上面）
+                        return b.id.localeCompare(a.id);
                     });
 
                     const best = batchList[0];
