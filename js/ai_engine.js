@@ -452,6 +452,7 @@ window.GansingKimAI = {
     hideAILoading,
     verifyPasswordSecure,
     clearAICache,
+    endpoint: GROQ_CONFIG.endpoint,
     isKeyReady: () => true
     // PASSWORD_HASH 已從前端移除，改由 Cloudflare Worker 伺服器端保管
 };

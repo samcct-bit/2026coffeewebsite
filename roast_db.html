@@ -5013,13 +5013,31 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
 
             const deletedId = rec.id;
 
-            // 從 Cloud Firestore 刪除
+            // ── 方案 A：透過 Cloudflare Worker 代理刪除（繞過 Firestore 前端規則） ──
             try {
-                await deleteDoc(doc(db, "coffee_roasts", deletedId));
+                const token = sessionStorage.getItem("roast_db_token");
+                if (!token) {
+                    alert("⚠️ 錯誤：尚未登入或 Token 遺失，無法執行刪除。");
+                    return;
+                }
+                const workerEndpoint = window.GansingKimAI ? window.GansingKimAI.endpoint || "https://gsk-groq-proxy.gansingkim.workers.dev" : "https://gsk-groq-proxy.gansingkim.workers.dev";
+                
+                const response = await fetch(`${workerEndpoint}/delete-record`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, documentId: deletedId })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Worker 回應錯誤: ${response.status} - ${errorText}`);
+                }
+                
+                console.log(`[+] 成功透過 Worker 刪除 Firestore 紀錄: ${deletedId}`);
             } catch (err) {
                 console.error("[-] 從 Firestore 刪除失敗:", err);
+                alert("⚠️ 雲端刪除失敗，但將暫時從本地列表移除（重整後會恢復）。錯誤：" + err.message);
             }
-
             // 從本地記憶體列表中移除
             roastingDatabase = roastingDatabase.filter(r => r.id !== deletedId);
 
