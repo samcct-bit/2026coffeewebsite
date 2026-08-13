@@ -190,6 +190,9 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
                     <a id="btn-view-ror" href="./roast_db.html" class="bg-brass-gold hover:bg-refined-gold text-obsidian px-7 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-xl flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(196,154,108,0.35)]">
                         📈 查看本批次烘焙 ROR 曲線
                     </a>
+                    <a id="btn-view-dashboard" href="#" class="hidden bg-gray-800 hover:bg-gray-700 text-brass-gold border border-brass-gold/30 hover:border-brass-gold px-7 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2">
+                        📊 查看舊版職人烘焙儀表板
+                    </a>
                     <a href="./index.html" class="bg-charcoal hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-7 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2">
                         ← 返回精品豆單
                     </a>
@@ -212,14 +215,16 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
         import { getFirestore, getDoc, getDocs, doc, collection, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { classicBeansDatabase } from './js/classic_beans.js';
+        
         const firebaseConfig = {apiKey:"AIza"+"SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",authDomain:"my-teaching-tools-01.firebaseapp.com",projectId:"my-teaching-tools-01",storageBucket:"my-teaching-tools-01.firebasestorage.app",messagingSenderId:"552535919921",appId:"1:552535919921:web:95b4c1288edbae9572b410"};
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const fallbackDatabase = [
-            {id:"roast_chopin_0629",beanName:"哥斯大黎加 音樂家系列 蕭邦",origin:"哥斯大黎加 塔拉珠",machine:"盧貝斯1kg全熱風",roastDate:"2026-06-29",roastLevel:"中淺焙",lossRatio:"11.6%",dtrRatio:"4.2%",flavorTop:"狂野玫瑰、香瓜幽香",flavorMid:"熟甜香瓜、紅酒交響",flavorBase:"絲滑奶油、楓糖甘甜",storyCopy:"來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。",brewTemp:"89°C - 91°C",brewMethod:"中偏粗研磨 / V60 濾杯 / 四六法",brewGuideNote:"建議以 89°C 溫和萃取，前段發揮玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"},
-            {id:"roast_003",beanName:"哥斯大黎加 音樂家・莫札特",origin:"哥斯大黎加",machine:"楊家半熱風0.5Kg",roastDate:"2026-06-26",roastLevel:"淺焙",lossRatio:"11.4%",dtrRatio:"14.2%",flavorTop:"馥郁玫瑰、紫羅蘭香",flavorMid:"紫葡萄汁、蜜糖交響",flavorBase:"花香甘甜、柔滑悠長",storyCopy:"來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。",brewTemp:"90°C - 92°C",brewMethod:"中偏粗研磨 / V60 濾杯",brewGuideNote:"這款豆子不適合過度攪拌，把焦點放在前中段的花香，尾段盡速收水。"}
+            ...classicBeansDatabase,
+            {id:"roast_chopin_0629",beanName:"哥斯大黎加 音樂家系列 蕭邦",origin:"哥斯大黎加 塔拉珠",machine:"盧貝斯1kg全熱風",roastDate:"2026-06-29",roastLevel:"中淺焙",lossRatio:"11.6%",dtrRatio:"4.2%",flavorTop:"狂野玫瑰、香瓜幽香",flavorMid:"熟甜香瓜、紅酒交響",flavorBase:"絲滑奶油、楓糖甘甜",storyCopy:"來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。",brewTemp:"89°C - 91°C",brewMethod:"中偏粗研磨 / V60 濾杯 / 四六法",brewGuideNote:"建議以 89°C 溫和萃取，前段發揮玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"}
         ];
-        function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+        function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
         document.addEventListener("DOMContentLoaded",async()=>{
             const urlParams=new URLSearchParams(window.location.search);
             const beanId=urlParams.get('id');
@@ -273,7 +278,19 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
             document.getElementById("brew-temp").innerText=rec.brewTemp||"88°C - 90°C";
             document.getElementById("brew-method").innerText=rec.brewMethod||"中偏粗研磨 / V60 濾杯";
             document.getElementById("brew-note").innerText=rec.brewGuideNote||"建議前中段控水萃取花果香氣，尾段快速收水維持甘甜質感。";
-            document.getElementById("btn-view-ror").href=`./roast_db.html?id=${rec.id}`;
+            
+            const btnRor = document.getElementById("btn-view-ror");
+            const btnDash = document.getElementById("btn-view-dashboard");
+            
+            if(rec.dashboardUrl) {
+                btnRor.classList.add("hidden");
+                btnDash.classList.remove("hidden");
+                btnDash.href = rec.dashboardUrl;
+            } else {
+                btnRor.classList.remove("hidden");
+                btnDash.classList.add("hidden");
+                btnRor.href = `./roast_db.html?id=${rec.id}`;
+            }
         }
     </script>
 </body>
