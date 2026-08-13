@@ -3,504 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Content-Security-Policy -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
     <title>金成淬精品咖啡誌 | 熟豆履歷與職人手沖指南</title>
-    <!-- Tailwind CSS -->
+    <meta name="description" content="金成淬職人精選精品熟豆，SCA 專業烘焙履歷、風味輪廓與職人手沖指南。">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'obsidian': '#0c0c0e',     /* 極致曜石黑 */
-                        'coffee-deep': '#16100c',  /* 深邃琥珀褐 */
-                        'ivory': '#fcfaf7',        /* 古董象牙白 */
-                        'brass-gold': '#c49a6c',   /* 匠人古銅金 */
-                        'refined-gold': '#d4af37',  /* 淬煉純金 */
-                        'charcoal': '#1a1a1f'      /* 次級灰黑 */
-                    },
-                    fontFamily: {
-                        sans: ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
-                        serif: ['"Noto Serif TC"', 'serif'],
-                        outfit: ['"Outfit"', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-
+    <script>tailwind.config = {theme:{extend:{colors:{'obsidian':'#0c0c0e','coffee-deep':'#16100c','ivory':'#fcfaf7','brass-gold':'#c49a6c','refined-gold':'#d4af37','charcoal':'#1a1a1f'},fontFamily:{sans:['"Noto Sans TC"','"Outfit"','sans-serif'],serif:['"Noto Serif TC"','serif'],outfit:['"Outfit"','sans-serif']}}}}</script>
     <style>
-        body {
-            background-color: #0c0c0e;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(34, 22, 17, 0.45) 0%, transparent 55%),
-                radial-gradient(circle at 100% 50%, rgba(196, 154, 108, 0.03) 0%, transparent 35%);
-            background-attachment: fixed;
-        }
-        
-        .glass-panel {
-            background: rgba(26, 26, 31, 0.55);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .paper-label {
-            background: #fffdf9;
-            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(196, 154, 108, 0.15);
-            position: relative;
-        }
-
-        .paper-label::before {
-            content: '';
-            position: absolute;
-            top: 8px; left: 8px; right: 8px; bottom: 8px;
-            border: 1px solid rgba(196, 154, 108, 0.2);
-            pointer-events: none;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0c0c0e;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1c1816;
-            border-radius: 4px;
-            border: 2px solid #0c0c0e;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #c49a6c;
-        }
-        
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            visibility: hidden;
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-        .fade-in.is-visible {
-            opacity: 1;
-            transform: none;
-            visibility: visible;
-        }
+body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,rgba(34,22,17,.5) 0%,transparent 55%),radial-gradient(circle at 90% 50%,rgba(196,154,108,.04) 0%,transparent 35%);background-attachment:fixed}
+.glass-panel{background:rgba(26,26,31,.55);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(255,255,255,.06)}
+.paper-label{background:linear-gradient(145deg,#fffef9 0%,#fdf9f0 60%,#fcf8ec 100%);box-shadow:0 25px 60px -15px rgba(0,0,0,.7),0 0 0 1px rgba(196,154,108,.12),inset 0 1px 0 rgba(255,255,255,.8);position:relative}
+.paper-label::before{content:'';position:absolute;top:10px;left:10px;right:10px;bottom:10px;border:1px solid rgba(196,154,108,.18);pointer-events:none;z-index:0}
+.flavor-bar-track{height:4px;border-radius:2px;background:rgba(196,154,108,.12);overflow:hidden;margin-top:6px}
+.flavor-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#c49a6c,#e8c97b,#d4af37);transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(.22,1,.36,1)}
+.flavor-bar-fill.animate{transform:scaleX(1)}
+.score-ring{position:relative;width:100px;height:100px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-circle-bg{fill:none;stroke:rgba(196,154,108,.12);stroke-width:6}
+.score-circle-fill{fill:none;stroke:url(#scoreGradient);stroke-width:6;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transition:stroke-dashoffset 1.5s cubic-bezier(.22,1,.36,1)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0c0c0e}::-webkit-scrollbar-thumb{background:#2a2420;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#c49a6c}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .75s ease-out,transform .75s ease-out}
+.fade-in.is-visible{opacity:1;transform:none}
+.gold-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(196,154,108,.6),transparent)}
+.attr-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(196,154,108,.08)}
+.attr-row:last-child{border-bottom:none}
+.hover-glow:hover{box-shadow:0 0 20px rgba(196,154,108,.15),0 8px 30px rgba(0,0,0,.4);border-color:rgba(196,154,108,.25)!important}
     </style>
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
 
-    <!-- 1. 職人頂級 Header & Clickable Logo -->
-    <header class="w-full pt-12 pb-8 flex flex-col items-center justify-center fade-in is-visible">
-        <a href="./index.html" class="block hover:opacity-90 transition-opacity duration-300 z-30 mb-6" title="返回首頁">
-            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white/95 p-1 shadow-[0_0_30px_rgba(196,154,108,0.25)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center">
-                <img 
-                    src="./logo/7204.webp" 
-                    alt="金成淬 Logo" 
-                    class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale"
-                    onerror="this.src='./7204.webp';"
-                >
+    <nav class="w-full px-6 py-4 flex items-center gap-2 text-xs text-gray-500 font-outfit border-b border-white/5 fade-in is-visible">
+        <a href="./index.html" class="hover:text-brass-gold transition-colors flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            首頁
+        </a>
+        <span class="text-gray-700">/</span>
+        <span class="text-brass-gold/80" id="breadcrumb-name">精品豆履歷</span>
+    </nav>
+
+    <header class="w-full pt-10 pb-6 flex flex-col items-center justify-center fade-in is-visible">
+        <a href="./index.html" class="block hover:opacity-90 transition-opacity duration-300 z-30 mb-5" title="返回首頁">
+            <div class="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-white/95 p-1 shadow-[0_0_30px_rgba(196,154,108,0.25)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center">
+                <img src="./logo/7204.webp" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale" onerror="this.src='./7204.webp';">
             </div>
         </a>
-
-        <div class="text-center space-y-3 px-4">
+        <div class="text-center space-y-2 px-4">
             <span class="block text-brass-gold tracking-[0.4em] text-xs font-outfit uppercase">GOLDEN COFFEE SELECTION · ALCHEMY OF REFINEMENT</span>
-            <h1 class="text-3xl md:text-5xl font-serif font-bold tracking-widest text-white leading-tight mt-2" id="header-bean-title">精品熟豆履歷與淬煉賞析</h1>
-            <p class="text-gray-400 tracking-[0.25em] text-xs md:text-sm font-outfit uppercase mt-1" id="header-bean-subtitle">GÀN-SÎNG-KIM CRAFT ROAST PROFILE</p>
+            <h1 class="text-2xl md:text-4xl font-serif font-bold tracking-widest text-white leading-tight mt-2" id="header-bean-title">精品熟豆履歷與淬煉賞析</h1>
+            <p class="text-gray-500 tracking-[0.25em] text-xs font-outfit uppercase mt-1" id="header-bean-subtitle">GÀN-SÎNG-KIM CRAFT ROAST PROFILE</p>
         </div>
     </header>
 
-    <!-- 2. 主內容區 -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 pb-24 space-y-20 flex-grow w-full">
-        
-        <!-- 實體標籤視覺卡片 (模擬 80x50mm 比例感，宣紙極簡風格) -->
-        <section class="fade-in is-visible pt-4">
-            <div class="max-w-xl mx-auto paper-label p-8 md:p-12 relative group">
-                <div class="relative z-10 space-y-8">
-                    
-                    <!-- 標籤頭部 -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between border-b border-brass-gold/30 pb-6 gap-4">
-                        <div class="w-14 h-14 shrink-0 opacity-80 mix-blend-multiply">
-                            <img src="./logo/7204.webp" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale" onerror="this.src='./7204.webp';">
-                        </div>
-                        <div class="text-center sm:text-right">
-                            <h2 class="text-xl md:text-2xl font-serif font-bold text-obsidian tracking-wider" id="card-bean-name">載入中...</h2>
-                            <p class="text-gray-500 font-serif text-[10px] tracking-widest uppercase mt-0.5" id="card-bean-origin-roast">產區 · 焙度</p>
-                        </div>
-                    </div>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pb-24 flex-grow w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-                    <!-- 標籤物理屬性 -->
-                    <div class="grid grid-cols-2 gap-y-3.5 gap-x-6 text-xs md:text-sm tracking-widest text-gray-600 font-serif border-b border-brass-gold/20 pb-6">
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>產區 Origin</span>
-                            <span class="font-bold text-obsidian" id="attr-origin">-</span>
+            <section class="fade-in is-visible lg:sticky lg:top-8">
+                <div class="paper-label rounded-2xl p-8 md:p-10 relative overflow-hidden">
+                    <div class="relative z-10 space-y-7">
+                        <div class="flex items-center justify-between pb-6 gap-4" style="border-bottom:1px solid rgba(196,154,108,.25)">
+                            <div class="w-12 h-12 shrink-0 opacity-75 mix-blend-multiply">
+                                <img src="./logo/7204.webp" alt="Logo" class="w-full h-full object-contain contrast-125 grayscale" onerror="this.src='./7204.webp';">
+                            </div>
+                            <div class="text-right flex-1">
+                                <h2 class="text-lg md:text-xl font-serif font-bold text-obsidian tracking-wider leading-snug" id="card-bean-name">載入中...</h2>
+                                <p class="text-gray-400 font-serif text-[10px] tracking-widest uppercase mt-1" id="card-bean-origin-roast">產區 · 焙度</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>烘焙度 Roast</span>
-                            <span class="font-bold text-obsidian" id="attr-roast">-</span>
-                        </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>設備 Machine</span>
-                            <span class="font-bold text-obsidian" id="attr-machine">-</span>
-                        </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>失重率 Loss</span>
-                            <span class="font-bold text-obsidian" id="attr-loss">-</span>
-                        </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>發展比 DTR</span>
-                            <span class="font-bold text-brass-gold font-mono" id="attr-dtr">-</span>
-                        </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-1">
-                            <span>烘焙日 Roasted</span>
-                            <span class="font-bold text-obsidian font-mono" id="attr-date">-</span>
-                        </div>
-                    </div>
 
-                    <!-- 風味階層 (初韻/中調/尾韻) -->
-                    <div class="space-y-3.5 font-serif text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-2 py-0.5 rounded text-xs tracking-widest shrink-0">初韻 Top</span> 
-                            <span class="text-obsidian tracking-widest font-semibold text-right" id="flavor-top">百合幽香、草莓水蜜桃</span>
+                        <div class="space-y-1 text-xs tracking-wide text-gray-500 font-serif">
+                            <div class="attr-row"><span class="text-gray-400">產區 Origin</span><span class="font-bold text-obsidian text-sm" id="attr-origin">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">處理法 Process</span><span class="font-bold text-brass-gold text-sm" id="attr-process">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">品種 Variety</span><span class="font-bold text-obsidian text-sm" id="attr-variety">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">海拔 Altitude</span><span class="font-bold text-obsidian text-sm font-mono" id="attr-altitude">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">烘焙度 Roast</span><span class="font-bold text-obsidian text-sm" id="attr-roast">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">設備 Machine</span><span class="font-bold text-obsidian text-xs" id="attr-machine">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">失重率 Loss</span><span class="font-bold text-obsidian text-sm font-mono" id="attr-loss">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">發展比 DTR</span><span class="font-bold text-brass-gold text-sm font-mono" id="attr-dtr">-</span></div>
+                            <div class="attr-row"><span class="text-gray-400">烘焙日 Roasted</span><span class="font-bold text-obsidian text-sm font-mono" id="attr-date">-</span></div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-2 py-0.5 rounded text-xs tracking-widest shrink-0">中調 Mid</span> 
-                            <span class="text-obsidian tracking-widest font-semibold text-right" id="flavor-mid">厭氧發酵酒香、葡萄蜜糖</span>
+
+                        <div id="cupping-score-section" class="hidden">
+                            <div class="gold-divider mb-5"></div>
+                            <div class="flex items-center gap-5">
+                                <div class="score-ring shrink-0">
+                                    <svg width="100" height="100" viewBox="0 0 100 100">
+                                        <defs><linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#c49a6c"/><stop offset="100%" style="stop-color:#d4af37"/></linearGradient></defs>
+                                        <circle class="score-circle-bg" cx="50" cy="50" r="45"/>
+                                        <circle class="score-circle-fill" id="score-circle" cx="50" cy="50" r="45"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-xl font-serif font-bold text-brass-gold leading-none" id="score-value">-</span>
+                                        <span class="text-[8px] text-gray-500 font-outfit tracking-widest uppercase mt-1">SCA</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit mb-1">Cupping Score · 杯測分數</p>
+                                    <p class="text-sm text-gray-400 font-serif leading-relaxed">由 SCA 國際杯測標準評分，反映此批次烘焙的綜合品質表現。</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-brass-gold font-bold border border-brass-gold/30 px-2 py-0.5 rounded text-xs tracking-widest shrink-0">尾韻 Base</span> 
-                            <span class="text-obsidian tracking-widest font-semibold text-right" id="flavor-base">清雅白花、紅糖甜感悠長</span>
+
+                        <div class="space-y-4 pt-1" style="border-top:1px solid rgba(196,154,108,.15)">
+                            <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit">Flavor Profile · 風味輪廓</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-[10px] tracking-widest uppercase shrink-0">Top · 初韻</span>
+                                        <span class="text-obsidian tracking-wide font-semibold text-right text-xs ml-3" id="flavor-top">-</span>
+                                    </div>
+                                    <div class="flavor-bar-track mt-2"><div class="flavor-bar-fill" id="flavor-bar-top" style="width:92%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-[10px] tracking-widest uppercase shrink-0">Mid · 中調</span>
+                                        <span class="text-obsidian tracking-wide font-semibold text-right text-xs ml-3" id="flavor-mid">-</span>
+                                    </div>
+                                    <div class="flavor-bar-track mt-2"><div class="flavor-bar-fill" id="flavor-bar-mid" style="width:83%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-brass-gold font-bold border border-brass-gold/30 px-1.5 py-0.5 rounded text-[10px] tracking-widest uppercase shrink-0">Base · 尾韻</span>
+                                        <span class="text-obsidian tracking-wide font-semibold text-right text-xs ml-3" id="flavor-base">-</span>
+                                    </div>
+                                    <div class="flavor-bar-track mt-2"><div class="flavor-bar-fill" id="flavor-bar-base" style="width:76%"></div></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- 3. 品牌職人故事敘事區 -->
-        <section class="fade-in is-visible max-w-3xl mx-auto px-4 text-center space-y-8">
-            <div class="w-px h-16 bg-gradient-to-b from-transparent via-brass-gold/60 to-transparent mx-auto"></div>
-            
-            <h3 class="text-xl md:text-2xl text-brass-gold tracking-[0.25em] font-serif font-medium">時光的流轉 · 禪意的淬煉</h3>
-            
-            <div class="space-y-6 text-base md:text-lg leading-loose tracking-[0.15em] text-gray-300 font-serif text-justify md:text-center" id="story-content">
-                <p>經由「金成淬」SCA 專業烘焙師監製控溫，將風土微氣候濃縮的高糖分與獨特發酵層次在火山岩盤熱傳導中極致釋放。</p>
-                <p>熱水注入，猶如指揮棒落下，熱情與清雅在口中交織出華麗的交響樂章；待曲終人散，留在喉間的，是那一抹令人難以忘懷的甜潤餘韻。</p>
-            </div>
-            
-            <p class="text-lg md:text-2xl text-brass-gold font-serif font-light text-center mt-8 pt-8 border-t border-white/5 italic">
-                「華麗而不失靜謐，濃郁卻保有澄澈。這是一杯能讓靈魂隨之共鳴的液體藝術。」
-            </p>
-            
-            <div class="w-px h-16 bg-gradient-to-b from-transparent via-brass-gold/60 to-transparent mx-auto"></div>
-        </section>
+            <div class="space-y-10">
+                <section class="fade-in is-visible space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="h-px bg-gradient-to-r from-brass-gold/50 to-transparent flex-1"></div>
+                        <h3 class="text-lg md:text-xl text-brass-gold tracking-[0.2em] font-serif font-medium whitespace-nowrap">時光的流轉 · 禪意的淬煉</h3>
+                        <div class="h-px bg-gradient-to-l from-brass-gold/50 to-transparent flex-1"></div>
+                    </div>
+                    <div class="space-y-5 text-sm md:text-base leading-loose tracking-[0.12em] text-gray-300 font-serif text-justify" id="story-content">
+                        <p>經由「金成淬」SCA 專業烘焙師監製控溫，將風土微氣候濃縮的高糖分與獨特發酵層次在火山岩盤熱傳導中極致釋放。</p>
+                    </div>
+                    <blockquote class="border-l-2 border-brass-gold/40 pl-5 py-1">
+                        <p class="text-base md:text-lg text-brass-gold/90 font-serif font-light italic" id="story-quote">「華麗而不失靜謐，濃郁卻保有澄澈。這是一杯能讓靈魂隨之共鳴的液體藝術。」</p>
+                    </blockquote>
+                </section>
 
-        <!-- 4. SCA 考官級手沖沖煮指南 -->
-        <section class="fade-in is-visible">
-            <div class="bg-gradient-to-br from-[#1c1816] to-[#0c0c0e] text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden border border-brass-gold/25 max-w-4xl mx-auto">
-                <div class="absolute -right-20 -top-20 w-64 h-64 bg-brass-gold/5 rounded-full blur-3xl"></div>
-                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-                <div class="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20"></div>
+                <div class="gold-divider fade-in is-visible"></div>
 
-                <div class="relative z-10">
-                    <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-10 border-b border-white/10 pb-8">
-                        <div class="w-14 h-14 bg-brass-gold/10 rounded-full flex items-center justify-center shrink-0 border border-brass-gold/20">
-                            <svg class="w-7 h-7 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <div class="text-center md:text-left">
-                            <h3 class="text-2xl font-serif font-bold text-white tracking-widest">職人手沖沖煮指南</h3>
-                            <p class="text-brass-gold/80 font-serif text-xs mt-1 tracking-widest uppercase">SCA Professional Brewing Recommendation</p>
+                <section class="fade-in is-visible">
+                    <div class="glass-panel rounded-2xl p-7 md:p-9 relative overflow-hidden border border-brass-gold/15 hover-glow transition-all duration-500">
+                        <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brass-gold/20 via-brass-gold to-brass-gold/20 rounded-t-2xl"></div>
+                        <div class="absolute -right-16 -top-16 w-48 h-48 bg-brass-gold/4 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-4 mb-7 pb-5" style="border-bottom:1px solid rgba(255,255,255,.07)">
+                                <div class="w-10 h-10 bg-brass-gold/10 rounded-xl flex items-center justify-center shrink-0 border border-brass-gold/20">
+                                    <svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-serif font-bold text-white tracking-widest">職人手沖沖煮指南</h3>
+                                    <p class="text-brass-gold/70 font-serif text-[10px] mt-0.5 tracking-widest uppercase">SCA Professional Brewing Recommendation</p>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="flex items-start gap-5">
+                                    <div class="shrink-0"><span class="bg-brass-gold text-obsidian text-[9px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-widest font-outfit block text-center">Temp</span></div>
+                                    <div class="flex-1">
+                                        <p class="text-2xl font-serif text-brass-gold leading-none mb-2" id="brew-temp">88°C - 90°C</p>
+                                        <p class="text-gray-400 leading-relaxed text-xs font-serif">建議使用較溫和的水溫萃取，保留豆款最精緻的高雅花香與果汁感受。</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-5" style="border-top:1px solid rgba(255,255,255,.05);padding-top:1.5rem">
+                                    <div class="shrink-0"><span class="bg-brass-gold text-obsidian text-[9px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-widest font-outfit block text-center">Method</span></div>
+                                    <div class="flex-1">
+                                        <p class="text-lg font-serif text-brass-gold tracking-widest mb-2" id="brew-method">中偏粗研磨 / V60 濾杯</p>
+                                        <p class="text-gray-400 leading-relaxed text-xs font-serif" id="brew-note">建議三段式注水，把焦點放在前中段的花香與果汁感，尾段盡速收水。</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- 水溫與工具 -->
-                        <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
-                            <div class="flex items-center mb-4">
-                                <span class="bg-brass-gold text-obsidian text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mr-3 font-outfit">Temp</span>
-                                <h4 class="font-bold text-lg tracking-wider text-white">萃取水溫推薦</h4>
-                            </div>
-                            <p class="text-3xl font-serif text-brass-gold mb-3" id="brew-temp">88°C - 90°C</p>
-                            <p class="text-gray-400 leading-relaxed text-xs md:text-sm font-serif">
-                                建議使用較溫和的水溫。過高的水溫會讓處理法的發酵味過於刺鼻，掩蓋掉豆款最精緻的高雅花香與果汁感受。
-                            </p>
-                        </div>
-                        
-                        <!-- 研磨與手法 -->
-                        <div class="bg-black/20 rounded-2xl p-6 border border-white/5 hover:border-brass-gold/20 transition-all duration-300">
-                            <div class="flex items-center mb-4">
-                                <span class="bg-brass-gold text-obsidian text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest mr-3 font-outfit">Method</span>
-                                <h4 class="font-bold text-lg tracking-wider text-white">研磨度與手法</h4>
-                            </div>
-                            <p class="text-xl md:text-2xl font-serif text-brass-gold mb-3 tracking-widest" id="brew-method">中偏粗研磨 / V60 濾杯</p>
-                            <p class="text-gray-400 leading-relaxed text-xs md:text-sm font-serif" id="brew-note">
-                                建議三段式注水（悶蒸30秒），把焦點放在前中段的花香與果汁感，尾段盡速收水，這樣能讓杯測餘韻更加乾淨、仙氣飄飄。
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <section class="fade-in is-visible flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <a id="btn-view-ror" href="./roast_db.html" class="bg-brass-gold hover:bg-refined-gold text-obsidian px-7 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300 shadow-xl flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(196,154,108,0.35)]">
+                        📈 查看本批次烘焙 ROR 曲線
+                    </a>
+                    <a href="./index.html" class="bg-charcoal hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 hover:border-white/20 px-7 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2">
+                        ← 返回精品豆單
+                    </a>
+                </section>
             </div>
-        </section>
-
-        <!-- 5. 導覽操作按鈕 -->
-        <section class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <a id="btn-view-ror" href="./roast_db.html" class="bg-brass-gold hover:bg-refined-gold text-obsidian px-8 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all shadow-xl flex items-center gap-2">
-                📈 查看本批次烘焙 ROR 曲線與風火 SOP
-            </a>
-            <a href="./index.html" class="bg-charcoal hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 px-8 py-3.5 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all">
-                ← 返回精品豆單首頁
-            </a>
-        </section>
-
+        </div>
     </main>
 
-    <!-- 5. 統一頁尾 & Clickable Logo -->
-    <footer class="bg-[#08080a] py-12 text-center flex flex-col items-center justify-center border-t border-white/5 mt-auto">
+    <footer class="bg-[#07070a] py-12 text-center flex flex-col items-center justify-center border-t border-white/5 mt-auto">
         <a href="./index.html" class="block hover:opacity-100 transition-opacity duration-300 z-30 mb-4" title="返回首頁">
-            <div class="w-12 h-12 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_20px_rgba(196,154,108,0.2)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center mix-blend-multiply grayscale">
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-white/90 p-1 shadow-[0_0_20px_rgba(196,154,108,0.2)] hover:scale-105 transition-transform duration-500 mx-auto flex items-center justify-center mix-blend-multiply grayscale">
                 <img src="./logo/7204.webp" alt="金成淬 Logo" class="w-full h-full object-contain" onerror="this.src='./7204.webp';">
             </div>
         </a>
         <p class="text-white font-serif font-bold tracking-[0.3em] mb-1 text-xs">金成淬 · 淬成金</p>
-        <p class="text-gray-500 text-[9px] tracking-[0.3em] mb-4 uppercase font-outfit">Alchemy of Refinement</p>
-        <p class="text-gray-600 text-[10px] tracking-widest font-sans uppercase">© 2026 金成淬咖啡工作室. ALL RIGHTS RESERVED.</p>
+        <p class="text-gray-600 text-[9px] tracking-[0.3em] mb-4 uppercase font-outfit">Alchemy of Refinement</p>
+        <p class="text-gray-700 text-[10px] tracking-widest font-sans uppercase">© 2026 金成淬咖啡工作室. ALL RIGHTS RESERVED.</p>
     </footer>
 
-    <!-- Firebase SDK & 數據動態載入邏輯 -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, getDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
-
-        const firebaseConfig = {
-            apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
-            authDomain: "my-teaching-tools-01.firebaseapp.com",
-            projectId: "my-teaching-tools-01",
-            storageBucket: "my-teaching-tools-01.firebasestorage.app",
-            messagingSenderId: "552535919921",
-            appId: "1:552535919921:web:95b4c1288edbae9572b410"
-        };
-
+        import { getFirestore, getDoc, getDocs, doc, collection, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        const firebaseConfig = {apiKey:"AIza"+"SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",authDomain:"my-teaching-tools-01.firebaseapp.com",projectId:"my-teaching-tools-01",storageBucket:"my-teaching-tools-01.firebasestorage.app",messagingSenderId:"552535919921",appId:"1:552535919921:web:95b4c1288edbae9572b410"};
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // 預設種子資料庫備份（當 Cloud Firestore 找不到或離線時調用）
         const fallbackDatabase = [
-            {
-                id: "roast_chopin_0629",
-                beanName: "哥斯大黎加 音樂家系列 蕭邦 (Costa Rica Musician Chopin)",
-                origin: "哥斯大黎加 塔拉珠",
-                machine: "盧貝斯1kg全熱風",
-                roastDate: "2026-06-29",
-                roastLevel: "中淺焙",
-                lossRatio: "11.6%",
-                dtrRatio: "4.2%",
-                flavorTop: "狂野玫瑰、香瓜幽香",
-                flavorMid: "熟甜香瓜、紅酒交響",
-                flavorBase: "絲滑奶油、楓糖甘甜",
-                storyCopy: "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。",
-                brewTemp: "89°C - 91°C",
-                brewMethod: "中偏粗研磨 / V60 濾杯 / 四六法注水",
-                brewGuideNote: "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"
-            },
-            {
-                id: "roast_margarita_0628",
-                beanName: "哥倫比亞 瑪格麗特 草莓厭氧蜜處理",
-                origin: "哥倫比亞",
-                machine: "盧貝斯1kg全熱風半自動",
-                roastDate: "2026-06-28",
-                roastLevel: "中淺焙",
-                lossRatio: "11.8%",
-                dtrRatio: "4.1%",
-                flavorTop: "百合幽香、鮮摘草莓與草莓軟糖",
-                flavorMid: "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響",
-                flavorBase: "紅糖甜感、細緻可可尾韻悠長",
-                storyCopy: "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。",
-                brewTemp: "88°C - 90°C",
-                brewMethod: "中偏粗研磨 / V60 濾杯 / 三段段注水",
-                brewGuideNote: "建議使用較溫和的 89°C 水溫萃取，保留其極致草莓軟糖與水蜜桃香氣，尾段快速收水以維持乾淨甜潤感受。"
-            },
-            {
-                id: "roast_003",
-                beanName: "哥斯大黎加 音樂家・莫札特 (Musician Mozart)",
-                origin: "哥斯大黎加",
-                machine: "楊家半熱風0.5Kg",
-                roastDate: "2026-06-26",
-                roastLevel: "淺焙",
-                lossRatio: "11.4%",
-                dtrRatio: "14.2%",
-                flavorTop: "馥郁玫瑰、紫羅蘭香",
-                flavorMid: "紫葡萄汁、蜜糖交響",
-                flavorBase: "花香甘甜、柔滑悠長",
-                storyCopy: "來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。咖啡果實濃縮了晨露玫瑰、清雅紫羅蘭與滿溢葡萄汁的極致香氣，再經由「金成淬」職人火候淬煉，綻放出如音樂交響般的迷人樂章。",
-                brewTemp: "90°C - 92°C",
-                brewMethod: "中偏粗研磨 / V60 濾杯",
-                brewGuideNote: "這款豆子不適合過度攪拌或拉長沖煮時間。把焦點放在前中段的玫瑰與紫羅蘭花香，尾段盡速收水，讓清雅葡萄與白花餘韻更乾淨仙氣。"
-            }
+            {id:"roast_chopin_0629",beanName:"哥斯大黎加 音樂家系列 蕭邦",origin:"哥斯大黎加 塔拉珠",machine:"盧貝斯1kg全熱風",roastDate:"2026-06-29",roastLevel:"中淺焙",lossRatio:"11.6%",dtrRatio:"4.2%",flavorTop:"狂野玫瑰、香瓜幽香",flavorMid:"熟甜香瓜、紅酒交響",flavorBase:"絲滑奶油、楓糖甘甜",storyCopy:"來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。",brewTemp:"89°C - 91°C",brewMethod:"中偏粗研磨 / V60 濾杯 / 四六法",brewGuideNote:"建議以 89°C 溫和萃取，前段發揮玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"},
+            {id:"roast_003",beanName:"哥斯大黎加 音樂家・莫札特",origin:"哥斯大黎加",machine:"楊家半熱風0.5Kg",roastDate:"2026-06-26",roastLevel:"淺焙",lossRatio:"11.4%",dtrRatio:"14.2%",flavorTop:"馥郁玫瑰、紫羅蘭香",flavorMid:"紫葡萄汁、蜜糖交響",flavorBase:"花香甘甜、柔滑悠長",storyCopy:"來自 1950 公尺高海拔雲霧帶，這款舉世聞名的「莫札特」，經歷了罕見且嚴苛的「葡萄乾蜜處理」。",brewTemp:"90°C - 92°C",brewMethod:"中偏粗研磨 / V60 濾杯",brewGuideNote:"這款豆子不適合過度攪拌，把焦點放在前中段的花香，尾段盡速收水。"}
         ];
-
-        document.addEventListener("DOMContentLoaded", async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const beanId = urlParams.get('id');
-
-            let record = null;
-
-            if (beanId) {
-                try {
-                    const docRef = doc(db, "coffee_roasts", beanId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        record = docSnap.data();
-                        record.id = docSnap.id;
-                    }
-                } catch (e) {
-                    console.warn("Firestore direct fetch failed:", e);
+        function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+        document.addEventListener("DOMContentLoaded",async()=>{
+            const urlParams=new URLSearchParams(window.location.search);
+            const beanId=urlParams.get('id');
+            let record=null;
+            if(beanId){
+                try{const ds=await getDoc(doc(db,"coffee_roasts",beanId));if(ds.exists()){record={...ds.data(),id:ds.id}}}catch(e){console.warn(e)}
+                if(!record||beanId==='roast_003'||beanId==='mozart'){
+                    try{const qs=await getDocs(query(collection(db,"coffee_roasts"),orderBy("roastDate","desc")));qs.forEach(d=>{if(record)return;const n=d.data().beanName||'';if((beanId.includes('003')||beanId.includes('mozart'))&&(n.includes('莫札特')||n.includes('Mozart')))record={...d.data(),id:d.id};})}catch(e){console.warn(e)}
                 }
-
-                // 若直抓失敗或為通用整合 ID (如 roast_003 / mozart)，自動對接雲端最新的同名紀錄達成 100% 統一
-                if (!record || beanId === 'roast_003' || beanId === 'mozart' || beanId === 'roast_margarita_0628') {
-                    try {
-                        const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
-                        const querySnap = await getDocs(q);
-                        let matched = null;
-                        querySnap.forEach(d => {
-                            if (matched) return;
-                            const bData = d.data();
-                            const bName = bData.beanName || "";
-                            if ((beanId.includes('003') || beanId.includes('mozart')) && (bName.includes('莫札特') || bName.includes('Mozart'))) {
-                                matched = { ...bData, id: d.id };
-                            } else if (beanId.includes('margarita') && (bName.includes('瑪格麗特') || bName.includes('草莓'))) {
-                                matched = { ...bData, id: d.id };
-                            }
-                        });
-                        if (matched) record = matched;
-                    } catch (e) {
-                        console.warn("Firestore smart unified search failed:", e);
-                    }
-                }
-
-                if (!record) {
-                    record = fallbackDatabase.find(r => r.id === beanId);
-                }
+                if(!record)record=fallbackDatabase.find(r=>r.id===beanId);
             }
-
-            if (!record) {
-                record = fallbackDatabase[0]; // 預設使用瑪格麗特草莓厭氧
-            }
-
+            if(!record)record=fallbackDatabase[0];
             renderBeanDetail(record);
-
-            // 觸發漸顯動畫
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+            const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');e.target.querySelectorAll('.flavor-bar-fill').forEach(b=>setTimeout(()=>b.classList.add('animate'),200))}}),{threshold:.1});
+            document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+            setTimeout(()=>document.querySelectorAll('.flavor-bar-fill').forEach(b=>b.classList.add('animate')),400);
         });
-
-        function renderBeanDetail(rec) {
-            const bName = rec.beanName || "";
-
-            // ── 動態 SEO：更新 <title> 與 <meta description>（依豆款資料動態設定）
-            document.title = `${bName} · 金成淬精品咖啡 | 職人烘焙履歷`;
-            const metaDesc = document.querySelector('meta[name="description"]');
-            if (metaDesc && rec.flavorTop) {
-                metaDesc.content = `${bName}｜${rec.flavorTop}、${rec.flavorMid}、${rec.flavorBase}。金成淬精品咖啡，職人手沖指南與烘焙履歷。`;
-            }
-
-            // 今日 2026-07-22 烘焙批次統一更正烘豆機型為 盧貝斯1kg全熱風
-            if (rec.roastDate === "2026-07-22" || (rec.id && rec.id.includes("20260722")) || rec.machine === "Tank-200") {
-                rec.machine = "盧貝斯1kg全熱風";
-            }
-            
-            const isGenericStory = !rec.storyCopy || rec.storyCopy.includes("微批次精品豆") || rec.storyCopy.includes("風土特色");
-            const isGenericFlavor = !rec.flavorTop || rec.flavorTop.includes("高雅花香") || rec.flavorTop.includes("初摘");
-
-
-            // Gem 智慧備援推導 (若內容為通用備援字樣，強制作業更新為專屬 Gem 風味)
-            if (bName.includes("蕭邦") || bName.includes("Chopin")) {
-                rec.process = "雙重厭氧蜜處理 (Raisin Honey)";
-                rec.altitude = "1850m";
-                rec.variety = "卡杜拉 / 卡杜艾";
-                rec.flavorTop = "狂野玫瑰、香瓜幽香";
-                rec.flavorMid = "熟甜香瓜、紅酒交響";
-                rec.flavorBase = "絲滑奶油、楓糖甘甜";
-                rec.storyCopy = "來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";
-                rec.brewTemp = "89°C - 91°C";
-                rec.brewMethod = "中偏粗研磨 / V60 濾杯 / 四六法注水";
-                rec.brewGuideNote = "建議以 89°C 溫和萃取，前段發揮其醉人的玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。";
-            } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                rec.machine = (!rec.machine || rec.machine.includes("未知")) ? "盧貝斯1kg全熱風" : rec.machine;
-                if (!rec.roastDate || rec.roastDate === "2026-06-26" || rec.roastDate === "-") {
-                    rec.roastDate = "2026-08-04";
-                }
-                rec.process = (!rec.process || rec.process.includes("微批次")) ? "葡萄乾蜜處理" : rec.process;
-                rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1950m" : rec.altitude;
-                rec.variety = (!rec.variety || rec.variety.includes("精品品種")) ? "卡杜拉 (Caturra)" : rec.variety;
-                
-                if (isGenericFlavor || rec.flavorTop === "馥郁玫瑰、紫羅蘭香") {
-                    rec.flavorTop = "清雅白玫瑰、青蘋果清香";
-                    rec.flavorMid = "柑橘汁感、蜂蜜層次甜韻";
-                    rec.flavorBase = "榛果回甘、薄荷葉晨露清涼";
-                }
-                if (isGenericStory || rec.storyCopy.includes("這款舉世聞名的「莫札特」")) {
-                    rec.storyCopy = "在哥斯大黎加 1950 公尺的雲霧縈繞中，卡杜拉品種的果實緩慢熟透。葡萄乾蜜處理讓果肉的甜感深深滲入生豆，成就了這款莫札特獨特而細膩的靈魂。\n我們以精準的淺焙工藝，賦予這支豆子最明亮的展現。乾香呈現清雅的白玫瑰花瓣與青蘋果清香；熱水注入的瞬間，柑橘汁感與蜂蜜甜感層層展開；尾韻則是迷人的榛果回甘與薄荷葉般的晨露清涼。";
-                }
-                rec.brewTemp = rec.brewTemp || "88°C - 91°C";
-                rec.brewMethod = rec.brewMethod || "中偏粗研磨 / V60 濾杯";
-                rec.brewGuideNote = rec.brewGuideNote || "建議以此溫段萃取，能完美釋放白玫瑰花香與青蘋果的清脆酸質，避免過熱使薄荷涼感消散。前段以慢速注水強調花香，3 分鐘內完成萃取，保留榛果與黑糖的細膩尾韻。";
-            } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
-                rec.process = (!rec.process || rec.process.includes("微批次")) ? "草莓厭氧蜜處理" : rec.process;
-                rec.altitude = (!rec.altitude || rec.altitude.includes("高海拔")) ? "1750m" : rec.altitude;
-                rec.variety = (!rec.variety || rec.variety.includes("精品品種")) ? "Castillo / Pink Bourbon" : rec.variety;
-                if (isGenericFlavor) {
-                    rec.flavorTop = "百合幽香、鮮摘草莓與草莓軟糖";
-                    rec.flavorMid = "濃郁草莓水蜜桃汁、厭氧發酵蜜糖交響";
-                    rec.flavorBase = "紅糖甜感、細緻可可尾韻悠長";
-                }
-                if (isGenericStory) {
-                    rec.storyCopy = "來自哥倫比亞瑪格麗特莊園，採用極致嚴苛的草莓厭氧蜜處理法。咖啡果實與天然果膠在厭氧槽中發酵，濃縮了極致甜美的草莓與水蜜桃香氣。經由金成淬熱風烘焙極致控溫，將其高雅花香與果汁蜜糖交織出華麗的共鳴。";
-                }
-            }
-
-            document.title = `${rec.beanName} | 金成淬職人精選`;
-
-            document.getElementById("header-bean-title").innerText = rec.beanName;
-            document.getElementById("card-bean-name").innerText = rec.beanName;
-            document.getElementById("card-bean-origin-roast").innerText = `${rec.origin || '精品產區'} · ${rec.roastLevel || '職人焙度'}`;
-
-            document.getElementById("attr-origin").innerText = rec.origin || "-";
-            document.getElementById("attr-roast").innerText = rec.roastLevel || "-";
-            document.getElementById("attr-machine").innerText = rec.machine || "-";
-            document.getElementById("attr-loss").innerText = rec.lossRatio || "-";
-            document.getElementById("attr-dtr").innerText = rec.dtrRatio || "-";
-            document.getElementById("attr-date").innerText = rec.roastDate || "-";
-
-            document.getElementById("flavor-top").innerText = rec.flavorTop || "高雅花香、初摘果香";
-            document.getElementById("flavor-mid").innerText = rec.flavorMid || "多汁果蜜、明亮酸甜";
-            document.getElementById("flavor-base").innerText = rec.flavorBase || "清雅白花、甘甜悠長";
-
-            if (rec.storyCopy) {
-                document.getElementById("story-content").innerHTML = rec.storyCopy.split('\n').map(p => {
-                    // XSS 防護：先轉義 HTML 特殊字元，再包裹成 <p> 標籤
-                    const escaped = p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-                    return `<p>${escaped}</p>`;
-                }).join('');
-            }
-
-            document.getElementById("brew-temp").innerText = rec.brewTemp || "88°C - 90°C";
-            document.getElementById("brew-method").innerText = rec.brewMethod || "中偏粗研磨 / V60 濾杯";
-            document.getElementById("brew-note").innerText = rec.brewGuideNote || "建議前中段控水萃取花果香氣，尾段快速收水維持甘甜質感。";
-
-            // 連結綁定
-            document.getElementById("btn-view-ror").href = `./roast_db.html?id=${rec.id}`;
+        function renderBeanDetail(rec){
+            const bName=rec.beanName||'';
+            document.title=`${bName} · 金成淬精品咖啡 | 職人烘焙履歷`;
+            const md=document.querySelector('meta[name="description"]');
+            if(md&&rec.flavorTop)md.content=`${bName}｜${rec.flavorTop}、${rec.flavorMid}、${rec.flavorBase}。金成淬精品咖啡。`;
+            if(rec.roastDate==="2026-07-22"||rec.machine==="Tank-200")rec.machine="盧貝斯1kg全熱風";
+            const isGenericStory=!rec.storyCopy||rec.storyCopy.includes("微批次精品豆");
+            const isGenericFlavor=!rec.flavorTop||rec.flavorTop.includes("高雅花香");
+            if(bName.includes("蕭邦")||bName.includes("Chopin")){rec.process="雙重厭氧蜜處理";rec.altitude="1850m";rec.variety="卡杜拉 / 卡杜艾";rec.flavorTop="狂野玫瑰、香瓜幽香";rec.flavorMid="熟甜香瓜、紅酒交響";rec.flavorBase="絲滑奶油、楓糖甘甜";rec.storyCopy="來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。咖啡果實濃縮了馥郁玫瑰花香、清甜香瓜與滑順奶油的迷人韻味，經由金成淬熱風烘焙精密控溫，將其如古典樂曲般的華麗層次與醇厚酒香完美淬煉。";rec.brewTemp="89°C - 91°C";rec.brewMethod="中偏粗研磨 / V60 濾杯 / 四六法注水";rec.brewGuideNote="建議以 89°C 溫和萃取，前段發揮玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。";}
+            else if(bName.includes("莫札特")||bName.includes("Mozart")){rec.machine=rec.machine||"盧貝斯1kg全熱風";rec.process=rec.process||"葡萄乾蜜處理";rec.altitude=rec.altitude||"1950m";rec.variety=rec.variety||"卡杜拉 (Caturra)";if(isGenericFlavor){rec.flavorTop="清雅白玫瑰、青蘋果清香";rec.flavorMid="柑橘汁感、蜂蜜層次甜韻";rec.flavorBase="榛果回甘、薄荷葉晨露清涼";}if(isGenericStory){rec.storyCopy="在哥斯大黎加 1950 公尺的雲霧縈繞中，卡杜拉品種的果實緩慢熟透。葡萄乾蜜處理讓果肉的甜感深深滲入生豆，成就了這款莫札特獨特而細膩的靈魂。\n我們以精準的淺焙工藝，賦予這支豆子最明亮的展現。尾韻則是迷人的榛果回甘與薄荷葉般的晨露清涼。";}rec.brewTemp=rec.brewTemp||"88°C - 91°C";rec.brewMethod=rec.brewMethod||"中偏粗研磨 / V60 濾杯";rec.brewGuideNote=rec.brewGuideNote||"建議以此溫段萃取，能完美釋放白玫瑰花香與青蘋果的清脆酸質，3 分鐘內完成萃取保留細膩尾韻。";}
+            else if(bName.includes("瑪格麗特")||bName.includes("草莓")){rec.process=rec.process||"草莓厭氧蜜處理";rec.altitude=rec.altitude||"1750m";rec.variety=rec.variety||"Castillo / Pink Bourbon";if(isGenericFlavor){rec.flavorTop="百合幽香、鮮摘草莓與草莓軟糖";rec.flavorMid="濃郁草莓水蜜桃汁、蜜糖交響";rec.flavorBase="紅糖甜感、細緻可可尾韻悠長";}}
+            else{rec.process=rec.process||"精選微批次處理";rec.altitude=rec.altitude||"1700m - 2000m";rec.variety=rec.variety||"阿拉比卡原生種";}
+            document.title=`${rec.beanName} | 金成淬職人精選`;
+            document.getElementById("breadcrumb-name").textContent=rec.beanName;
+            document.getElementById("header-bean-title").innerText=rec.beanName;
+            document.getElementById("header-bean-subtitle").innerText=`${(rec.origin||'').split(' ')[0]||'CRAFT'} · ROAST PROFILE`;
+            document.getElementById("card-bean-name").innerText=rec.beanName;
+            document.getElementById("card-bean-origin-roast").innerText=`${rec.origin||'精品產區'} · ${rec.roastLevel||'職人焙度'}`;
+            document.getElementById("attr-origin").innerText=rec.origin||"-";
+            document.getElementById("attr-process").innerText=rec.process||"-";
+            document.getElementById("attr-variety").innerText=rec.variety||"-";
+            document.getElementById("attr-altitude").innerText=rec.altitude||"-";
+            document.getElementById("attr-roast").innerText=rec.roastLevel||"-";
+            document.getElementById("attr-machine").innerText=rec.machine||"-";
+            document.getElementById("attr-loss").innerText=rec.lossRatio||"-";
+            document.getElementById("attr-dtr").innerText=rec.dtrRatio||"-";
+            document.getElementById("attr-date").innerText=rec.roastDate||"-";
+            const score=parseFloat(rec.cuppingScore);
+            if(score&&score>0){document.getElementById("cupping-score-section").classList.remove("hidden");document.getElementById("score-value").innerText=score.toFixed(1);const pct=Math.min(Math.max((score-70)/30,0),1);setTimeout(()=>{document.getElementById("score-circle").style.strokeDashoffset=283*(1-pct)},500);}
+            document.getElementById("flavor-top").innerText=rec.flavorTop||"高雅花香、初摘果香";
+            document.getElementById("flavor-mid").innerText=rec.flavorMid||"多汁果蜜、明亮酸甜";
+            document.getElementById("flavor-base").innerText=rec.flavorBase||"清雅白花、甘甜悠長";
+            if(rec.storyCopy){const paras=rec.storyCopy.split('\n').filter(p=>p.trim());if(paras.length){const mains=paras.length>1?paras.slice(0,-1):paras;const quote=paras.length>1?paras[paras.length-1]:null;document.getElementById("story-content").innerHTML=mains.map(p=>`<p>${escHtml(p)}</p>`).join('');if(quote)document.getElementById("story-quote").innerText=`「${quote}」`;}}
+            document.getElementById("brew-temp").innerText=rec.brewTemp||"88°C - 90°C";
+            document.getElementById("brew-method").innerText=rec.brewMethod||"中偏粗研磨 / V60 濾杯";
+            document.getElementById("brew-note").innerText=rec.brewGuideNote||"建議前中段控水萃取花果香氣，尾段快速收水維持甘甜質感。";
+            document.getElementById("btn-view-ror").href=`./roast_db.html?id=${rec.id}`;
         }
     </script>
 </body>

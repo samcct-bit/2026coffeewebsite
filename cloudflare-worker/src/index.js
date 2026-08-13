@@ -13,7 +13,8 @@ const ALLOWED_ORIGINS = [
     "http://localhost:5500",
     "http://localhost:3000",
     "https://gansingkim.com",
-    "https://samcct-bit.github.io"
+    "https://samcct-bit.github.io",
+    "https://2026coffeewebsite.vercel.app"
 ];
 
 // 允許的 AI 模型白名單（防止惡意切換昂貴 model）
