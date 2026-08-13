@@ -1,1 +1,17 @@
 Gemini Apps/
+
+# 管理員工具腳本 (含 API Key，不應上傳至公開 Git)
+delete_docs.js
+test_fb.js
+test_fb_exact.js
+test_sort.py
+fetch_firestore.js
+db_extract.json
+
+# Node.js 依賴
+node_modules/
+package-lock.json
+package.json
+
+# Wrangler 暫存
+cloudflare-worker/.wrangler/

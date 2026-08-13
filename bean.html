@@ -488,7 +488,11 @@
             document.getElementById("flavor-base").innerText = rec.flavorBase || "清雅白花、甘甜悠長";
 
             if (rec.storyCopy) {
-                document.getElementById("story-content").innerHTML = rec.storyCopy.split('\n').map(p => `<p>${p}</p>`).join('');
+                document.getElementById("story-content").innerHTML = rec.storyCopy.split('\n').map(p => {
+                    // XSS 防護：先轉義 HTML 特殊字元，再包裹成 <p> 標籤
+                    const escaped = p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                    return `<p>${escaped}</p>`;
+                }).join('');
             }
 
             document.getElementById("brew-temp").innerText = rec.brewTemp || "88°C - 90°C";

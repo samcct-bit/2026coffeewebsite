@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /coffee_roasts/{document} {
+      // 任何人都可以讀取（公開豆單）
+      allow read: if true;
+      // 只有在提供特定資料欄位時才能新增或更新，防止垃圾資料寫入
+      allow create, update: if request.resource.data.keys().hasAny(['beanName', 'roastDate', 'rorDatapoints']);
+      // 刪除操作禁止從前端執行，改由本機管理員腳本操作
+      // 若需要啟用前端刪除，請先實作 Firebase Auth + 只允許已登入使用者刪除
+      allow delete: if false;
+    }
+  }
+}
