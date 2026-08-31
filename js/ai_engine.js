@@ -49,7 +49,7 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
 const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
-const CACHE_KEY_VERSION = 'batch-aware-v3';
+const CACHE_KEY_VERSION = 'batch-aware-v4';
 
 /** 將物件穩定排序，避免相同批次因欄位順序不同產生不同快取鍵。 */
 function _stableCacheValue(value) {
@@ -136,6 +136,78 @@ function _getRoastCurveMetrics(points = []) {
         lateRise,
         decline,
         trend,
+    };
+}
+
+/**
+ * 以可重現的規則計算 ROR 品質分數（0-100），供首頁挑選同品種代表批次。
+ * 這不是杯測分數，而是依曲線收斂、尾段失速/回升與 DTR/失重資料估算。
+ */
+function calculateRORQualityScore(roastData = {}) {
+    const points = Array.isArray(roastData) ? roastData : (roastData.rorPoints || roastData.rorDatapoints || []);
+    const metrics = _getRoastCurveMetrics(points);
+    if (!metrics.hasData) return 0;
+
+    let score = 60;
+    if (metrics.lateNegative || metrics.finalRor < 0) score -= 35;
+    if (metrics.lateRise) score -= 20;
+    if (metrics.finalRor > 8) score -= 15;
+    score += Math.max(0, 18 - Math.abs(metrics.finalRor - 4) * 3);
+    if (metrics.decline && !metrics.lateNegative) score += 7;
+
+    const dtr = parseFloat(roastData.dtr ?? roastData.dtrRatio ?? '');
+    if (Number.isFinite(dtr)) {
+        if (dtr >= 13 && dtr <= 18) score += 5;
+        else if (dtr < 10 || dtr > 22) score -= 8;
+    }
+    const loss = parseFloat(roastData.lossRatio ?? '');
+    if (Number.isFinite(loss)) {
+        if (loss >= 9 && loss <= 16) score += 3;
+        else if (loss < 7 || loss > 19) score -= 5;
+    }
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+/** 將 ROR 曲線轉成短而可讀的批次風味方向，避免 AI 只回傳換數字的制式句。 */
+function _getBatchFlavorCues(metrics) {
+    if (!metrics.hasData) return { top: '待補曲線', mid: '待補曲線', base: '待補曲線' };
+    if (metrics.lateNegative || metrics.finalRor < 0) {
+        return { top: '熟果可可', mid: '焦糖麥芽', base: '收斂偏乾' };
+    }
+    if (metrics.lateRise || metrics.finalRor >= 8) {
+        return { top: '明亮果汁', mid: '莓果酸甜', base: '茶感清脆' };
+    }
+    if (metrics.decline && metrics.finalRor <= 3) {
+        return { top: '花果通透', mid: '蜜甜凝聚', base: '茶感悠長' };
+    }
+    if (metrics.decline) {
+        return { top: '熟果花蜜', mid: '圓潤甜感', base: '可可回甘' };
+    }
+    return { top: '果香明亮', mid: '甜感展開', base: '尾韻持續' };
+}
+
+/** ROR 診斷固定保留由實際曲線推導的焦點，再疊加 AI 的自然語句。 */
+function _getBatchRorFocus(metrics) {
+    if (!metrics.hasData) return 'ROR 觀測點不足，暫不判定曲線品質';
+    if (metrics.lateNegative || metrics.finalRor < 0) return '尾段失速轉負，熱能斷點是本批次首要問題';
+    if (metrics.lateRise || metrics.finalRor >= 8) return '尾段熱能回彈，降火銜接仍需加強';
+    if (metrics.decline && metrics.finalRor <= 4) return '前段熱能逐步收斂，尾段下降完整而穩定';
+    if (metrics.decline) return 'ROR 持續下降但收斂較慢，中後段甜感仍有發展空間';
+    return '中後段 ROR 未充分收斂，需留意熱能延續與下豆節點';
+}
+
+function _appendBatchCue(note, cue) {
+    const text = String(note || '').trim();
+    return text && text.includes(cue) ? text : `${text || '本批次風味'}｜${cue}`;
+}
+
+function _applyBatchFlavorCues(result, metrics) {
+    const cues = _getBatchFlavorCues(metrics);
+    return {
+        ...result,
+        topNote: _appendBatchCue(result.topNote, cues.top),
+        midNote: _appendBatchCue(result.midNote, cues.mid),
+        baseNote: _appendBatchCue(result.baseNote, cues.base)
     };
 }
 
@@ -299,6 +371,7 @@ async function generateCoffeeFlavorAI(beanData) {
     const normalizedRorPoints = _normalizeRorPoints(rorPoints);
     const rorSummary = _formatRorSummary(normalizedRorPoints);
     const curveMetrics = _getRoastCurveMetrics(normalizedRorPoints);
+    const batchFlavorCues = _getBatchFlavorCues(curveMetrics);
 
     // ── 快取命中檢查 ──
     const cacheKey = _buildCacheKey(beanData);
@@ -324,6 +397,7 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
 烘焙日期：${roastDate || "未提供"}
 本批次完整 ROR 曲線（請以這些數據為主要依據）：${rorSummary || "暫無數據"}
 曲線特徵摘要：${curveMetrics.hasData ? `最高 ROR ${curveMetrics.peakRor.toFixed(1)}、最低 ROR ${curveMetrics.lowRor.toFixed(1)}、出豆前 ROR ${curveMetrics.finalRor.toFixed(1)}、判讀為${curveMetrics.trend}` : "觀測點不足"}
+ROR 導出的本批次風味方向（必須反映在三段風味中）：初韻「${batchFlavorCues.top}」、中調「${batchFlavorCues.mid}」、尾韻「${batchFlavorCues.base}」
 
 請只根據「本批次」資料生成，不要沿用其他批次的固定文案；即使豆款相同，也要讓風味與故事反映本批次 ROR、DTR、失重率及烘焙日期的差異。請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
 
@@ -362,16 +436,20 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
             storyCopy: parsed.storyCopy || fallback.storyCopy,
             brewTip:   parsed.brewTip   || "建議水溫 88°C - 92°C，中偏粗研磨"
         };
+        const batchAwareResult = _applyBatchFlavorCues(result, curveMetrics);
 
         // ── 寫入快取 ──
-        _writeCache(cacheKey, result);
+        _writeCache(cacheKey, batchAwareResult);
         console.log(`[AI Cache WRITE] ${name} · ${origin}`);
 
-        return result;
+        return batchAwareResult;
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
+        return _applyBatchFlavorCues(
+            _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints }),
+            curveMetrics
+        );
     }
 }
 
@@ -407,6 +485,7 @@ async function generateRORDiagnosis(roastData) {
 烘焙日期：${roastDate || "未提供"}
 完整 ROR 觀測數據（按時間）：${rorSummary || "暫無數據"}
 曲線特徵摘要：${curveMetrics.hasData ? `最高 ${curveMetrics.peakRor.toFixed(1)}、最低 ${curveMetrics.lowRor.toFixed(1)}、出豆前 ${curveMetrics.finalRor.toFixed(1)}°C/min，${curveMetrics.trend}` : "觀測點不足"}
+曲線判讀焦點（必須優先說明）：${_getBatchRorFocus(curveMetrics)}
 
 請用 JSON 輸出（繁體中文）：
 {
@@ -441,11 +520,22 @@ async function generateRORDiagnosis(roastData) {
 
         const data = await response.json();
         const parsed = JSON.parse(data.choices?.[0]?.message?.content || "{}");
-        return { ..._buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints }), ...parsed };
+        const fallback = _buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints });
+        const batchFocus = _getBatchRorFocus(curveMetrics);
+        const aiTrend = typeof parsed.rorTrend === 'string' ? parsed.rorTrend.trim() : '';
+        return {
+            ...fallback,
+            ...parsed,
+            // 強制保留曲線計算出的批次焦點，避免所有批次只套同一個 AI 句型。
+            rorTrend: aiTrend && aiTrend !== fallback.rorTrend ? `${batchFocus}；${aiTrend}` : batchFocus
+        };
 
     } catch (err) {
         console.error("[AI Engine] ROR 診斷失敗:", err);
-        return _buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints });
+        return {
+            ..._buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints }),
+            rorTrend: _getBatchRorFocus(curveMetrics)
+        };
     }
 }
 
@@ -623,6 +713,7 @@ window.GansingKimAI = {
     generateCoffeeFlavorAI,
     generateRORDiagnosis,
     generateObsidianPoetry,
+    calculateRORQualityScore,
     typewriterFill,
     showAILoading,
     hideAILoading,

@@ -109,7 +109,7 @@
         </div>
     </div>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260831-batch-aware"></script>
+    <script src="./js/ai_engine.js?v=20260901-batch-aware-v4"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -1211,7 +1211,8 @@
                 tpTime:      document.getElementById('form-tp-time')?.value || '',
                 fcTime:      document.getElementById('form-fc-time')?.value || '',
                 dropTime:    document.getElementById('form-drop-time')?.value || '',
-                rorPoints
+                rorPoints,
+                bypassCache: true
             };
 
             // 顯示 Loading 狀態

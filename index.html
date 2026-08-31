@@ -107,7 +107,7 @@
         }
     </style>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260831-batch-aware"></script>
+    <script src="./js/ai_engine.js?v=20260901-batch-aware-v4"></script>
 
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
@@ -914,6 +914,17 @@
         }
 
         // 初始化載入
+        function parseRORDataForHome(data) {
+            if (Array.isArray(data.rorDatapoints)) return data.rorDatapoints;
+            if (!data.rorDatapointsJson) return [];
+            try {
+                const parsed = JSON.parse(data.rorDatapointsJson);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             calculateBrewing();
             renderGrid();
@@ -966,7 +977,12 @@
                         cleanNameKey: cleanNameKey,
                         roastDate: data.roastDate || "",
                         cuppingScore: parseFloat(data.cuppingScore) || 0,
-                        isOptimized: (data.status && data.status.includes("Optimized")) || bName.includes("優化")
+                        isOptimized: (data.status && data.status.includes("Optimized")) || bName.includes("優化"),
+                        rorQualityScore: window.GansingKimAI?.calculateRORQualityScore({
+                            rorPoints: parseRORDataForHome(data),
+                            dtr: data.dtrRatio || "",
+                            lossRatio: data.lossRatio || ""
+                        }) || 0
                     };
 
                     if (!groupedMap.has(groupKey)) {
@@ -978,10 +994,10 @@
 
                 const cloudRecords = [];
                 groupedMap.forEach((batchList) => {
-                    // 同一豆款多批次排序：1. 最新烘焙日期；2. 同日則優先選擇最佳 ROR/優化批次 (Optimized > 杯測高分)
+                    // 同一豆款多批次排序：1. ROR 品質分數；2. 優化標記；3. 杯測分數；4. 日期。
                     batchList.sort((a, b) => {
-                        if (a.roastDate !== b.roastDate) {
-                            return b.roastDate.localeCompare(a.roastDate);
+                        if (a.rorQualityScore !== b.rorQualityScore) {
+                            return b.rorQualityScore - a.rorQualityScore;
                         }
                         if (a.isOptimized !== b.isOptimized) {
                             return a.isOptimized ? -1 : 1;
@@ -989,7 +1005,10 @@
                         if (a.cuppingScore !== b.cuppingScore) {
                             return b.cuppingScore - a.cuppingScore;
                         }
-                        // 同一天、同為優化/非優化、分數也相同時，比較 id（因為 id 是 roast_時間戳，降冪排列確保最新的在最上面）
+                        if (a.roastDate !== b.roastDate) {
+                            return b.roastDate.localeCompare(a.roastDate);
+                        }
+                        // 所有條件相同時，比較 id，保留最新建立的批次。
                         return b.id.localeCompare(a.id);
                     });
 
@@ -1008,16 +1027,19 @@
                     let mid = data.flavorMid;
                     let base = data.flavorBase;
 
-                    const isGenericTop = !top || top.includes("高雅花香") || top.includes("初摘");
+                    const hasFreshAI = Boolean(data.aiAnalyzedAt || data.aiAnalysisVersion);
+                    const isGenericTop = !top || (!hasFreshAI && (top.includes("高雅花香") || top.includes("初摘")));
                     const isGenericProcess = !process || process.includes("微批次") || process.includes("精選");
 
                     if (bName.includes("蕭邦") || bName.includes("Chopin")) {
-                        process = "雙重厭氧蜜處理";
-                        altitude = "1850m";
-                        variety = "卡杜拉 / 卡杜艾";
-                        top = "狂野玫瑰、香瓜幽香";
-                        mid = "熟甜香瓜、紅酒交響";
-                        base = "絲滑奶油、楓糖甘甜";
+                        process = process || "雙重厭氧蜜處理";
+                        altitude = altitude || "1850m";
+                        variety = variety || "卡杜拉 / 卡杜艾";
+                        if (isGenericTop) {
+                            top = "狂野玫瑰、香瓜幽香";
+                            mid = "熟甜香瓜、紅酒交響";
+                            base = "絲滑奶油、楓糖甘甜";
+                        }
                     } else if (bName.includes("瑪格麗特") || bName.includes("草莓")) {
                         process = isGenericProcess ? "草莓厭氧蜜處理" : process;
                         altitude = (!altitude || altitude.includes("高海拔")) ? "1750m" : altitude;
@@ -1028,12 +1050,14 @@
                             base = "紅糖甜感、細緻可可尾韻";
                         }
                     } else if (bName.includes("莫札特") || bName.includes("Mozart")) {
-                        process = "葡萄乾蜜處理";
-                        altitude = "1950m";
-                        variety = "卡杜拉 (Caturra)";
-                        top = "馥郁玫瑰、紫羅蘭香";
-                        mid = "紫葡萄汁、蜜糖交響";
-                        base = "花香甘甜、柔滑悠長";
+                        process = process || "葡萄乾蜜處理";
+                        altitude = altitude || "1950m";
+                        variety = variety || "卡杜拉 (Caturra)";
+                        if (isGenericTop) {
+                            top = "馥郁玫瑰、紫羅蘭香";
+                            mid = "紫葡萄汁、蜜糖交響";
+                            base = "花香甘甜、柔滑悠長";
+                        }
                     } else if (bName.includes("藝伎") || bName.includes("Gesha") || bName.includes("Geisha")) {
                         process = isGenericProcess ? "精緻水洗 / 日曬" : process;
                         altitude = (!altitude || altitude.includes("高海拔")) ? "1950m" : altitude;
@@ -1071,6 +1095,7 @@
                         variety: variety,
                         altitude: altitude,
                         roastDate: data.roastDate || "",
+                        rorQualityScore: best.rorQualityScore,
                         flavors: [top, mid, base],
                         url: `./bean.html?id=${recId}`,
                         featured: true
