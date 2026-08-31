@@ -11,9 +11,9 @@
 
 
 const GROQ_CONFIG = {
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     endpoint: "https://gsk-groq-proxy.gansingkim.workers.dev", // ← 請在部署後將此替換為您的 Cloudflare Worker 網址
-    maxTokens: 700,
+    maxTokens: 1200,
     temperature: 0.88
 };
 
@@ -413,8 +413,10 @@ ROR 導出的本批次風味方向（必須反映在三段風味中）：初韻�
                     { role: "system", content: BRAND_SYSTEM_PROMPT },
                     { role: "user", content: userPrompt }
                 ],
-                max_tokens: GROQ_CONFIG.maxTokens,
+                max_completion_tokens: GROQ_CONFIG.maxTokens,
                 temperature: GROQ_CONFIG.temperature,
+                reasoning_effort: "low",
+                reasoning_format: "hidden",
                 response_format: { type: "json_object" }
             })
         });
@@ -510,8 +512,10 @@ async function generateRORDiagnosis(roastData) {
                     { role: "system", content: "你是一位持有 SCA Roasting 國際認證的精品咖啡烘焙顧問，專精於 ROR 曲線分析與 DTR 發展比優化。回答嚴格以 JSON 格式輸出，使用繁體中文。" },
                     { role: "user", content: diagPrompt }
                 ],
-                max_tokens: 500,
+                max_completion_tokens: 800,
                 temperature: 0.7,
+                reasoning_effort: "low",
+                reasoning_format: "hidden",
                 response_format: { type: "json_object" }
             })
         });
@@ -589,8 +593,10 @@ DTR：${dtrRatio} ‧ 失重：${lossRatio}
                     { role: "system", content: "你是精品咖啡品牌的詩意文案師，擅長以俳句與禪意散文記錄咖啡的風土靈魂。回答嚴格以 JSON 格式輸出，使用繁體中文。" },
                     { role: "user", content: poetryPrompt }
                 ],
-                max_tokens: 500,
+                max_completion_tokens: 800,
                 temperature: 0.92,
+                reasoning_effort: "low",
+                reasoning_format: "hidden",
                 response_format: { type: "json_object" }
             })
         });

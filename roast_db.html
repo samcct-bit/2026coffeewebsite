@@ -232,7 +232,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260901-batch-aware-v4"></script>
+    <script src="./js/ai_engine.js?v=20260901-groq-v5"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -446,7 +446,7 @@
         
         // --- Firebase Cloud Firestore SDK 導入與初始化 ---
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, getDoc, setDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
