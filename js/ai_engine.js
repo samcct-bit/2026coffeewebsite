@@ -1,7 +1,7 @@
 /**
  * 金成淬精品咖啡 · AI 引擎模組
  * Groq LLM API 整合 · 品牌一致性風味文案生成
- * Version: 2.1 | 2026-08-04
+ * Version: 2.2 | 2026-08-31
  * Key Source: C:\2026_key\groq_coffeewebsite.txt
  */
 
@@ -45,23 +45,184 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 - 壞：「花香四溢」「非常香」`;
 
 // ──────────────────────────────────────────────
-// sessionStorage 快取層（同豆款不重複呼叫 API）
+// localStorage 快取層（同一批次不重複呼叫 API）
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
 const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
+const CACHE_KEY_VERSION = 'batch-aware-v3';
+
+/** 將物件穩定排序，避免相同批次因欄位順序不同產生不同快取鍵。 */
+function _stableCacheValue(value) {
+    if (Array.isArray(value)) return value.map(_stableCacheValue);
+    if (value && typeof value === 'object') {
+        return Object.keys(value).sort().reduce((result, key) => {
+            if (value[key] !== undefined) result[key] = _stableCacheValue(value[key]);
+            return result;
+        }, {});
+    }
+    return value;
+}
+
+/** 統一新舊格式的 ROR 觀測點，讓 AI 一律取得數值化的完整曲線。 */
+function _toNumericOrEmpty(value) {
+    if (value === '' || value === null || value === undefined) return '';
+    const number = Number(value);
+    return Number.isFinite(number) ? number : '';
+}
+
+function _normalizeRorPoints(points = []) {
+    if (!Array.isArray(points)) return [];
+    return points.map(point => {
+        const isArray = Array.isArray(point);
+        const timeCandidate = isArray ? point[0] : (point?.time ?? point?.timeStr ?? '');
+        const time = !isArray && !timeCandidate && point?.timeS !== undefined && Number.isFinite(Number(point.timeS))
+            ? `${Math.floor(Number(point.timeS) / 60)}:${Number(point.timeS) % 60 < 10 ? '0' : ''}${Number(point.timeS) % 60}`
+            : timeCandidate;
+        const bt = isArray ? point[1] : (point?.bt ?? point?.beanTemp ?? point?.temp ?? '');
+        const ror = isArray ? point[2] : (point?.ror ?? '');
+        return {
+            time: String(time ?? '').trim(),
+            bt: _toNumericOrEmpty(bt),
+            ror: _toNumericOrEmpty(ror),
+        };
+    }).filter(point => point.time && point.bt !== '');
+}
+
+/** 以完整曲線建立提示詞內容；不只取最後幾點，避免不同批次被截成相同資料。 */
+function _formatRorSummary(points = [], limit = 30) {
+    return _normalizeRorPoints(points).slice(0, limit).map(point =>
+        `${point.time}: BT=${point.bt}°C, ROR=${point.ror === '' ? '未計算' : `${point.ror}°C/min`}`
+    ).join('；');
+}
+
+/** 從曲線提取可解釋的特徵，供提示詞與 API 失敗時的批次化備援文案使用。 */
+function _getRoastCurveMetrics(points = []) {
+    const normalized = _normalizeRorPoints(points);
+    const numeric = normalized.filter(point => point.ror !== '');
+    if (numeric.length < 2) {
+        return { hasData: false, count: numeric.length, trend: '觀測點不足' };
+    }
+
+    const rors = numeric.map(point => point.ror);
+    const last = numeric[numeric.length - 1];
+    const split = Math.max(2, Math.ceil(numeric.length * 0.35));
+    const early = numeric.slice(0, split).map(point => point.ror);
+    const late = numeric.slice(-split).map(point => point.ror);
+    const average = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const peakRor = Math.max(...rors);
+    const lowRor = Math.min(...rors);
+    const earlyAverage = average(early);
+    const lateAverage = average(late);
+    const lateNegative = late.some(value => value < 0);
+    const lateRise = lateAverage > earlyAverage + 1.5;
+    const decline = lateAverage < earlyAverage - 1.0;
+
+    let trend = 'ROR 緩降';
+    if (lateNegative || last.ror < 0) trend = '尾段失速並轉負';
+    else if (lateRise) trend = '尾段回升，熱能略回彈';
+    else if (decline && last.ror <= 4) trend = 'ROR 平順收斂';
+    else if (last.ror >= 8) trend = '尾段熱能偏高';
+    else if (decline) trend = 'ROR 穩定下降';
+
+    return {
+        hasData: true,
+        count: numeric.length,
+        peakRor,
+        lowRor,
+        finalRor: last.ror,
+        earlyAverage,
+        lateAverage,
+        lateNegative,
+        lateRise,
+        decline,
+        trend,
+    };
+}
+
+function _buildFlavorFallback(beanData) {
+    const {
+        name = '精品咖啡', origin = '精選產區', process = '精選處理法',
+        roastLevel = '淺焙', roastDate = '', rorPoints = []
+    } = beanData;
+    const metrics = _getRoastCurveMetrics(rorPoints);
+
+    let topNote = '白花、柑橘與細緻茶香';
+    let midNote = '水蜜桃汁、蜂蜜柔甜';
+    let baseNote = '白茶回甘、乾淨悠長';
+    if (metrics.hasData && (metrics.lateNegative || metrics.finalRor < 0)) {
+        topNote = '熟果、可可與木質暖香';
+        midNote = '焦糖堅果、圓潤麥芽甜感';
+        baseNote = '烘烤可可、尾韻收斂偏乾';
+    } else if (metrics.hasData && (metrics.lateRise || metrics.finalRor >= 8)) {
+        topNote = '柑橘、紅莓與明亮花香';
+        midNote = '多汁莓果、蔗糖酸甜';
+        baseNote = '茶感清晰、尾韻俐落回甘';
+    } else if (metrics.hasData && metrics.finalRor > 4) {
+        topNote = '熟果、花蜜與葡萄香';
+        midNote = '葡萄果汁、焦糖甜感';
+        baseNote = '可可堅果、圓潤回甘';
+    }
+
+    const curveNote = metrics.hasData
+        ? `本批次 ROR 最高 ${metrics.peakRor.toFixed(1)}，出豆前為 ${metrics.finalRor.toFixed(1)}°C/min，曲線呈現「${metrics.trend}」`
+        : '目前尚無足夠 ROR 觀測點，先以基本批次資料建立風味輪廓';
+    const batchNote = roastDate ? `（${roastDate} 批次）` : '';
+    return {
+        topNote,
+        midNote,
+        baseNote,
+        storyCopy: `這是${origin}的${name}${batchNote}，採${process}並以${roastLevel}完成。${curveNote}，職人據此保留前段香氣、調整中段甜感與尾韻質地。待咖啡冷卻後細品，感受這一批次獨有的風土轉折。`,
+        brewTip: '建議水溫 88°C - 92°C，中偏粗研磨'
+    };
+}
+
+function _buildRorDiagnosisFallback(roastData) {
+    const { rorPoints = [], dtr = '', lossRatio = '' } = roastData;
+    const metrics = _getRoastCurveMetrics(rorPoints);
+    const dtrNum = parseFloat(dtr);
+    const lossNum = parseFloat(lossRatio);
+    const dtrEval = Number.isFinite(dtrNum)
+        ? (dtrNum >= 20 ? `DTR ${dtrNum.toFixed(1)}%，發展偏長，風味會更圓潤` : dtrNum <= 13 ? `DTR ${dtrNum.toFixed(1)}%，發展偏短，花香較通透` : `DTR ${dtrNum.toFixed(1)}%，落在平衡區間`)
+        : 'DTR 尚未提供，無法判斷發展長度';
+    const lossEval = Number.isFinite(lossNum)
+        ? `失重 ${lossNum.toFixed(1)}%，可作為本批次熟度基準`
+        : '失重率尚未提供，請補登入豆與出豆重量';
+
+    let rorTrend = 'ROR 觀測點不足，請補登至少兩個含豆溫的節點';
+    let suggestion = ['補齊完整 ROR 觀測點', '記錄一爆與出豆時間', '下批次持續比對曲線'];
+    let badge = '待補足曲線';
+    if (metrics.hasData) {
+        rorTrend = `${metrics.trend}（最高 ${metrics.peakRor.toFixed(1)}，出豆前 ${metrics.finalRor.toFixed(1)}°C/min）`;
+        if (metrics.lateNegative || metrics.finalRor < 0) {
+            suggestion = ['一爆前保留更多熱能', '降低過早降火造成的失速', '縮短低 ROR 停留時間'];
+            badge = '尾段熱能不足';
+        } else if (metrics.lateRise || metrics.finalRor >= 8) {
+            suggestion = ['提前分段降火煞車', '一爆前降低熱能回彈', '維持尾段 ROR 緩降'];
+            badge = '尾段熱能偏高';
+        } else if (metrics.finalRor <= 4 && metrics.decline) {
+            suggestion = ['保持目前平順收斂', '微調一爆後風門排煙', '以杯測確認甜感厚度'];
+            badge = '曲線收斂漂亮';
+        } else {
+            suggestion = ['觀察一爆前 ROR 峰值', '分段降火避免尾段回升', '以杯測回饋微調 DTR'];
+            badge = '熱能控制穩健';
+        }
+    }
+
+    const score = metrics.hasData && !metrics.lateNegative && metrics.finalRor >= 0 && metrics.finalRor <= 8
+        ? '良好' : metrics.hasData ? '需改善' : '良好';
+    return { overallScore: score, dtrEval, lossEval, rorTrend, suggestion, badge };
+}
 
 /**
  * 產生快取 Key（根據豆款核心特徵）
  * @param {Object} beanData
  * @returns {string}
  */
-function _buildCacheKey(beanData) {
-    const sig = [
-        beanData.name    || '',
-        beanData.origin  || '',
-        beanData.process || '',
-        beanData.roastLevel || ''
-    ].join('|').toLowerCase().replace(/\s+/g, '');
+function _buildCacheKey(beanData = {}) {
+    const cacheData = { ...beanData };
+    delete cacheData.bypassCache;
+    if (cacheData.rorPoints) cacheData.rorPoints = _normalizeRorPoints(cacheData.rorPoints);
+    const sig = JSON.stringify(_stableCacheValue({ version: CACHE_KEY_VERSION, data: cacheData }));
     // 簡易 hash（避免 key 太長）
     let h = 0;
     for (let i = 0; i < sig.length; i++) {
@@ -113,6 +274,9 @@ function _writeCache(cacheKey, data) {
  * @param {string} [beanData.dtr] - 發展時間比 DTR
  * @param {string} [beanData.lossRatio] - 失重比
  * @param {string} [beanData.machine] - 烘豆機型
+ * @param {string} [beanData.roastDate] - 烘焙日期
+ * @param {string} [beanData.batchId] - 批次識別碼
+ * @param {Array} [beanData.rorPoints] - 本批次完整 ROR 曲線
  * @param {boolean} [beanData.bypassCache] - 強制繞過快取（手動重新生成時使用）
  * @returns {Promise<{topNote, midNote, baseNote, storyCopy, brewTip}>}
  */
@@ -127,8 +291,14 @@ async function generateCoffeeFlavorAI(beanData) {
         dtr = "",
         lossRatio = "",
         machine = "職人烘豆機",
+        roastDate = "",
+        rorPoints = [],
         bypassCache = false
     } = beanData;
+
+    const normalizedRorPoints = _normalizeRorPoints(rorPoints);
+    const rorSummary = _formatRorSummary(normalizedRorPoints);
+    const curveMetrics = _getRoastCurveMetrics(normalizedRorPoints);
 
     // ── 快取命中檢查 ──
     const cacheKey = _buildCacheKey(beanData);
@@ -151,8 +321,11 @@ ${variety ? `品種：${variety}` : ""}
 ${dtr ? `發展時間比 DTR：${dtr}（${parseFloat(dtr) >= 20 ? "偏長，風味更圓潤飽滿" : parseFloat(dtr) <= 13 ? "偏短，花香更細緻通透" : "標準黃金DTR範圍"})` : ""}
 ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
 烘豆設備：${machine}
+烘焙日期：${roastDate || "未提供"}
+本批次完整 ROR 曲線（請以這些數據為主要依據）：${rorSummary || "暫無數據"}
+曲線特徵摘要：${curveMetrics.hasData ? `最高 ROR ${curveMetrics.peakRor.toFixed(1)}、最低 ROR ${curveMetrics.lowRor.toFixed(1)}、出豆前 ROR ${curveMetrics.finalRor.toFixed(1)}、判讀為${curveMetrics.trend}` : "觀測點不足"}
 
-請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
+請只根據「本批次」資料生成，不要沿用其他批次的固定文案；即使豆款相同，也要讓風味與故事反映本批次 ROR、DTR、失重率及烘焙日期的差異。請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
 
     try {
         const response = await fetch(GROQ_CONFIG.endpoint, {
@@ -180,12 +353,13 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
         const data = await response.json();
         const rawContent = data.choices?.[0]?.message?.content || "{}";
         const parsed = JSON.parse(rawContent);
+        const fallback = _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
 
         const result = {
-            topNote:   parsed.topNote   || `${origin}高雅花香、初摘柑橘`,
-            midNote:   parsed.midNote   || "明亮果蜜、甜感交響",
-            baseNote:  parsed.baseNote  || "清雅白花餘韻、黑糖甘甜悠長",
-            storyCopy: parsed.storyCopy || `來自${origin}的微批次精品豆，經金成淬職人精密烘焙淬煉。`,
+            topNote:   parsed.topNote   || fallback.topNote,
+            midNote:   parsed.midNote   || fallback.midNote,
+            baseNote:  parsed.baseNote  || fallback.baseNote,
+            storyCopy: parsed.storyCopy || fallback.storyCopy,
             brewTip:   parsed.brewTip   || "建議水溫 88°C - 92°C，中偏粗研磨"
         };
 
@@ -197,13 +371,7 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return {
-            topNote:   `${origin}高雅花香、初摘果香`,
-            midNote:   "明亮果蜜、甜感層次交響",
-            baseNote:  "清雅餘韻、黑糖甘甜悠長",
-            storyCopy: `來自${origin}的微批次精品豆，採${process}精緻淬煉，經金成淬職人以科學化 ROR 烘焙曲線呈現最純粹的風土本質。`,
-            brewTip:   "建議水溫 88°C - 92°C，中偏粗研磨"
-        };
+        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
     }
 }
 
@@ -217,20 +385,28 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
  * @param {string} roastData.lossRatio - 失重比
  * @param {string} roastData.beanName - 豆名
  * @param {string} roastData.roastLevel - 烘焙度
+ * @param {string} [roastData.roastDate] - 烘焙日期
+ * @param {string} [roastData.origin] - 產區
+ * @param {string} [roastData.process] - 處理法
+ * @param {string} [roastData.machine] - 烘豆機型
  */
 async function generateRORDiagnosis(roastData) {
-    const { rorPoints = [], dtr = "", lossRatio = "", beanName = "", roastLevel = "" } = roastData;
+    const { rorPoints = [], dtr = "", lossRatio = "", beanName = "", roastLevel = "",
+            roastDate = "", origin = "", process = "", machine = "" } = roastData;
 
-    const rorSummary = rorPoints.slice(-6).map(p =>
-        `${p.time}: BT=${p.bt}°C, ROR=${p.ror}`
-    ).join(" | ");
+    const normalizedRorPoints = _normalizeRorPoints(rorPoints);
+    const rorSummary = _formatRorSummary(normalizedRorPoints);
+    const curveMetrics = _getRoastCurveMetrics(normalizedRorPoints);
 
     const diagPrompt = `你是 SCA 認證烘焙師，請診斷以下「${beanName}」的烘焙數據，並給出職人改善建議。
 
 烘焙度目標：${roastLevel}
 發展時間比（DTR）：${dtr}
 失重比：${lossRatio}
-最後段 ROR 觀測數據：${rorSummary || "暫無數據"}
+產區：${origin || "未提供"}；處理法：${process || "未提供"}；烘豆機：${machine || "未提供"}
+烘焙日期：${roastDate || "未提供"}
+完整 ROR 觀測數據（按時間）：${rorSummary || "暫無數據"}
+曲線特徵摘要：${curveMetrics.hasData ? `最高 ${curveMetrics.peakRor.toFixed(1)}、最低 ${curveMetrics.lowRor.toFixed(1)}、出豆前 ${curveMetrics.finalRor.toFixed(1)}°C/min，${curveMetrics.trend}` : "觀測點不足"}
 
 請用 JSON 輸出（繁體中文）：
 {
@@ -238,9 +414,10 @@ async function generateRORDiagnosis(roastData) {
     "dtrEval": "DTR 評價（一句話）",
     "lossEval": "失重比評價（一句話）",
     "rorTrend": "ROR 走勢分析（一句話）",
-    "suggestion": "下批次改善建議（2-3點，每點15字內）",
+    "suggestion": ["下批次改善建議（每點15字內）", "第二點建議", "第三點建議"],
     "badge": "本批次特色評語（10字以內，如「焦糖化完美」「花香保留極優」）"
-}`;
+}
+請務必依據完整曲線與本批次數值判斷，不要套用固定的「ROR 曲線正常下降」或固定建議。`;
 
     try {
         const response = await fetch(GROQ_CONFIG.endpoint, {
@@ -249,7 +426,7 @@ async function generateRORDiagnosis(roastData) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: GROQ_CONFIG.model,
                 messages: [
                     { role: "system", content: "你是一位持有 SCA Roasting 國際認證的精品咖啡烘焙顧問，專精於 ROR 曲線分析與 DTR 發展比優化。回答嚴格以 JSON 格式輸出，使用繁體中文。" },
                     { role: "user", content: diagPrompt }
@@ -263,19 +440,12 @@ async function generateRORDiagnosis(roastData) {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        return JSON.parse(data.choices?.[0]?.message?.content || "{}");
+        const parsed = JSON.parse(data.choices?.[0]?.message?.content || "{}");
+        return { ..._buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints }), ...parsed };
 
     } catch (err) {
         console.error("[AI Engine] ROR 診斷失敗:", err);
-        const dtrNum = parseFloat(dtr);
-        return {
-            overallScore: "良好",
-            dtrEval: dtrNum >= 20 ? "DTR 偏長，風味圓潤但建議縮短" : dtrNum <= 13 ? "DTR 偏短，花香通透但甜感可加強" : "DTR 落在黃金範圍，曲線平衡",
-            lossEval: "失重比數據已記錄",
-            rorTrend: "ROR 曲線正常下降，熱能控制穩定",
-            suggestion: ["保持 ROR 穩定下降趨勢", "確保一爆後 DTR 控制在目標範圍", "注意出豆溫度與風門配合"],
-            badge: "職人標準批次"
-        };
+        return _buildRorDiagnosisFallback({ ...roastData, rorPoints: normalizedRorPoints });
     }
 }
 
@@ -289,10 +459,14 @@ async function generateRORDiagnosis(roastData) {
  */
 async function generateObsidianPoetry(recData) {
     const { beanName = "", origin = "", process = "", roastLevel = "",
-            dtrRatio = "", lossRatio = "", flavorTop = "", flavorMid = "", flavorBase = "" } = recData;
+            dtrRatio = "", lossRatio = "", flavorTop = "", flavorMid = "", flavorBase = "",
+            roastDate = "", batchId = "", rorPoints = [] } = recData;
 
-    // 檢查快取（用豆名+烘焙日期作為唯一標識）
-    const cacheKey = _buildCacheKey({ name: beanName + '_obsidian', origin, process, roastLevel });
+    // 檢查快取：同豆款不同日期、批次或 ROR 曲線不可共用同一份筆記。
+    const cacheKey = _buildCacheKey({
+        name: beanName + '_obsidian', origin, process, roastLevel, roastDate, batchId,
+        dtrRatio, lossRatio, flavorTop, flavorMid, flavorBase, rorPoints
+    });
     const cached = _readCache(cacheKey);
     if (cached) return cached;
 
@@ -303,6 +477,8 @@ async function generateObsidianPoetry(recData) {
 處理法：${process} ‧ 烘焙度：${roastLevel}
 DTR：${dtrRatio} ‧ 失重：${lossRatio}
 已知風味輪廓：${[flavorTop, flavorMid, flavorBase].filter(Boolean).join('、') || '待評鑑'}
+烘焙日期：${roastDate || '未提供'}
+完整 ROR 曲線：${_formatRorSummary(rorPoints) || '暫無數據'}
 
 請以 JSON 格式輸出（繁體中文，文學性強、禁用平凡語彙）：
 {

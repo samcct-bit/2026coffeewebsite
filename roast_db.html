@@ -232,7 +232,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js"></script>
+    <script src="./js/ai_engine.js?v=20260831-batch-aware"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -4698,7 +4698,10 @@
                         lossRatio:  rec.lossRatio  || '',
                         flavorTop:  rec.flavorTop  || '',
                         flavorMid:  rec.flavorMid  || '',
-                        flavorBase: rec.flavorBase || ''
+                        flavorBase: rec.flavorBase || '',
+                        roastDate:  rec.roastDate  || '',
+                        batchId:    rec.id         || '',
+                        rorPoints:  rec.rorDatapoints || []
                     });
                 } catch(e) {
                     console.warn('[Obsidian] AI 詩句生成失敗，使用預設文案', e);
@@ -5093,7 +5096,19 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 altitude:   document.getElementById('edit-altitude')?.value || '',
                 variety:    document.getElementById('edit-variety')?.value || '',
                 dtr:        document.getElementById('edit-dtrRatio')?.value || '',
-                lossRatio:  document.getElementById('edit-lossRatio')?.value || ''
+                lossRatio:  document.getElementById('edit-lossRatio')?.value || '',
+                machine:    selectedRecord?.machine || '',
+                roastDate:  selectedRecord?.roastDate || '',
+                batchId:    selectedRecord?.id || '',
+                chargeMassG: selectedRecord?.chargeMassG || '',
+                dropMassG:   selectedRecord?.dropMassG || '',
+                chargeTemp:  selectedRecord?.chargeTemp || '',
+                fcTemp:      selectedRecord?.fcTemp || '',
+                dropTemp:    selectedRecord?.dropTemp || '',
+                tpTime:      selectedRecord?.tpTime || '',
+                fcTime:      selectedRecord?.fcTime || '',
+                dropTime:    selectedRecord?.dropTime || '',
+                rorPoints:   selectedRecord?.rorDatapoints || []
             };
 
             AI.showAILoading(btn, '⏳ AI 思考中...');
