@@ -4444,6 +4444,8 @@
                 let fetchedRecords = [];
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
+                    // 以 Firestore 文件 ID 作為批次 ID，確保網址參數能精準定位紀錄
+                    data.id = docSnap.id;
                     // 將資料庫內的 ROR / Timeline JSON 字串還原為陣列
                     if (data.rorDatapointsJson) {
                         data.rorDatapoints = JSON.parse(data.rorDatapointsJson);
@@ -4507,7 +4509,11 @@
 
             renderRecordsList();
             if (roastingDatabase.length > 0) {
-                showRecordDetail(roastingDatabase[0].id);
+                const requestedId = new URLSearchParams(window.location.search).get("id");
+                const initialRecord = requestedId
+                    ? roastingDatabase.find(record => record.id === requestedId)
+                    : null;
+                showRecordDetail((initialRecord || roastingDatabase[0]).id);
             }
         });
 
