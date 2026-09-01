@@ -161,6 +161,18 @@
                         <input type="text" id="edit-variety" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
                     </div>
                     <div>
+                        <label class="block text-brass-gold mb-1 font-bold">產季／批次</label>
+                        <input type="text" id="edit-cropYear" placeholder="如：2025/26、Lot 12" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-brass-gold mb-1 font-bold">生豆供應商網址</label>
+                        <input type="url" id="edit-sourceUrl" placeholder="貼上生豆商或莊園產品頁" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-brass-gold mb-1 font-bold">供應商原始杯測筆記（最高優先）</label>
+                        <input type="text" id="edit-supplierNotes" placeholder="如：麝香葡萄、玫瑰、酒漬櫻桃、水果軟糖" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
+                    </div>
+                    <div>
                         <label class="block text-brass-gold mb-1 font-bold">杯測評分</label>
                         <input type="number" step="0.1" id="edit-cuppingScore" class="w-full bg-black/60 border border-white/10 focus:border-brass-gold rounded-xl px-3 py-2 text-white focus:outline-none">
                     </div>
@@ -189,6 +201,7 @@
                             ✨ Groq AI 重新生成風味
                         </button>
                     </div>
+                    <div id="edit-research-status" class="hidden rounded-xl border border-brass-gold/20 bg-brass-gold/5 px-3 py-2 text-[11px] leading-relaxed text-gray-300"></div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-gray-400 mb-1">初韻 (Top Note)</label>
@@ -232,7 +245,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260901-terroir-v6"></script>
+    <script src="./js/ai_engine.js?v=20260901-web-calibrated-v7"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -4412,6 +4425,7 @@
 
         let selectedRecord = roastingDatabase[0];
         let rorChartInstance = null;
+        let pendingEditResearchIdentity = '';
 
         // 2. 初始化渲染頁面
         document.addEventListener("DOMContentLoaded", async () => {
@@ -4908,6 +4922,10 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 process: rec.process || "",
                 altitude: rec.altitude || "",
                 variety: rec.variety || "",
+                cropYear: rec.cropYear || "",
+                greenBeanSourceUrl: rec.greenBeanSourceUrl || "",
+                supplierCuppingNotes: rec.supplierCuppingNotes || "",
+                greenBeanResearch: rec.greenBeanResearch || null,
                 rorDatapoints: rec.rorDatapoints || [],
                 timelineActions: rec.timelineActions || []
             };
@@ -4916,6 +4934,60 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             sessionStorage.setItem("copy_roast_template", JSON.stringify(copyData));
 
             window.location.href = `./roast_live.html?copy=true`;
+        }
+
+        function renderEditResearchStatus(research) {
+            const container = document.getElementById('edit-research-status');
+            if (!container) return;
+            container.replaceChildren();
+            if (!research) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+            const labels = { high: '高可信', medium: '中可信', low: '低可信', none: '未找到精準來源' };
+            const heading = document.createElement('p');
+            heading.className = 'font-bold text-brass-gold';
+            heading.textContent = `🔎 生豆校正：${labels[research.confidence] || '待確認'}${research.matchedName ? ` · ${research.matchedName}` : ''}`;
+            container.appendChild(heading);
+            if (research.summary) {
+                const summary = document.createElement('p');
+                summary.textContent = research.summary;
+                container.appendChild(summary);
+            }
+            if (Array.isArray(research.conflicts) && research.conflicts.length) {
+                const conflict = document.createElement('p');
+                conflict.className = 'text-red-400';
+                conflict.textContent = `⚠️ ${research.conflicts.join('；')}`;
+                container.appendChild(conflict);
+            }
+            if (Array.isArray(research.sources) && research.sources.length) {
+                const sourceWrap = document.createElement('p');
+                sourceWrap.append('來源：');
+                research.sources.slice(0, 3).forEach((source, index) => {
+                    const link = document.createElement('a');
+                    link.href = source.url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'underline ml-2 hover:text-brass-gold';
+                    link.textContent = source.title || `來源 ${index + 1}`;
+                    sourceWrap.appendChild(link);
+                });
+                container.appendChild(sourceWrap);
+            }
+        }
+
+        function getEditResearchIdentity() {
+            return JSON.stringify([
+                document.getElementById('edit-beanName')?.value || '',
+                document.getElementById('edit-origin')?.value || '',
+                document.getElementById('edit-process')?.value || '',
+                document.getElementById('edit-altitude')?.value || '',
+                document.getElementById('edit-variety')?.value || '',
+                document.getElementById('edit-cropYear')?.value || '',
+                document.getElementById('edit-sourceUrl')?.value || '',
+                document.getElementById('edit-supplierNotes')?.value || ''
+            ]);
         }
 
         // 11. 編輯與刪除紀錄核心功能
@@ -4933,6 +5005,11 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             document.getElementById("edit-process").value = selectedRecord.process || "";
             document.getElementById("edit-altitude").value = selectedRecord.altitude || "";
             document.getElementById("edit-variety").value = selectedRecord.variety || "";
+            document.getElementById("edit-cropYear").value = selectedRecord.cropYear || "";
+            document.getElementById("edit-sourceUrl").value = selectedRecord.greenBeanSourceUrl || "";
+            document.getElementById("edit-supplierNotes").value = selectedRecord.supplierCuppingNotes || "";
+            renderEditResearchStatus(selectedRecord.greenBeanResearch || null);
+            pendingEditResearchIdentity = getEditResearchIdentity();
             document.getElementById("edit-cuppingScore").value = selectedRecord.cuppingScore || "";
             document.getElementById("edit-chargeMassG").value = selectedRecord.chargeMassG || "";
             document.getElementById("edit-dropMassG").value = selectedRecord.dropMassG || "";
@@ -4965,6 +5042,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
         async function saveRecordEdits(event) {
             event.preventDefault();
             if (!selectedRecord) return;
+            const currentResearchIdentity = getEditResearchIdentity();
 
             selectedRecord.beanName = document.getElementById("edit-beanName").value;
             selectedRecord.origin = document.getElementById("edit-origin").value;
@@ -4974,6 +5052,15 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             selectedRecord.process = document.getElementById("edit-process").value;
             selectedRecord.altitude = document.getElementById("edit-altitude").value;
             selectedRecord.variety = document.getElementById("edit-variety").value;
+            selectedRecord.cropYear = document.getElementById("edit-cropYear").value;
+            selectedRecord.greenBeanSourceUrl = document.getElementById("edit-sourceUrl").value;
+            selectedRecord.supplierCuppingNotes = document.getElementById("edit-supplierNotes").value;
+            if (pendingEditResearchIdentity !== currentResearchIdentity) {
+                selectedRecord.greenBeanResearch = null;
+                selectedRecord.referenceConfidence = 'none';
+                selectedRecord.referenceSources = [];
+                selectedRecord.referenceConflicts = ['生豆識別資料已變更，請重新執行 AI 校正'];
+            }
             
             const scoreVal = parseFloat(document.getElementById("edit-cuppingScore").value);
             selectedRecord.cuppingScore = isNaN(scoreVal) ? 0 : scoreVal;
@@ -5147,6 +5234,10 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                     roastLevel: record.roastLevel || '',
                     altitude: record.altitude || '',
                     variety: record.variety || '',
+                    cropYear: record.cropYear || '',
+                    greenBeanSourceUrl: record.greenBeanSourceUrl || '',
+                    supplierCuppingNotes: record.supplierCuppingNotes || '',
+                    greenBeanResearch: record.greenBeanResearch || null,
                     machine: record.machine || '',
                     roastDate: record.roastDate || '',
                     batchId: record.id,
@@ -5172,9 +5263,13 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                     flavorBase: flavor.baseNote || record.flavorBase || '',
                     storyCopy: flavor.storyCopy || record.storyCopy || '',
                     brewAiTip: flavor.brewTip || record.brewAiTip || '',
+                    greenBeanResearch: flavor.greenBeanResearch || record.greenBeanResearch || null,
+                    referenceConfidence: flavor.referenceConfidence || 'none',
+                    referenceSources: flavor.referenceSources || [],
+                    referenceConflicts: flavor.referenceConflicts || [],
                     aiRorDiagnosis: diagnosis,
                     aiAnalyzedAt: new Date().toISOString(),
-                    aiAnalysisVersion: 'batch-aware-v4',
+                    aiAnalysisVersion: 'web-calibrated-v6',
                     rorQualityScore: qualityScore,
                     rorDatapoints: rorPoints,
                     timelineActions
@@ -5211,6 +5306,16 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             const AI = window.GansingKimAI;
             if (!AI) { alert('AI 引擎載入中，請稍後再試。'); return; }
 
+            const editIdentityMatchesStored = selectedRecord &&
+                (document.getElementById('edit-beanName')?.value || '') === (selectedRecord.beanName || '') &&
+                (document.getElementById('edit-origin')?.value || '') === (selectedRecord.origin || '') &&
+                (document.getElementById('edit-process')?.value || '') === (selectedRecord.process || '') &&
+                (document.getElementById('edit-altitude')?.value || '') === (selectedRecord.altitude || '') &&
+                (document.getElementById('edit-variety')?.value || '') === (selectedRecord.variety || '') &&
+                (document.getElementById('edit-cropYear')?.value || '') === (selectedRecord.cropYear || '') &&
+                (document.getElementById('edit-sourceUrl')?.value || '') === (selectedRecord.greenBeanSourceUrl || '') &&
+                (document.getElementById('edit-supplierNotes')?.value || '') === (selectedRecord.supplierCuppingNotes || '');
+
             const beanData = {
                 name:       document.getElementById('edit-beanName')?.value || '',
                 origin:     document.getElementById('edit-origin')?.value || '',
@@ -5218,6 +5323,10 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 roastLevel: document.getElementById('edit-roastLevel')?.value || '',
                 altitude:   document.getElementById('edit-altitude')?.value || '',
                 variety:    document.getElementById('edit-variety')?.value || '',
+                cropYear:   document.getElementById('edit-cropYear')?.value || '',
+                greenBeanSourceUrl: document.getElementById('edit-sourceUrl')?.value || '',
+                supplierCuppingNotes: document.getElementById('edit-supplierNotes')?.value || '',
+                greenBeanResearch: editIdentityMatchesStored ? (selectedRecord?.greenBeanResearch || null) : null,
                 dtr:        document.getElementById('edit-dtrRatio')?.value || '',
                 lossRatio:  document.getElementById('edit-lossRatio')?.value || '',
                 machine:    selectedRecord?.machine || '',
@@ -5235,9 +5344,17 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                     bypassCache: true
             };
 
-            AI.showAILoading(btn, '⏳ AI 思考中...');
+            AI.showAILoading(btn, '🔎 校正生豆來源並分析烘焙...');
 
             const result = await AI.generateCoffeeFlavorAI(beanData);
+            if (selectedRecord) {
+                selectedRecord.greenBeanResearch = result.greenBeanResearch || null;
+                selectedRecord.referenceConfidence = result.referenceConfidence || 'none';
+                selectedRecord.referenceSources = result.referenceSources || [];
+                selectedRecord.referenceConflicts = result.referenceConflicts || [];
+                pendingEditResearchIdentity = getEditResearchIdentity();
+            }
+            renderEditResearchStatus(result.greenBeanResearch || null);
 
             // 填入 Edit Modal 欄位（不用打字機，直接填入比較快）
             const topEl  = document.getElementById('edit-flavorTop');

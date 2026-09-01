@@ -1,6 +1,6 @@
 /**
  * 金成淬精品咖啡 · Cloudflare 中繼站 (Proxy)
- * Version: 3.0 — 安全性強化 + Firestore 伺服器端刪除代理
+ * Version: 3.1 — 安全性強化 + Groq 生豆網路研究
  */
 
 const ALLOWED_ORIGINS = [
@@ -15,7 +15,9 @@ const ALLOWED_ORIGINS = [
 const ALLOWED_MODELS = [
     "openai/gpt-oss-120b",
     "openai/gpt-oss-20b",
-    "qwen/qwen3.6-27b"
+    "qwen/qwen3.6-27b",
+    "groq/compound",
+    "groq/compound-mini"
 ];
 
 const RATE_LIMIT_MAX = 10;
@@ -287,6 +289,21 @@ export default {
             }
             if (body.max_completion_tokens && body.max_completion_tokens > 2000) {
                 body.max_completion_tokens = 2000;
+            }
+
+            // Compound 系統使用 Groq 內建工具，不接受一般模型的結構化輸出／推理參數。
+            if (body.model === "groq/compound" || body.model === "groq/compound-mini") {
+                delete body.response_format;
+                delete body.reasoning_effort;
+                delete body.reasoning_format;
+                body.citation_options = "enabled";
+                const requestedSearchSettings = body.search_settings && typeof body.search_settings === "object" && !Array.isArray(body.search_settings)
+                    ? body.search_settings
+                    : {};
+                body.search_settings = {
+                    country: "tw",
+                    ...requestedSearchSettings
+                };
             }
 
             const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {

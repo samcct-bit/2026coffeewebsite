@@ -109,7 +109,7 @@
         </div>
     </div>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260901-terroir-v6"></script>
+    <script src="./js/ai_engine.js?v=20260901-web-calibrated-v7"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -148,14 +148,17 @@
         }
 
         // ══════════════════════════════════════════════
-        // 方案 B：自動觸發 AI 風味生成（Debounce 2 秒）
-        // 條件：豆名 + 產區均已填寫，且 2 秒內無新輸入
+        // 方案 B：自動觸發 AI 風味生成（Debounce 4 秒，避免輸入未完成就付費搜尋）
+        // 條件：豆名 + 產區 + 處理法均已填寫，且 4 秒內無新輸入
         // ══════════════════════════════════════════════
         let _autoAITimer = null;
         let _autoAIFired = false;  // 本批次已自動觸發過，避免重複呼叫
 
         function setupAutoAITrigger() {
-            const triggerFields = ['form-bean', 'form-origin', 'form-process', 'form-roast'];
+            const triggerFields = [
+                'form-bean', 'form-origin', 'form-process', 'form-roast', 'form-altitude',
+                'form-variety', 'form-crop-year', 'form-source-url', 'form-supplier-notes'
+            ];
             
             triggerFields.forEach(function(id) {
                 const el = document.getElementById(id);
@@ -172,9 +175,11 @@
 
             const beanVal   = (document.getElementById('form-bean')?.value   || '').trim();
             const originVal = (document.getElementById('form-origin')?.value || '').trim();
+            const processVal = (document.getElementById('form-process')?.value || '').trim();
+            if (typeof window.resetFlavorResearch === 'function') window.resetFlavorResearch();
 
-            // 必須豆名 + 產區都填寫才啟動倒計時
-            if (!beanVal || !originVal) return;
+            // 精準搜尋至少需要豆名、產區與處理法。
+            if (!beanVal || !originVal || !processVal) return;
 
             // 顯示「AI 即將自動生成」提示
             showAutoAIHint(true);
@@ -187,7 +192,7 @@
                 if (typeof autoGenerateGemSensory === 'function') {
                     await autoGenerateGemSensory();
                 }
-            }, 2000);
+            }, 4000);
         }
 
         function showAutoAIHint(show) {
@@ -196,7 +201,7 @@
                 hint = document.createElement('div');
                 hint.id = 'auto-ai-hint';
                 hint.className = 'fixed bottom-6 right-6 bg-[#c49a6c] text-white text-xs font-serif font-bold px-4 py-2.5 rounded-xl shadow-lg z-50 flex items-center gap-2 transition-all duration-300';
-                hint.innerHTML = '<span class="animate-pulse">⚡</span> AI 將於 2 秒後自動生成風味描述...';
+                hint.innerHTML = '<span class="animate-pulse">⚡</span> AI 將於 4 秒後校正生豆來源並生成風味...';
                 document.body.appendChild(hint);
             }
             hint.style.display = show ? 'flex' : 'none';
@@ -263,8 +268,8 @@
                             <input type="date" id="form-date" required class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm" oninput="liveUpdateChartPreview()">
                         </div>
                         <div>
-                            <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">處理法</label>
-                            <input type="text" id="form-process" placeholder="如：葡萄乾蜜處理 / 厭氧蜜處理" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
+                            <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">處理法 *</label>
+                            <input type="text" id="form-process" required placeholder="如：葡萄乾蜜處理 / 厭氧蜜處理" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
                         </div>
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">海拔 (m)</label>
@@ -273,6 +278,18 @@
                         <div>
                             <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">品種</label>
                             <input type="text" id="form-variety" placeholder="如：卡杜拉 (Caturra)" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">產季／批次</label>
+                            <input type="text" id="form-crop-year" placeholder="如：2025/26、Lot 12" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm font-bold border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">生豆供應商網址（建議）</label>
+                            <input type="url" id="form-source-url" placeholder="貼上生豆商或莊園產品頁，可提高比對可信度" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs md:text-sm text-[#5c544c] tracking-widest mb-2 uppercase font-bold">供應商原始杯測筆記（最高優先）</label>
+                            <input type="text" id="form-supplier-notes" placeholder="如：麝香葡萄、玫瑰、酒漬櫻桃、水果軟糖" class="w-full bg-[#fcfbfa] text-[#2b2621] text-sm border border-[#c49a6c]/35 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brass-gold shadow-sm">
                         </div>
                     </div>
 
@@ -339,6 +356,7 @@
                                 <option value="yangchia">楊家 0.5kg 半熱風</option>
                             </select>
                         </div>
+                        <div id="flavor-research-status" class="hidden rounded-xl border border-[#c49a6c]/20 bg-[#c49a6c]/5 px-3 py-2 text-[11px] leading-relaxed text-[#5c544c]"></div>
                         <div id="machine-sop-content" class="hidden bg-[#fbfaf7] border border-[#c49a6c]/20 rounded-xl p-4 md:p-5 shadow-inner text-sm text-[#2b2621]">
                             <!-- SOP Content dynamically injected here -->
                         </div>
@@ -510,6 +528,7 @@
 
         let rorChartInstance = null;
         let editingRecordId = null;
+        let latestFlavorResearch = null;
 
         // 安全設定 Select 下拉選單的值
         function setSelectValueSafely(selectEl, val) {
@@ -582,6 +601,11 @@
                     if (copyData.process) document.getElementById('form-process').value = copyData.process;
                     if (copyData.altitude) document.getElementById('form-altitude').value = copyData.altitude;
                     if (copyData.variety) document.getElementById('form-variety').value = copyData.variety;
+                    if (copyData.cropYear) document.getElementById('form-crop-year').value = copyData.cropYear;
+                    if (copyData.greenBeanSourceUrl) document.getElementById('form-source-url').value = copyData.greenBeanSourceUrl;
+                    if (copyData.supplierCuppingNotes) document.getElementById('form-supplier-notes').value = copyData.supplierCuppingNotes;
+                    latestFlavorResearch = copyData.greenBeanResearch || null;
+                    renderFlavorResearchStatus(latestFlavorResearch);
                     
                     // 匯入網格資料
                     let copyDatapoints = copyData.rorDatapoints || [];
@@ -672,6 +696,11 @@
                     document.getElementById("form-process").value = data.process || "";
                     document.getElementById("form-altitude").value = data.altitude || "";
                     document.getElementById("form-variety").value = data.variety || "";
+                    document.getElementById("form-crop-year").value = data.cropYear || "";
+                    document.getElementById("form-source-url").value = data.greenBeanSourceUrl || "";
+                    document.getElementById("form-supplier-notes").value = data.supplierCuppingNotes || "";
+                    latestFlavorResearch = data.greenBeanResearch || null;
+                    renderFlavorResearchStatus(latestFlavorResearch);
                     document.getElementById("form-input-mass").value = data.chargeMassG || "";
                     document.getElementById("form-output-mass").value = data.dropMassG || "";
                     document.getElementById("form-charge-temp").value = data.chargeTemp || "";
@@ -1140,6 +1169,13 @@
                 process: document.getElementById("form-process").value || "",
                 altitude: document.getElementById("form-altitude").value || "",
                 variety: document.getElementById("form-variety").value || "",
+                cropYear: document.getElementById("form-crop-year").value || "",
+                greenBeanSourceUrl: document.getElementById("form-source-url").value || "",
+                supplierCuppingNotes: document.getElementById("form-supplier-notes").value || "",
+                greenBeanResearch: latestFlavorResearch,
+                referenceConfidence: latestFlavorResearch?.confidence || "none",
+                referenceSources: latestFlavorResearch?.sources || [],
+                referenceConflicts: latestFlavorResearch?.conflicts || [],
                 roastLevel: roastLevel,
                 chargeMassG: inputMass,
                 dropMassG: outputMass,
@@ -1178,6 +1214,55 @@
         // ══════════════════════════════════════════════
         // Groq AI 真實風味文案生成（替代舊版 if/else 硬編碼）
         // ══════════════════════════════════════════════
+        function renderFlavorResearchStatus(research) {
+            const container = document.getElementById('flavor-research-status');
+            if (!container) return;
+            container.replaceChildren();
+            if (!research) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            const confidenceLabels = { high: '高可信', medium: '中可信', low: '低可信', none: '未找到精準來源' };
+            const heading = document.createElement('div');
+            heading.className = 'font-bold text-[#8d6e4f] mb-1';
+            heading.textContent = `🔎 生豆校正：${confidenceLabels[research.confidence] || '待確認'}${research.matchedName ? ` · ${research.matchedName}` : ''}`;
+            container.appendChild(heading);
+
+            if (research.summary) {
+                const summary = document.createElement('p');
+                summary.textContent = research.summary;
+                container.appendChild(summary);
+            }
+            if (Array.isArray(research.conflicts) && research.conflicts.length) {
+                const conflict = document.createElement('p');
+                conflict.className = 'mt-1 text-red-700';
+                conflict.textContent = `⚠️ 資料衝突：${research.conflicts.join('；')}`;
+                container.appendChild(conflict);
+            }
+            if (Array.isArray(research.sources) && research.sources.length) {
+                const sourceWrap = document.createElement('p');
+                sourceWrap.className = 'mt-1 flex flex-wrap gap-x-2';
+                sourceWrap.append('來源：');
+                research.sources.slice(0, 3).forEach((source, index) => {
+                    const link = document.createElement('a');
+                    link.href = source.url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'underline hover:text-[#8d6e4f]';
+                    link.textContent = source.title || `來源 ${index + 1}`;
+                    sourceWrap.appendChild(link);
+                });
+                container.appendChild(sourceWrap);
+            }
+        }
+
+        function resetFlavorResearch() {
+            latestFlavorResearch = null;
+            renderFlavorResearchStatus(null);
+        }
+
         async function autoGenerateGemSensory() {
             const btn = document.getElementById('ai-flavor-btn');
             const AI = window.GansingKimAI;
@@ -1198,6 +1283,10 @@
                 roastLevel: document.getElementById('form-roast')?.value || '',
                 altitude:   document.getElementById('form-altitude')?.value || '',
                 variety:    document.getElementById('form-variety')?.value || '',
+                cropYear:   document.getElementById('form-crop-year')?.value || '',
+                greenBeanSourceUrl: document.getElementById('form-source-url')?.value || '',
+                supplierCuppingNotes: document.getElementById('form-supplier-notes')?.value || '',
+                greenBeanResearch: latestFlavorResearch,
                 machine:    document.getElementById('form-machine')?.value || '',
                 dtr:        document.getElementById('form-calc-dtr')?.innerText?.replace('%','') || '',
                 lossRatio:  document.getElementById('form-calc-loss')?.innerText?.replace('%','') || '',
@@ -1216,10 +1305,12 @@
             };
 
             // 顯示 Loading 狀態
-            AI.showAILoading(btn, '⏳ Groq AI 思考中...');
+            AI.showAILoading(btn, '🔎 校正生豆來源並分析烘焙...');
 
             // 呼叫 Groq API
             const result = await AI.generateCoffeeFlavorAI(beanData);
+            latestFlavorResearch = result.greenBeanResearch || null;
+            renderFlavorResearchStatus(latestFlavorResearch);
 
             // 打字機效果依序填入欄位
             await AI.typewriterFill('form-flavor-top', result.topNote, 20);
@@ -1462,6 +1553,7 @@
         window.liveUpdateChartPreview = liveUpdateChartPreview;
         window.autoCalculate = autoCalculate;
         window.autoGenerateGemSensory = autoGenerateGemSensory;
+        window.resetFlavorResearch = resetFlavorResearch;
         window.triggerRORDiagnosis = triggerRORDiagnosis;
     </script>
 </body>

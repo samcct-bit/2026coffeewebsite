@@ -1,7 +1,7 @@
 /**
  * 金成淬精品咖啡 · AI 引擎模組
  * Groq LLM API 整合 · 品牌一致性風味文案生成
- * Version: 2.3 | 2026-09-01
+ * Version: 3.0 | 2026-09-01
  * Key Source: C:\2026_key\groq_coffeewebsite.txt
  */
 
@@ -12,6 +12,7 @@
 
 const GROQ_CONFIG = {
     model: "openai/gpt-oss-120b",
+    researchModel: "groq/compound-mini",
     endpoint: "https://gsk-groq-proxy.gansingkim.workers.dev", // ← 請在部署後將此替換為您的 Cloudflare Worker 網址
     maxTokens: 1200,
     temperature: 0.88
@@ -52,7 +53,10 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
 const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
-const CACHE_KEY_VERSION = 'terroir-aware-v5';
+const CACHE_KEY_VERSION = 'web-calibrated-v6';
+const RESEARCH_CACHE_PREFIX = '_gskai_green_research_';
+const RESEARCH_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const RESEARCH_SCHEMA_VERSION = 'green-reference-v1';
 
 // 產區、處理法與品種只提供「合理候選」，避免把風土先驗寫成不存在的杯測事實。
 // 排列順序同時用於離線 fallback，因此不同來源在 API 失敗時也不會落回同一組文案。
@@ -119,6 +123,260 @@ function _formatSensoryContext(context) {
     if (context.variety) lines.push(`品種候選（${context.variety.label}）：${context.variety.notes.join('／')}`);
     if (context.process) lines.push(`處理法修飾（${context.process.label}）：中調 ${context.process.mid.join('／')}；尾韻 ${context.process.base.join('／')}`);
     return lines.join('\n');
+}
+
+function _hashText(text) {
+    let hash = 0;
+    for (let index = 0; index < text.length; index++) {
+        hash = Math.imul(31, hash) + text.charCodeAt(index) | 0;
+    }
+    return Math.abs(hash).toString(36);
+}
+
+function _asStringArray(value, limit = 12) {
+    const values = Array.isArray(value)
+        ? value
+        : String(value || '').split(/[、，,／/；;|]/);
+    return [...new Set(values.map(item => String(item || '').trim()).filter(Boolean))].slice(0, limit);
+}
+
+function _extractJsonObject(content) {
+    const text = String(content || '').replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start < 0 || end <= start) throw new Error('研究模型未回傳 JSON');
+    return JSON.parse(text.slice(start, end + 1));
+}
+
+function _collectResearchSources(message, preferredUrl = '') {
+    const candidates = [];
+    const tools = Array.isArray(message?.executed_tools) ? message.executed_tools : [];
+    tools.forEach(tool => {
+        const searchResults = tool?.search_results?.results || tool?.search_results || [];
+        if (Array.isArray(searchResults)) candidates.push(...searchResults);
+    });
+    if (preferredUrl) candidates.unshift({ title: '使用者提供的生豆來源', url: preferredUrl, score: 1 });
+
+    const seen = new Set();
+    return candidates.reduce((sources, item) => {
+        const url = String(item?.url || '').trim();
+        if (!/^https?:\/\//i.test(url) || seen.has(url) || sources.length >= 6) return sources;
+        seen.add(url);
+        sources.push({
+            title: String(item?.title || '生豆資料來源').trim().slice(0, 120),
+            url,
+            score: Number.isFinite(Number(item?.score)) ? Number(item.score) : null
+        });
+        return sources;
+    }, []);
+}
+
+function _normalizeResearchBundle(value = {}, beanData = {}) {
+    const allowedConfidence = ['high', 'medium', 'low', 'none'];
+    const confidence = allowedConfidence.includes(value.confidence) ? value.confidence : 'none';
+    const sources = (Array.isArray(value.sources) ? value.sources : []).reduce((items, source) => {
+        const url = String(source?.url || '').trim();
+        if (!/^https?:\/\//i.test(url) || items.some(item => item.url === url) || items.length >= 6) return items;
+        items.push({
+            title: String(source?.title || '生豆資料來源').trim().slice(0, 120),
+            url,
+            score: Number.isFinite(Number(source?.score)) ? Number(source.score) : null
+        });
+        return items;
+    }, []);
+    return {
+        schemaVersion: RESEARCH_SCHEMA_VERSION,
+        confidence,
+        matchedName: String(value.matchedName || value.matchedIdentity?.name || '').trim(),
+        matchedOrigin: String(value.matchedOrigin || value.matchedIdentity?.origin || '').trim(),
+        matchedProcess: String(value.matchedProcess || value.matchedIdentity?.process || '').trim(),
+        matchedVariety: String(value.matchedVariety || value.matchedIdentity?.variety || '').trim(),
+        matchedCropYear: String(value.matchedCropYear || value.matchedIdentity?.cropYear || '').trim(),
+        referenceTop: _asStringArray(value.referenceTop || value.topNotes, 6),
+        referenceMid: _asStringArray(value.referenceMid || value.midNotes, 6),
+        referenceBase: _asStringArray(value.referenceBase || value.baseNotes, 6),
+        descriptors: _asStringArray(value.descriptors || value.allDescriptors, 16),
+        structuralNotes: _asStringArray(value.structuralNotes, 8),
+        rawCuppingNotes: String(value.rawCuppingNotes || beanData.supplierCuppingNotes || '').trim().slice(0, 800),
+        conflicts: _asStringArray(value.conflicts, 8),
+        summary: String(value.summary || '').trim().slice(0, 600),
+        sources,
+        researchedAt: value.researchedAt || new Date().toISOString(),
+        researchModel: value.researchModel || GROQ_CONFIG.researchModel
+    };
+}
+
+function _buildResearchCacheKey(beanData = {}) {
+    const identity = {
+        version: RESEARCH_SCHEMA_VERSION,
+        name: beanData.name || '',
+        origin: beanData.origin || '',
+        process: beanData.process || '',
+        altitude: beanData.altitude || '',
+        variety: beanData.variety || '',
+        cropYear: beanData.cropYear || '',
+        sourceUrl: beanData.greenBeanSourceUrl || '',
+        supplierNotes: beanData.supplierCuppingNotes || ''
+    };
+    return RESEARCH_CACHE_PREFIX + _hashText(JSON.stringify(_stableCacheValue(identity)));
+}
+
+function _readResearchCache(cacheKey) {
+    try {
+        const raw = localStorage.getItem(cacheKey);
+        if (!raw) return null;
+        const entry = JSON.parse(raw);
+        if (!entry?.data || Date.now() - entry.ts > RESEARCH_CACHE_TTL_MS) {
+            localStorage.removeItem(cacheKey);
+            return null;
+        }
+        return entry.data;
+    } catch {
+        return null;
+    }
+}
+
+function _writeResearchCache(cacheKey, data) {
+    try {
+        localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+    } catch {
+        // 研究快取失敗不應阻擋主要風味生成。
+    }
+}
+
+function _buildManualResearch(beanData) {
+    const notes = String(beanData.supplierCuppingNotes || '').trim();
+    if (!notes) return null;
+    return _normalizeResearchBundle({
+        confidence: 'high',
+        matchedName: beanData.name,
+        matchedOrigin: beanData.origin,
+        matchedProcess: beanData.process,
+        matchedVariety: beanData.variety,
+        matchedCropYear: beanData.cropYear,
+        descriptors: _asStringArray(notes, 16),
+        rawCuppingNotes: notes,
+        summary: '採用使用者輸入的供應商／生豆標籤杯測資料作為最高優先基準。',
+        sources: /^https?:\/\//i.test(String(beanData.greenBeanSourceUrl || '').trim())
+            ? [{ title: '使用者提供的生豆來源', url: beanData.greenBeanSourceUrl, score: 1 }]
+            : [],
+        researchModel: 'manual-supplier-reference'
+    }, beanData);
+}
+
+async function researchGreenBeanProfile(beanData = {}) {
+    if (beanData.greenBeanResearch?.schemaVersion === RESEARCH_SCHEMA_VERSION && !beanData.refreshResearch) {
+        return _normalizeResearchBundle(beanData.greenBeanResearch, beanData);
+    }
+
+    const manualResearch = _buildManualResearch(beanData);
+    if (manualResearch) return manualResearch;
+
+    const cacheKey = _buildResearchCacheKey(beanData);
+    if (!beanData.refreshResearch) {
+        const cached = _readResearchCache(cacheKey);
+        if (cached) return _normalizeResearchBundle(cached, beanData);
+    }
+
+    const name = String(beanData.name || '').trim();
+    const origin = String(beanData.origin || '').trim();
+    const process = String(beanData.process || '').trim();
+    if (!name || !origin || !process) {
+        return _normalizeResearchBundle({
+            confidence: 'none',
+            conflicts: ['缺少豆名、產區或處理法，未執行網路比對'],
+            summary: '資料不足，僅能使用保守的產區候選。'
+        }, beanData);
+    }
+
+    const researchPrompt = `你是精品咖啡生豆資料研究員。請使用網路搜尋，尋找與下列生豆「精準相符」的供應商、生豆進口商、莊園或烘豆商產品資料，整理原始杯測描述。\n\n生豆名稱：${name}\n產區：${origin}\n處理法：${process}\n海拔：${beanData.altitude || '未提供'}\n品種：${beanData.variety || '未提供'}\n產季：${beanData.cropYear || '未提供'}\n優先來源網址：${beanData.greenBeanSourceUrl || '未提供'}\n\n規則：\n1. 必須比對莊園／處理站、處理法、品種與產季；不可只用國家通用風味冒充精準資料。\n2. high 代表名稱與處理法等核心欄位精準相符；medium 代表同莊園與處理法但產季或次要欄位未確認；low 代表只有部分名稱或產區相符；找不到則 none。\n3. 若網路資料和輸入的處理法、品種、海拔衝突，逐條寫入 conflicts，不要自行修正輸入。\n4. 風味詞保留來源的具體名詞，不要自行補寫花香、莓果、柑橘等詞。\n5. 只輸出一個可解析的 JSON 物件，不要 markdown 或說明文字。\n\nJSON 格式：\n{\n  "confidence":"high|medium|low|none",\n  "matchedName":"",\n  "matchedOrigin":"",\n  "matchedProcess":"",\n  "matchedVariety":"",\n  "matchedCropYear":"",\n  "referenceTop":["入口香氣詞"],\n  "referenceMid":["中段滋味詞"],\n  "referenceBase":["尾韻詞"],\n  "descriptors":["全部來源風味詞"],\n  "structuralNotes":["酸質、甜感、口感、乾淨度等來源描述"],\n  "conflicts":["欄位衝突"],\n  "summary":"100字內的比對依據"\n}`;
+
+    try {
+        const response = await fetch(GROQ_CONFIG.endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: GROQ_CONFIG.researchModel,
+                messages: [{ role: 'user', content: researchPrompt }],
+                max_completion_tokens: 1200,
+                citation_options: 'enabled',
+                search_settings: { country: 'tw' }
+            })
+        });
+        if (!response.ok) throw new Error(`生豆研究 API 錯誤 ${response.status}`);
+
+        const data = await response.json();
+        const message = data.choices?.[0]?.message || {};
+        const parsed = _extractJsonObject(message.content);
+        const sources = _collectResearchSources(message, beanData.greenBeanSourceUrl);
+        if (!sources.length && ['high', 'medium'].includes(parsed.confidence)) parsed.confidence = 'low';
+        const research = _normalizeResearchBundle({
+            ...parsed,
+            sources,
+            researchedAt: new Date().toISOString(),
+            researchModel: GROQ_CONFIG.researchModel
+        }, beanData);
+        _writeResearchCache(cacheKey, research);
+        return research;
+    } catch (error) {
+        console.warn('[AI Research] 生豆網路校正失敗，改用保守候選：', error);
+        return _normalizeResearchBundle({
+            confidence: 'none',
+            conflicts: [`網路校正失敗：${error.message}`],
+            summary: '網路研究不可用，本次不引用未驗證的具體生豆資料。'
+        }, beanData);
+    }
+}
+
+function _formatResearchForPrompt(research) {
+    if (!research || research.confidence === 'none') return '沒有可驗證的精準生豆來源；請採保守描述。';
+    const sourceLines = (research.sources || []).map(source => `- ${source.title}：${source.url}`).join('\n');
+    return `比對可信度：${research.confidence}\n匹配豆款：${research.matchedName || '未確認'}\n匹配產區／處理法／品種：${research.matchedOrigin || '未確認'}／${research.matchedProcess || '未確認'}／${research.matchedVariety || '未確認'}\n來源初韻：${research.referenceTop.join('、') || '未分段'}\n來源中調：${research.referenceMid.join('、') || '未分段'}\n來源尾韻：${research.referenceBase.join('、') || '未分段'}\n全部來源風味詞：${research.descriptors.join('、') || research.rawCuppingNotes || '未提供'}\n來源感官結構：${research.structuralNotes.join('、') || '未提供'}\n欄位衝突：${research.conflicts.join('；') || '無'}\n來源：\n${sourceLines || '- 無可驗證網址'}`;
+}
+
+function _getKnownConcreteFlavorTerms() {
+    const originTerms = SENSORY_ORIGIN_PROFILES.flatMap(profile => [...profile.top, ...profile.mid, ...profile.base]);
+    const processTerms = SENSORY_PROCESS_PROFILES.flatMap(profile => [...profile.mid, ...profile.base]);
+    const varietyTerms = SENSORY_VARIETY_PROFILES.flatMap(profile => profile.notes);
+    return [...new Set([
+        ...originTerms,
+        ...processTerms,
+        ...varietyTerms,
+        ...GENERIC_ORIGIN_PROFILE.top,
+        ...GENERIC_ORIGIN_PROFILE.mid,
+        ...GENERIC_ORIGIN_PROFILE.base
+    ])].sort((a, b) => b.length - a.length);
+}
+
+function _isNoteGroundedInReference(note, research) {
+    if (!['high', 'medium'].includes(research?.confidence)) return true;
+    const references = _asStringArray([
+        ...(research.referenceTop || []),
+        ...(research.referenceMid || []),
+        ...(research.referenceBase || []),
+        ...(research.descriptors || []),
+        ..._asStringArray(research.rawCuppingNotes, 20)
+    ], 40);
+    if (!references.length) return false;
+
+    const text = String(note || '');
+    const hasReferenceAnchor = references.some(term => text.includes(term));
+    if (!hasReferenceAnchor) return false;
+
+    const unauthorizedKnownTerm = _getKnownConcreteFlavorTerms().some(term =>
+        text.includes(term) && !references.some(reference => reference.includes(term) || term.includes(reference))
+    );
+    return !unauthorizedKnownTerm;
+}
+
+function _groundFlavorResult(result, fallback, research) {
+    if (!['high', 'medium'].includes(research?.confidence)) return result;
+    return {
+        ...result,
+        topNote: _isNoteGroundedInReference(result.topNote, research) ? result.topNote : fallback.topNote,
+        midNote: _isNoteGroundedInReference(result.midNote, research) ? result.midNote : fallback.midNote,
+        baseNote: _isNoteGroundedInReference(result.baseNote, research) ? result.baseNote : fallback.baseNote
+    };
 }
 
 /** 將物件穩定排序，避免相同批次因欄位順序不同產生不同快取鍵。 */
@@ -276,11 +534,23 @@ function _buildFlavorFallback(beanData) {
     } = beanData;
     const metrics = _getRoastCurveMetrics(rorPoints);
     const sensory = _buildSensoryContext(beanData);
+    const research = beanData.greenBeanResearch;
+    const useVerifiedReference = ['high', 'medium'].includes(research?.confidence);
+    const descriptors = useVerifiedReference ? _asStringArray(research.descriptors, 12) : [];
     const processMid = sensory.process?.mid?.[0] || sensory.origin.mid[1];
     const processBase = sensory.process?.base?.[0] || sensory.origin.base[1];
-    const topNote = `${sensory.origin.top[0]}、${sensory.variety?.notes?.[1] || sensory.origin.top[1]}`;
-    const midNote = `${sensory.origin.mid[0]}、${processMid}`;
-    const baseNote = `${sensory.origin.base[0]}、${processBase}`;
+    const topParts = useVerifiedReference
+        ? [..._asStringArray(research.referenceTop, 2), ...descriptors].slice(0, 2)
+        : [sensory.origin.top[0], sensory.variety?.notes?.[1] || sensory.origin.top[1]];
+    const midParts = useVerifiedReference
+        ? [..._asStringArray(research.referenceMid, 2), ...descriptors.slice(2)].slice(0, 2)
+        : [sensory.origin.mid[0], processMid];
+    const baseParts = useVerifiedReference
+        ? [..._asStringArray(research.referenceBase, 2), ...descriptors.slice(4)].slice(0, 2)
+        : [sensory.origin.base[0], processBase];
+    const topNote = (topParts.length ? topParts : sensory.origin.top.slice(0, 2)).join('、');
+    const midNote = (midParts.length ? midParts : [sensory.origin.mid[0], processMid]).join('、');
+    const baseNote = (baseParts.length ? baseParts : [sensory.origin.base[0], processBase]).join('、');
 
     const curveNote = metrics.hasData
         ? `本批次 ROR 最高 ${metrics.peakRor.toFixed(1)}，出豆前為 ${metrics.finalRor.toFixed(1)}°C/min，曲線呈現「${metrics.trend}」`
@@ -291,7 +561,11 @@ function _buildFlavorFallback(beanData) {
         midNote,
         baseNote,
         storyCopy: `這是${origin}的${name}${batchNote}，採${process}並以${roastLevel}完成。${curveNote}，職人據此保留前段香氣、調整中段甜感與尾韻質地。待咖啡冷卻後細品，感受這一批次獨有的風土轉折。`,
-        brewTip: '建議水溫 88°C - 92°C，中偏粗研磨'
+        brewTip: '建議水溫 88°C - 92°C，中偏粗研磨',
+        greenBeanResearch: research || null,
+        referenceConfidence: research?.confidence || 'none',
+        referenceSources: research?.sources || [],
+        referenceConflicts: research?.conflicts || []
     };
 }
 
@@ -455,6 +729,8 @@ async function generateCoffeeFlavorAI(beanData) {
     }
 
     const recentFlavorExamples = _getRecentFlavorExamples(cacheKey);
+    const greenBeanResearch = await researchGreenBeanProfile({ ...beanData, name, origin, process, altitude, variety });
+    const hasVerifiedReference = ['high', 'medium'].includes(greenBeanResearch.confidence);
 
     const userPrompt = `請根據以下咖啡生豆資料，生成金成淬品牌風格的三段式風味描述與品牌文案：
 
@@ -464,19 +740,24 @@ async function generateCoffeeFlavorAI(beanData) {
 烘焙度：${roastLevel}
 ${altitude ? `海拔：${altitude}` : ""}
 ${variety ? `品種：${variety}` : ""}
-${dtr ? `發展時間比 DTR：${dtr}（${parseFloat(dtr) >= 20 ? "偏長，風味更圓潤飽滿" : parseFloat(dtr) <= 13 ? "偏短，花香更細緻通透" : "標準黃金DTR範圍"})` : ""}
+${beanData.cropYear ? `產季：${beanData.cropYear}` : ""}
+${dtr ? `發展時間比 DTR：${dtr}（${parseFloat(dtr) >= 20 ? "發展較長：熟甜與厚度可能提高、酸質感可能降低" : parseFloat(dtr) <= 13 ? "發展較短：明亮度可能提高、厚度較輕，並需留意發展不足" : "發展比例居中，仍需結合曲線與杯測判斷"})` : ""}
 ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
 烘豆設備：${machine}
 烘焙日期：${roastDate || "未提供"}
 本批次完整 ROR 曲線（請以這些數據為主要依據）：${rorSummary || "暫無數據"}
 曲線特徵摘要：${curveMetrics.hasData ? `最高 ROR ${curveMetrics.peakRor.toFixed(1)}、最低 ROR ${curveMetrics.lowRor.toFixed(1)}、出豆前 ROR ${curveMetrics.finalRor.toFixed(1)}、判讀為${curveMetrics.trend}` : "觀測點不足"}
-風土與製程的合理候選（這是選詞邊界，不是已確認的杯測結果）：
+
+網路／供應商生豆校正資料（具體風味名詞的最高優先依據）：
+${_formatResearchForPrompt(greenBeanResearch)}
+
+風土與製程的合理候選（只有在生豆校正可信度為 low／none 時，才能保守補充）：
 ${_formatSensoryContext(sensoryContext)}
 
 ROR 僅導出的感官結構：初韻「${batchFlavorCues.top}」、中調「${batchFlavorCues.mid}」、尾韻「${batchFlavorCues.base}」
-${recentFlavorExamples.length ? `近期其他批次已使用的描述（本次至少更換 4 個主要風味名詞，非產區必要特徵不要重複）：\n- ${recentFlavorExamples.join('\n- ')}` : '目前沒有近期生成紀錄可供避重。'}
+${recentFlavorExamples.length ? `${hasVerifiedReference ? '近期其他批次描述只用於避免修辭重複；生豆來源確認的風味名詞可以保留，不得為追求不同而替換。' : '近期其他批次已使用的描述（非產區必要特徵不要重複）：'}\n- ${recentFlavorExamples.join('\n- ')}` : '目前沒有近期生成紀錄可供避重。'}
 
-選詞優先序必須是：豆名明示風味／品種特性 ＞ 產區特性 ＞ 處理法修飾；ROR 只能調整明亮度、甜感、厚薄與尾韻，不得用 ROR 憑空推導莓果、柑橘或茶等具體香氣。三段各自負責「入口香氣／中段滋味與質地／吞嚥後餘韻」，不要三段都寫成果香，也不要用晨露、高雅、明亮、清雅等形容詞假裝差異。若資料不足，採保守描述，不虛構特殊發酵風味。
+選詞優先序必須是：使用者供應商杯測筆記 ＞ high／medium 生豆校正資料 ＞ 品種與產區候選。當校正可信度為 high／medium 時，具體水果、花、香料、茶、可可等名詞必須取自校正資料，不可任意替換；ROR 只能調整明亮度、酸甜強弱、厚薄、乾淨度與尾韻，不得憑空創造任何具體香氣。若 conflicts 非空，故事不得把衝突欄位寫成事實。三段分別負責「入口香氣／中段滋味與質地／吞嚥後餘韻」，不要用晨露、高雅、明亮、清雅等形容詞假裝差異。資料不足時採保守描述。
 
 請只根據「本批次」資料生成，不要沿用其他批次的固定文案；即使豆款相同，也要讓風味與故事反映本批次 ROR、DTR、失重率及烘焙日期的差異。請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
 
@@ -508,24 +789,29 @@ ${recentFlavorExamples.length ? `近期其他批次已使用的描述（本次�
         const data = await response.json();
         const rawContent = data.choices?.[0]?.message?.content || "{}";
         const parsed = JSON.parse(rawContent);
-        const fallback = _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
+        const fallback = _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch });
 
         const result = {
             topNote:   parsed.topNote   || fallback.topNote,
             midNote:   parsed.midNote   || fallback.midNote,
             baseNote:  parsed.baseNote  || fallback.baseNote,
             storyCopy: parsed.storyCopy || fallback.storyCopy,
-            brewTip:   parsed.brewTip   || "建議水溫 88°C - 92°C，中偏粗研磨"
+            brewTip:   parsed.brewTip   || "建議水溫 88°C - 92°C，中偏粗研磨",
+            greenBeanResearch,
+            referenceConfidence: greenBeanResearch.confidence,
+            referenceSources: greenBeanResearch.sources,
+            referenceConflicts: greenBeanResearch.conflicts
         };
+        const groundedResult = _groundFlavorResult(result, fallback, greenBeanResearch);
         // ── 寫入快取 ──
-        _writeCache(cacheKey, result);
+        _writeCache(cacheKey, groundedResult);
         console.log(`[AI Cache WRITE] ${name} · ${origin}`);
 
-        return result;
+        return groundedResult;
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
+        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch });
     }
 }
 
@@ -782,7 +1068,11 @@ async function verifyPasswordSecure(inputPassword) {
 // ──────────────────────────────────────────────
 /** 清除所有 AI 快取（供使用者手動清除時使用） */
 function clearAICache() {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+    const keys = [];
+    for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        if (key?.startsWith(CACHE_PREFIX) || key?.startsWith(RESEARCH_CACHE_PREFIX)) keys.push(key);
+    }
     keys.forEach(k => localStorage.removeItem(k));
     console.log(`[AI Cache] 已清除 ${keys.length} 筆快取`);
     return keys.length;
@@ -791,6 +1081,7 @@ function clearAICache() {
 // 全域匯出
 window.GansingKimAI = {
     generateCoffeeFlavorAI,
+    researchGreenBeanProfile,
     generateRORDiagnosis,
     generateObsidianPoetry,
     calculateRORQualityScore,
