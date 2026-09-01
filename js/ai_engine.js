@@ -1,7 +1,7 @@
 /**
  * 金成淬精品咖啡 · AI 引擎模組
  * Groq LLM API 整合 · 品牌一致性風味文案生成
- * Version: 2.2 | 2026-08-31
+ * Version: 2.3 | 2026-09-01
  * Key Source: C:\2026_key\groq_coffeewebsite.txt
  */
 
@@ -40,16 +40,86 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 - 禁用：英文夾雜（除非是品種或技術名詞）
 - 禁用：過度堆疊感嘆號
 
-【風格範例（初韻）】：
-- 好：「晨露玫瑰、野莓綻放」「茉莉仙氣、佛手柑皮」「馥郁紫羅蘭、晨採白桃」
-- 壞：「花香四溢」「非常香」`;
+【風格範例（需依資料選用，不可固定套用）】：
+- 衣索比亞水洗可寫：「茉莉、佛手柑皮」
+- 肯亞水洗可寫：「黑醋栗、葡萄柚」
+- 巴西日曬可寫：「烤榛果、黃梅」
+- 印尼濕剝可寫：「雪松、暖香料」
+- 壞：「花香四溢」「非常香」「晨露般高雅果香」`;
 
 // ──────────────────────────────────────────────
 // localStorage 快取層（同一批次不重複呼叫 API）
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
 const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
-const CACHE_KEY_VERSION = 'batch-aware-v4';
+const CACHE_KEY_VERSION = 'terroir-aware-v5';
+
+// 產區、處理法與品種只提供「合理候選」，避免把風土先驗寫成不存在的杯測事實。
+// 排列順序同時用於離線 fallback，因此不同來源在 API 失敗時也不會落回同一組文案。
+const SENSORY_ORIGIN_PROFILES = [
+    { match: /衣索比亞|埃塞俄比亞|ethiopia|耶加雪菲|yirgacheffe|古吉|guji|西達摩|sidamo|罕貝拉|hambela/i,
+      label: '衣索比亞高地', top: ['茉莉', '佛手柑', '檸檬花'], mid: ['白桃', '杏桃', '藍莓'], base: ['白茶', '蜂蜜', '柑橘皮'] },
+    { match: /肯亞|kenya|尼亞里|nyeri|奇安布|kiambu|麒麟雅嘉|kirinyaga/i,
+      label: '肯亞高地', top: ['黑醋栗', '葡萄柚', '洛神花'], mid: ['紅李', '蔓越莓', '甘蔗汁'], base: ['烏梅', '紅茶', '可可碎粒'] },
+    { match: /哥倫比亞|colombia|薇拉|huila|考卡|cauca|娜玲瓏|nari[oñ]o/i,
+      label: '哥倫比亞安地斯', top: ['紅蘋果', '黃柑', '梅子'], mid: ['蜜桃', '紅莓', '蔗糖'], base: ['黑糖', '可可', '核果'] },
+    { match: /哥斯大黎加|costa rica|塔拉珠|tarraz[uú]/i,
+      label: '哥斯大黎加火山產區', top: ['橙花', '脆蘋果', '杏桃'], mid: ['黃桃', '葡萄', '蜂蜜'], base: ['焦糖', '榛果', '柑橘皮'] },
+    { match: /巴拿馬|panama|波魁特|boquete|翡翠莊園|geisha estates?/i,
+      label: '巴拿馬高地', top: ['茉莉', '橙花', '佛手柑'], mid: ['白桃', '甜橙', '香檳葡萄'], base: ['伯爵茶', '蜂蜜', '柚皮'] },
+    { match: /泰國|thailand|清萊|chiang rai/i,
+      label: '泰北高地', top: ['香料', '紅棗', '烤堅果'], mid: ['龍眼蜜', '熟李', '黑糖'], base: ['可可', '烏龍茶', '木質香'] },
+    { match: /巴西|brazil|喜拉朵|cerrado|米納斯|minas/i,
+      label: '巴西產區', top: ['烤榛果', '黃梅', '牛奶巧克力'], mid: ['焦糖', '熟莓', '奶油'], base: ['可可', '杏仁', '太妃糖'] },
+    { match: /瓜地馬拉|guatemala|安提瓜|antigua/i,
+      label: '瓜地馬拉火山產區', top: ['紅蘋果', '橙皮', '烘烤香料'], mid: ['黑莓', '焦糖', '李子'], base: ['可可', '杏仁', '紅茶'] },
+    { match: /印尼|indonesia|蘇門答臘|sumatra|曼特寧|mandheling/i,
+      label: '印尼群島', top: ['雪松', '香料', '熟果'], mid: ['黑糖', '黑莓', '草本'], base: ['黑巧克力', '木質香', '菸草'] }
+];
+
+const SENSORY_PROCESS_PROFILES = [
+    { match: /厭氧|anaerobic|無氧|co2|二氧化碳/i, label: '厭氧發酵', mid: ['酒香果汁感', '飽滿熟果'], base: ['香料甜韻', '發酵尾韻'] },
+    { match: /水洗|washed|wet process/i, label: '水洗', mid: ['柑橘酸質', '蔗糖甜感'], base: ['乾淨茶感', '俐落回甘'] },
+    { match: /日曬|natural|dry process/i, label: '日曬', mid: ['熟果甜感', '果醬質地'], base: ['可可甜韻', '發酵果香'] },
+    { match: /蜜處理|honey/i, label: '蜜處理', mid: ['蜂蜜甜感', '糖漿質地'], base: ['焦糖回甘', '圓潤甜韻'] },
+    { match: /濕剝|wet hulled|giling basah/i, label: '濕剝', mid: ['草本甜感', '厚實口感'], base: ['木質辛香', '深沉可可'] }
+];
+
+const SENSORY_VARIETY_PROFILES = [
+    { match: /藝伎|瑰夏|geisha|gesha/i, label: 'Gesha', notes: ['茉莉', '佛手柑', '白桃', '茶感'] },
+    { match: /sl\s*28|sl\s*34/i, label: 'SL28／SL34', notes: ['黑醋栗', '葡萄柚', '紅李', '甘蔗'] },
+    { match: /粉紅波旁|pink bourbon/i, label: '粉紅波旁', notes: ['玫瑰', '粉紅葡萄柚', '紅莓', '蔗糖'] },
+    { match: /卡杜拉|caturra/i, label: 'Caturra', notes: ['紅蘋果', '柑橘', '焦糖'] },
+    { match: /卡杜艾|catuai/i, label: 'Catuai', notes: ['黃果', '堅果', '焦糖'] },
+    { match: /波旁|bourbon/i, label: 'Bourbon', notes: ['核果', '柑橘', '蔗糖'] }
+];
+
+const GENERIC_ORIGIN_PROFILE = {
+    label: '未辨識產區', top: ['橙皮', '紅蘋果', '淡雅花香'],
+    mid: ['核果', '蔗糖', '柔和果酸'], base: ['焦糖', '可可', '茶感']
+};
+
+function _findSensoryProfile(value, profiles, fallback = null) {
+    const text = String(value || '').trim();
+    return profiles.find(profile => profile.match.test(text)) || fallback;
+}
+
+function _buildSensoryContext(beanData = {}) {
+    const identity = [beanData.name, beanData.origin].filter(Boolean).join(' ');
+    const origin = _findSensoryProfile(identity, SENSORY_ORIGIN_PROFILES, GENERIC_ORIGIN_PROFILE);
+    const process = _findSensoryProfile(beanData.process, SENSORY_PROCESS_PROFILES);
+    const variety = _findSensoryProfile([beanData.name, beanData.variety].filter(Boolean).join(' '), SENSORY_VARIETY_PROFILES);
+    return { origin, process, variety };
+}
+
+function _formatSensoryContext(context) {
+    const lines = [
+        `產區候選（${context.origin.label}）：初韻 ${context.origin.top.join('／')}；中調 ${context.origin.mid.join('／')}；尾韻 ${context.origin.base.join('／')}`
+    ];
+    if (context.variety) lines.push(`品種候選（${context.variety.label}）：${context.variety.notes.join('／')}`);
+    if (context.process) lines.push(`處理法修飾（${context.process.label}）：中調 ${context.process.mid.join('／')}；尾韻 ${context.process.base.join('／')}`);
+    return lines.join('\n');
+}
 
 /** 將物件穩定排序，避免相同批次因欄位順序不同產生不同快取鍵。 */
 function _stableCacheValue(value) {
@@ -168,22 +238,25 @@ function calculateRORQualityScore(roastData = {}) {
     return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-/** 將 ROR 曲線轉成短而可讀的批次風味方向，避免 AI 只回傳換數字的制式句。 */
+/**
+ * ROR 僅能合理推估感官結構，不能單憑曲線判定莓果、柑橘等具體香氣。
+ * 因此這裡只回傳明亮度、甜感、口感與尾韻狀態，具體香氣交由產區／品種／處理法決定。
+ */
 function _getBatchFlavorCues(metrics) {
-    if (!metrics.hasData) return { top: '待補曲線', mid: '待補曲線', base: '待補曲線' };
+    if (!metrics.hasData) return { top: '香氣強度待杯測', mid: '酸甜平衡待杯測', base: '尾韻質地待杯測' };
     if (metrics.lateNegative || metrics.finalRor < 0) {
-        return { top: '熟果可可', mid: '焦糖麥芽', base: '收斂偏乾' };
+        return { top: '香氣較收斂', mid: '熟甜與厚度提高', base: '收斂偏乾' };
     }
     if (metrics.lateRise || metrics.finalRor >= 8) {
-        return { top: '明亮果汁', mid: '莓果酸甜', base: '茶感清脆' };
+        return { top: '香氣明亮直接', mid: '酸質活潑、甜感較薄', base: '尾韻短而俐落' };
     }
     if (metrics.decline && metrics.finalRor <= 3) {
-        return { top: '花果通透', mid: '蜜甜凝聚', base: '茶感悠長' };
+        return { top: '香氣通透', mid: '甜感凝聚、口感輕盈', base: '乾淨悠長' };
     }
     if (metrics.decline) {
-        return { top: '熟果花蜜', mid: '圓潤甜感', base: '可可回甘' };
+        return { top: '香氣完整', mid: '酸甜圓潤、質地平衡', base: '回甘穩定' };
     }
-    return { top: '果香明亮', mid: '甜感展開', base: '尾韻持續' };
+    return { top: '香氣中等', mid: '甜感平穩、厚度中等', base: '尾韻持續' };
 }
 
 /** ROR 診斷固定保留由實際曲線推導的焦點，再疊加 AI 的自然語句。 */
@@ -196,44 +269,18 @@ function _getBatchRorFocus(metrics) {
     return '中後段 ROR 未充分收斂，需留意熱能延續與下豆節點';
 }
 
-function _appendBatchCue(note, cue) {
-    const text = String(note || '').trim();
-    return text && text.includes(cue) ? text : `${text || '本批次風味'}｜${cue}`;
-}
-
-function _applyBatchFlavorCues(result, metrics) {
-    const cues = _getBatchFlavorCues(metrics);
-    return {
-        ...result,
-        topNote: _appendBatchCue(result.topNote, cues.top),
-        midNote: _appendBatchCue(result.midNote, cues.mid),
-        baseNote: _appendBatchCue(result.baseNote, cues.base)
-    };
-}
-
 function _buildFlavorFallback(beanData) {
     const {
         name = '精品咖啡', origin = '精選產區', process = '精選處理法',
         roastLevel = '淺焙', roastDate = '', rorPoints = []
     } = beanData;
     const metrics = _getRoastCurveMetrics(rorPoints);
-
-    let topNote = '白花、柑橘與細緻茶香';
-    let midNote = '水蜜桃汁、蜂蜜柔甜';
-    let baseNote = '白茶回甘、乾淨悠長';
-    if (metrics.hasData && (metrics.lateNegative || metrics.finalRor < 0)) {
-        topNote = '熟果、可可與木質暖香';
-        midNote = '焦糖堅果、圓潤麥芽甜感';
-        baseNote = '烘烤可可、尾韻收斂偏乾';
-    } else if (metrics.hasData && (metrics.lateRise || metrics.finalRor >= 8)) {
-        topNote = '柑橘、紅莓與明亮花香';
-        midNote = '多汁莓果、蔗糖酸甜';
-        baseNote = '茶感清晰、尾韻俐落回甘';
-    } else if (metrics.hasData && metrics.finalRor > 4) {
-        topNote = '熟果、花蜜與葡萄香';
-        midNote = '葡萄果汁、焦糖甜感';
-        baseNote = '可可堅果、圓潤回甘';
-    }
+    const sensory = _buildSensoryContext(beanData);
+    const processMid = sensory.process?.mid?.[0] || sensory.origin.mid[1];
+    const processBase = sensory.process?.base?.[0] || sensory.origin.base[1];
+    const topNote = `${sensory.origin.top[0]}、${sensory.variety?.notes?.[1] || sensory.origin.top[1]}`;
+    const midNote = `${sensory.origin.mid[0]}、${processMid}`;
+    const baseNote = `${sensory.origin.base[0]}、${processBase}`;
 
     const curveNote = metrics.hasData
         ? `本批次 ROR 最高 ${metrics.peakRor.toFixed(1)}，出豆前為 ${metrics.finalRor.toFixed(1)}°C/min，曲線呈現「${metrics.trend}」`
@@ -332,6 +379,29 @@ function _writeCache(cacheKey, data) {
     }
 }
 
+/** 取出近期已生成的風味，讓下一次生成能主動避開重複主詞。 */
+function _getRecentFlavorExamples(excludeCacheKey = '', limit = 8) {
+    try {
+        const keys = [];
+        for (let index = 0; index < localStorage.length; index++) {
+            const key = localStorage.key(index);
+            if (key) keys.push(key);
+        }
+        return keys
+            .filter(key => key.startsWith(CACHE_PREFIX) && key !== excludeCacheKey)
+            .map(key => {
+                try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+            })
+            .filter(entry => entry?.data && Date.now() - entry.ts <= CACHE_TTL_MS)
+            .sort((a, b) => b.ts - a.ts)
+            .slice(0, limit)
+            .map(entry => [entry.data.topNote, entry.data.midNote, entry.data.baseNote].filter(Boolean).join('／'))
+            .filter(Boolean);
+    } catch {
+        return [];
+    }
+}
+
 // ──────────────────────────────────────────────
 // 主要：咖啡風味 AI 生成（含快取）
 // ──────────────────────────────────────────────
@@ -372,6 +442,7 @@ async function generateCoffeeFlavorAI(beanData) {
     const rorSummary = _formatRorSummary(normalizedRorPoints);
     const curveMetrics = _getRoastCurveMetrics(normalizedRorPoints);
     const batchFlavorCues = _getBatchFlavorCues(curveMetrics);
+    const sensoryContext = _buildSensoryContext({ name, origin, process, variety });
 
     // ── 快取命中檢查 ──
     const cacheKey = _buildCacheKey(beanData);
@@ -382,6 +453,8 @@ async function generateCoffeeFlavorAI(beanData) {
             return cached;
         }
     }
+
+    const recentFlavorExamples = _getRecentFlavorExamples(cacheKey);
 
     const userPrompt = `請根據以下咖啡生豆資料，生成金成淬品牌風格的三段式風味描述與品牌文案：
 
@@ -397,7 +470,13 @@ ${lossRatio ? `烘焙失重率：${lossRatio}` : ""}
 烘焙日期：${roastDate || "未提供"}
 本批次完整 ROR 曲線（請以這些數據為主要依據）：${rorSummary || "暫無數據"}
 曲線特徵摘要：${curveMetrics.hasData ? `最高 ROR ${curveMetrics.peakRor.toFixed(1)}、最低 ROR ${curveMetrics.lowRor.toFixed(1)}、出豆前 ROR ${curveMetrics.finalRor.toFixed(1)}、判讀為${curveMetrics.trend}` : "觀測點不足"}
-ROR 導出的本批次風味方向（必須反映在三段風味中）：初韻「${batchFlavorCues.top}」、中調「${batchFlavorCues.mid}」、尾韻「${batchFlavorCues.base}」
+風土與製程的合理候選（這是選詞邊界，不是已確認的杯測結果）：
+${_formatSensoryContext(sensoryContext)}
+
+ROR 僅導出的感官結構：初韻「${batchFlavorCues.top}」、中調「${batchFlavorCues.mid}」、尾韻「${batchFlavorCues.base}」
+${recentFlavorExamples.length ? `近期其他批次已使用的描述（本次至少更換 4 個主要風味名詞，非產區必要特徵不要重複）：\n- ${recentFlavorExamples.join('\n- ')}` : '目前沒有近期生成紀錄可供避重。'}
+
+選詞優先序必須是：豆名明示風味／品種特性 ＞ 產區特性 ＞ 處理法修飾；ROR 只能調整明亮度、甜感、厚薄與尾韻，不得用 ROR 憑空推導莓果、柑橘或茶等具體香氣。三段各自負責「入口香氣／中段滋味與質地／吞嚥後餘韻」，不要三段都寫成果香，也不要用晨露、高雅、明亮、清雅等形容詞假裝差異。若資料不足，採保守描述，不虛構特殊發酵風味。
 
 請只根據「本批次」資料生成，不要沿用其他批次的固定文案；即使豆款相同，也要讓風味與故事反映本批次 ROR、DTR、失重率及烘焙日期的差異。請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
 
@@ -438,20 +517,15 @@ ROR 導出的本批次風味方向（必須反映在三段風味中）：初韻�
             storyCopy: parsed.storyCopy || fallback.storyCopy,
             brewTip:   parsed.brewTip   || "建議水溫 88°C - 92°C，中偏粗研磨"
         };
-        const batchAwareResult = _applyBatchFlavorCues(result, curveMetrics);
-
         // ── 寫入快取 ──
-        _writeCache(cacheKey, batchAwareResult);
+        _writeCache(cacheKey, result);
         console.log(`[AI Cache WRITE] ${name} · ${origin}`);
 
-        return batchAwareResult;
+        return result;
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return _applyBatchFlavorCues(
-            _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints }),
-            curveMetrics
-        );
+        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints });
     }
 }
 
