@@ -29,9 +29,9 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 
 【輸出格式】嚴格遵守以下 JSON，不可有任何前綴文字或 markdown：
 {
-    "topNote": "初韻香氣，12-18字，用「、」分隔2-3種具體香氣意象",
-    "midNote": "中調風味，12-18字，強調果汁感/甜感/口感層次",
-    "baseNote": "尾韻，12-18字，強調回甘/餘韻/尾段印象",
+    "topNote": "初韻香氣，最多13字（包含全形頓號「、」），用「、」分隔2-3種具體香氣意象",
+    "midNote": "中調風味，最多13字（包含全形頓號「、」），強調果汁感／甜感／口感層次",
+    "baseNote": "尾韻，最多13字（包含全形頓號「、」），強調回甘／餘韻／尾段印象",
     "storyCopy": "90-130字品牌故事文案，融入具體風土地理、烘焙工藝細節、金成淬職人精神，結尾帶出邀請品飲的情境。",
     "brewTip": "沖煮建議一句話，包含水溫範圍與研磨度建議（20字以內）"
 }
@@ -379,6 +379,38 @@ function _groundFlavorResult(result, fallback, research) {
     };
 }
 
+const FLAVOR_NOTE_MAX_LENGTH = 13;
+
+/** 將風味描述整理成適合標籤版面的短句，頓號也計入 13 字上限。 */
+function _fitFlavorNote(value, fallback = '風味待確認') {
+    let text = String(value ?? '')
+        .replace(/[\r\n\t ]+/g, '')
+        .replace(/[，,、／/|｜；;]+/g, '、')
+        .replace(/[^\u3400-\u9fff、]/g, '')
+        .replace(/^、+|、+$/g, '');
+    if (!text) text = fallback;
+    const parts = text.split('、').filter(Boolean);
+    const fittedParts = [];
+    for (const part of parts) {
+        const candidate = fittedParts.length ? `${fittedParts.join('、')}、${part}` : part;
+        if (Array.from(candidate).length > FLAVOR_NOTE_MAX_LENGTH) break;
+        fittedParts.push(part);
+    }
+    if (!fittedParts.length) {
+        return Array.from(parts[0] || fallback).slice(0, FLAVOR_NOTE_MAX_LENGTH).join('');
+    }
+    return fittedParts.join('、');
+}
+
+function _fitFlavorNotes(result) {
+    return {
+        ...result,
+        topNote: _fitFlavorNote(result.topNote, '花香、果香'),
+        midNote: _fitFlavorNote(result.midNote, '果汁、甜感'),
+        baseNote: _fitFlavorNote(result.baseNote, '茶感、回甘')
+    };
+}
+
 /** 將物件穩定排序，避免相同批次因欄位順序不同產生不同快取鍵。 */
 function _stableCacheValue(value) {
     if (Array.isArray(value)) return value.map(_stableCacheValue);
@@ -548,9 +580,9 @@ function _buildFlavorFallback(beanData) {
     const baseParts = useVerifiedReference
         ? [..._asStringArray(research.referenceBase, 2), ...descriptors.slice(4)].slice(0, 2)
         : [sensory.origin.base[0], processBase];
-    const topNote = (topParts.length ? topParts : sensory.origin.top.slice(0, 2)).join('、');
-    const midNote = (midParts.length ? midParts : [sensory.origin.mid[0], processMid]).join('、');
-    const baseNote = (baseParts.length ? baseParts : [sensory.origin.base[0], processBase]).join('、');
+    const topNote = _fitFlavorNote((topParts.length ? topParts : sensory.origin.top.slice(0, 2)).join('、'), '花香、果香');
+    const midNote = _fitFlavorNote((midParts.length ? midParts : [sensory.origin.mid[0], processMid]).join('、'), '果汁、甜感');
+    const baseNote = _fitFlavorNote((baseParts.length ? baseParts : [sensory.origin.base[0], processBase]).join('、'), '茶感、回甘');
 
     const curveNote = metrics.hasData
         ? `本批次 ROR 最高 ${metrics.peakRor.toFixed(1)}，出豆前為 ${metrics.finalRor.toFixed(1)}°C/min，曲線呈現「${metrics.trend}」`
@@ -724,7 +756,7 @@ async function generateCoffeeFlavorAI(beanData) {
         const cached = _readCache(cacheKey);
         if (cached) {
             console.log(`[AI Cache HIT] ${name} · ${origin}`);
-            return cached;
+            return _fitFlavorNotes(cached);
         }
     }
 
@@ -758,6 +790,8 @@ ROR 僅導出的感官結構：初韻「${batchFlavorCues.top}」、中調「${b
 ${recentFlavorExamples.length ? `${hasVerifiedReference ? '近期其他批次描述只用於避免修辭重複；生豆來源確認的風味名詞可以保留，不得為追求不同而替換。' : '近期其他批次已使用的描述（非產區必要特徵不要重複）：'}\n- ${recentFlavorExamples.join('\n- ')}` : '目前沒有近期生成紀錄可供避重。'}
 
 選詞優先序必須是：使用者供應商杯測筆記 ＞ high／medium 生豆校正資料 ＞ 品種與產區候選。當校正可信度為 high／medium 時，具體水果、花、香料、茶、可可等名詞必須取自校正資料，不可任意替換；ROR 只能調整明亮度、酸甜強弱、厚薄、乾淨度與尾韻，不得憑空創造任何具體香氣。若 conflicts 非空，故事不得把衝突欄位寫成事實。三段分別負責「入口香氣／中段滋味與質地／吞嚥後餘韻」，不要用晨露、高雅、明亮、清雅等形容詞假裝差異。資料不足時採保守描述。
+
+【標籤版面硬性限制】topNote、midNote、baseNote 每一欄最多 13 個字元，包含全形頓號「、」在內；必須使用繁體中文，並以全形頓號分隔風味，禁止使用逗號、斜線或換行。若風味詞過長，請優先保留最具辨識度的 2-3 個短詞，確實控制在 13 字以內。
 
 請只根據「本批次」資料生成，不要沿用其他批次的固定文案；即使豆款相同，也要讓風味與故事反映本批次 ROR、DTR、失重率及烘焙日期的差異。請嚴格按照指定 JSON 格式輸出，不要有任何其他文字。`;
 
@@ -803,15 +837,16 @@ ${recentFlavorExamples.length ? `${hasVerifiedReference ? '近期其他批次描
             referenceConflicts: greenBeanResearch.conflicts
         };
         const groundedResult = _groundFlavorResult(result, fallback, greenBeanResearch);
+        const constrainedResult = _fitFlavorNotes(groundedResult);
         // ── 寫入快取 ──
-        _writeCache(cacheKey, groundedResult);
+        _writeCache(cacheKey, constrainedResult);
         console.log(`[AI Cache WRITE] ${name} · ${origin}`);
 
-        return groundedResult;
+        return constrainedResult;
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return _buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch });
+        return _fitFlavorNotes(_buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch }));
     }
 }
 

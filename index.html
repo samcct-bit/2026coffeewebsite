@@ -107,7 +107,7 @@
         }
     </style>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260901-web-calibrated-v7"></script>
+    <script src="./js/ai_engine.js?v=20260902-flavor-note-limit-v1"></script>
 
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
@@ -665,10 +665,22 @@
             }
         ];
 
+        function normalizeHomepageBeanName(value) {
+            return String(value || '')
+                .replace(/#\d+/g, '')
+                .replace(/[A-Za-z]+-B\d+/g, '')
+                .replace(/\(.*?\)/g, '')
+                .replace(/（.*?）/g, '')
+                .replace(/_+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+        }
+
         // 腳本啟動時立即對基礎資料庫進行豆名去重，防止首頁加載時數字閃爍
         const initSeen = new Set();
         coffeeDatabase = coffeeDatabase.filter(b => {
-            const k = b.name.replace(/\s*\(.*?\)\s*/g, "").trim();
+            const k = normalizeHomepageBeanName(b.name);
             if (initSeen.has(k)) return false;
             initSeen.add(k);
             return true;
@@ -947,6 +959,8 @@
                     let cleanNameKey = bName.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
                     // 強制過濾未閉合或奇怪的括號
                     cleanNameKey = cleanNameKey.replace(/[(（][^()（）]*[)）]?/g, "").trim();
+                    // 批次尾碼移除後，統一多餘空白，避免同一豆款被拆成多張卡片
+                    cleanNameKey = cleanNameKey.replace(/\s+/g, " ").trim();
 
                     // 針對知名豆款進行統一正規化，避免因命名差異產生重複卡片
                     if (bName.includes("蕭邦") || bName.includes("Chopin")) {
@@ -1104,9 +1118,9 @@
 
                 if (cloudRecords.length > 0) {
                     cloudRecords.forEach(cloudBean => {
-                        const cleanCloudKey = cloudBean.name.replace(/#\d+/g, "").replace(/[A-Za-z]+-B\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                        const cleanCloudKey = normalizeHomepageBeanName(cloudBean.name);
                         const target = coffeeDatabase.find(localBean => {
-                            const cleanLocalKey = localBean.name.replace(/#\d+/g, "").replace(/\(.*?\)/g, "").replace(/（.*?）/g, "").replace(/_+/g, " ").trim();
+                            const cleanLocalKey = normalizeHomepageBeanName(localBean.name);
                             return cleanLocalKey.includes(cleanCloudKey) || cleanCloudKey.includes(cleanLocalKey) || (localBean.id === cloudBean.id);
                         });
                         if (target) {
