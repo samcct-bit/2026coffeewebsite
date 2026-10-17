@@ -1,0 +1,24 @@
+.git
+.env*
+**/.dev.vars*
+node_modules
+package.json
+package-lock.json
+*.xlsx
+cloudflare-worker
+tests
+docs
+scratch
+Gemini Apps
+firebase.json
+firestore.rules
+.firebaserc
+*-debug.log
+delete_docs.js
+test_fb.js
+test_fb_exact.js
+test_sort.py
+fetch_firestore.js
+db_extract.json
+**/*service-account*.json
+**/*serviceAccount*.json

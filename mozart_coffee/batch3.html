@@ -27,7 +27,7 @@
                     fontFamily: {
                         sans:  ['"Noto Sans TC"', '"Outfit"', 'sans-serif'],
                         serif: ['"Noto Serif TC"', 'serif'],
-                        outfit:[''"Outfit"', 'sans-serif']
+                        outfit:['"Outfit"', 'sans-serif']
                     }
                 }
             }
@@ -196,7 +196,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="../js/ai_engine.js?v=20260902-flavor-note-limit-v1"></script>
+    <script src="../js/ai_engine.js?v=20261017-security-v8"></script>
     <script>
         async function verifyPassword(event) {
             event.preventDefault();
@@ -206,7 +206,6 @@
             try {
                 const isValid = await window.GansingKimAI.verifyPasswordSecure(input);
                 if (isValid) {
-                    sessionStorage.setItem("roast_db_auth", "true");
                     document.getElementById("password-overlay").style.display = "none";
                 } else {
                     document.getElementById("password-error").classList.remove("hidden");
@@ -219,9 +218,7 @@
                 if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
-        if (sessionStorage.getItem("roast_db_auth") === "true") {
-            document.write('<style>#password-overlay { display: none !important; }</style>');
-        }
+        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess());
     </script>
 
 <!-- ══════════════════════════════

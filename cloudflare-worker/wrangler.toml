@@ -3,6 +3,23 @@ main = "src/index.js"
 compatibility_date = "2026-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+# FIREBASE_PROJECT_ID 已存在為 Secret，避免同名 vars 衝突。
+
+[[ratelimits]]
+name = "LOGIN_RATE_LIMITER"
+namespace_id = "100101"
+simple = { limit = 5, period = 60 }
+
+[[ratelimits]]
+name = "AI_RATE_LIMITER"
+namespace_id = "100102"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "ADMIN_RATE_LIMITER"
+namespace_id = "100103"
+simple = { limit = 30, period = 60 }
+
 [observability]
 enabled = true
 head_sampling_rate = 1
@@ -17,13 +34,5 @@ head_sampling_rate = 1
 #   npx wrangler secret put PASSWORD_HASH
 #   (輸入 SHA-256 hash 字串，不要輸入明文密碼)
 #
-# Note: 若要啟用 Rate Limiting，需建立一個 KV Namespace：
-#   npx wrangler kv:namespace create "RATE_LIMIT_KV"
-#   然後將產生的 id 填入下面 (取消以下二行注解)
-
-# [[kv_namespaces]]
-# binding = "RATE_LIMIT_KV"
-# id = "YOUR_KV_NAMESPACE_ID_HERE"
-[[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "3c6d0d9b9f204e86ac191d8bee09c93e"
+# 限流使用上方原生 binding；不刪除帳號內既有 KV namespace。
+# 登入另需 FIREBASE_CLIENT_EMAIL、FIREBASE_PRIVATE_KEY、FIREBASE_PROJECT_ID。

@@ -7,19 +7,10 @@
  *
  * 安全性備注：
  * - Firebase Web API Key 本設計即允許前端持有，但必須搭配：
- *   1. Firebase Firestore Security Rules（僅允許讀取 coffee_roasts，禁止外部寫入）
- *   2. Firebase App Check（reCAPTCHA v3）防止非授權 app 存取
- * - 請在 Firebase Console > Firestore > Rules 設定以下規則：
- *
- *   rules_version = '2';
- *   service cloud.firestore {
- *     match /databases/{database}/documents {
- *       match /coffee_roasts/{doc} {
- *         allow read: if true;    // 公開讀取
- *         allow write: if false;  // 前端禁止寫入（寫入走後台密碼保護頁）
- *       }
- *     }
- *   }
+ *   1. firestore.rules：公開讀取、Firebase 已驗證且未過期的管理員才可寫入。
+ *   2. 後台密碼遮罩不是權限邊界；必須部署規則，不能只隱藏按鈕。
+ * - 不要用片段規則覆蓋整個共用專案，以免破壞其他集合權限。
+ * - App Check 尚未啟用；即使導入，也不能取代使用者身分驗證。
  */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';

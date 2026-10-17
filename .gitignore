@@ -15,3 +15,14 @@ package.json
 
 # Wrangler 暫存
 cloudflare-worker/.wrangler/
+cloudflare-worker/worker-configuration.d.ts
+
+# Worker 套件清單與鎖檔需版控；私密環境檔不進版控。
+!cloudflare-worker/package.json
+!cloudflare-worker/package-lock.json
+.env*
+**/.dev.vars*
+.vercel/
+scratch/
+*-debug.log
+.vercel

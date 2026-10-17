@@ -1,0 +1,13 @@
+{
+  "headers": [{
+    "source": "/(.*)",
+    "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+      { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+      { "key": "Content-Security-Policy", "value": "object-src 'none'; base-uri 'self'; frame-ancestors 'none'" },
+      { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self' https://www.gstatic.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://gsk-groq-proxy.gansingkim.workers.dev; frame-src 'self' https://my-teaching-tools-01.firebaseapp.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" }
+    ]
+  }]
+}

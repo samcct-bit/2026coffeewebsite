@@ -1,14 +1,37 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isCoffeeAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'coffee-site-admin'
+        && request.auth.token.coffeeAdmin == true
+        && request.auth.token.coffeeSessionExpiresAt is int
+        && request.auth.token.auth_time is int
+        && request.auth.token.coffeeSessionExpiresAt <= request.auth.token.auth_time + 3600
+        && request.time >= timestamp.value(request.auth.token.auth_time * 1000)
+        && request.time < timestamp.value(request.auth.token.coffeeSessionExpiresAt * 1000);
+    }
+    function validRoast() {
+      return request.resource.data.keys().hasAll(['beanName', 'roastDate'])
+        && request.resource.data.keys().size() <= 100
+        && request.resource.data.beanName is string
+        && request.resource.data.beanName.size() > 0
+        && request.resource.data.beanName.size() <= 240
+        && request.resource.data.roastDate is string
+        && request.resource.data.roastDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
     match /coffee_roasts/{document} {
       // 任何人都可以讀取（公開豆單）
       allow read: if true;
-      // 只有在提供特定資料欄位時才能新增或更新，防止垃圾資料寫入
-      allow create, update: if request.resource.data.keys().hasAny(['beanName', 'roastDate', 'rorDatapoints']);
-      // 刪除操作禁止從前端執行，改由本機管理員腳本操作
-      // 若需要啟用前端刪除，請先實作 Firebase Auth + 只允許已登入使用者刪除
-      allow delete: if false;
+      allow create, update: if isCoffeeAdmin() && validRoast();
+      allow delete: if isCoffeeAdmin();
+    }
+
+    // 保留 2026-10-17 讀取到的既有教學專案權限，不影響其他網站。
+    match /summer_homework_2026/{document} {
+      allow read: if request.auth != null
+        && request.auth.token.email == 'samcct@gmail.com';
+      allow create, update, delete: if false;
     }
   }
 }

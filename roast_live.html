@@ -76,6 +76,7 @@
             background: #c49a6c;
         }
     </style>
+    <script src="./js/safe_dom.js"></script>
 </head>
 <body class="text-[#2b2621] font-sans antialiased selection:bg-brass-gold selection:text-white min-h-screen flex flex-col">
 
@@ -109,7 +110,7 @@
         </div>
     </div>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260902-flavor-note-limit-v1"></script>
+    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -120,11 +121,9 @@
             try {
                 const isValid = await window.GansingKimAI.verifyPasswordSecure(input);
                 if (isValid) {
-                    sessionStorage.setItem("roast_db_auth", "true");
                     // 方案 B：中繼層代理，不再需要注入金鑰
                     document.getElementById("password-overlay").style.display = "none";
-                    // 密碼驗證成功後初始化自動觸發監聽器
-                    setupAutoAITrigger();
+                    // 自動觸發監聽器由 Firebase 登入狀態觀察器初始化。
                 } else {
                     document.getElementById("password-error").classList.remove("hidden");
                     document.getElementById("password-input").value = "";
@@ -136,16 +135,7 @@
                 if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
-        // 已有驗證記錄時自動注入 Key（頁面重整時）
-        if (sessionStorage.getItem("roast_db_auth") === "true") {
-            document.write('<style>#password-overlay { display: none !important; }</style>');
-            // 已驗證
-            document.addEventListener('DOMContentLoaded', function() {
-                if (window.GansingKimAI) {
-                    setupAutoAITrigger();
-                }
-            });
-        }
+        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess(setupAutoAITrigger));
 
         // ══════════════════════════════════════════════
         // 方案 B：自動觸發 AI 風味生成（Debounce 4 秒，避免輸入未完成就付費搜尋）
@@ -155,6 +145,8 @@
         let _autoAIFired = false;  // 本批次已自動觸發過，避免重複呼叫
 
         function setupAutoAITrigger() {
+            if (setupAutoAITrigger.initialized) return;
+            setupAutoAITrigger.initialized = true;
             const triggerFields = [
                 'form-bean', 'form-origin', 'form-process', 'form-roast', 'form-altitude',
                 'form-variety', 'form-crop-year', 'form-source-url', 'form-supplier-notes'
@@ -657,7 +649,7 @@
                     // 跳出提示 Toast
                     const toast = document.createElement("div");
                     toast.className = "fixed top-20 right-6 z-50 bg-[#c49a6c] text-[#0c0c0e] px-5 py-3 rounded-xl shadow-2xl font-serif font-bold text-xs flex items-center gap-2 border border-[#d4af37] animate-bounce";
-                    toast.innerHTML = `📋 已成功載入「${copyData.beanName || '豆款'}」基本資料！可直接開始新一輪烘焙。`;
+                    toast.textContent = `📋 已成功載入「${copyData.beanName || '豆款'}」基本資料！可直接開始新一輪烘焙。`;
                     document.body.appendChild(toast);
                     setTimeout(() => toast.remove(), 4500);
                 }
@@ -682,7 +674,7 @@
                     
                     const titleEl = document.querySelector("#form-container h3");
                     if (titleEl) {
-                        titleEl.innerHTML = `<svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> 編輯烘焙紀錄風火配置備註：${data.beanName || ''}`;
+                        titleEl.innerHTML = `<svg class="w-5 h-5 text-brass-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> 編輯烘焙紀錄風火配置備註：${SafeDOM.escapeHTML(data.beanName || '')}`;
                     }
                     const submitBtn = document.getElementById("submit-btn");
                     if (submitBtn) {
@@ -853,21 +845,26 @@
             
             tr.innerHTML = `
                 <td class="p-2">
-                    <input type="text" class="grid-time w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base font-bold border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-mono text-center shadow-sm" placeholder="如 01:30" value="${timeStr}">
+                    <input type="text" class="grid-time w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base font-bold border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-mono text-center shadow-sm" placeholder="如 01:30">
                 </td>
                 <td class="p-2">
-                    <input type="number" step="0.1" class="grid-temp w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base font-bold border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-mono text-center shadow-sm" placeholder="溫度 °C" value="${tempVal}">
+                    <input type="number" step="0.1" class="grid-temp w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base font-bold border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-mono text-center shadow-sm" placeholder="溫度 °C">
                 </td>
                 <td class="p-2">
                     <input type="text" class="grid-ror w-full bg-[#f5f2eb] text-[#5c544c] text-sm md:text-base font-bold border border-[#c49a6c]/20 rounded px-2 py-2 cursor-not-allowed font-mono text-center" readonly value="--">
                 </td>
                 <td class="p-2">
-                    <input type="text" class="grid-note w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-serif shadow-sm" placeholder="風火變更或註記" value="${noteVal}">
+                    <input type="text" class="grid-note w-full bg-[#fcfbfa] text-[#2b2621] text-sm md:text-base border border-[#c49a6c]/35 focus:border-brass-gold focus:outline-none rounded px-2 py-2 font-serif shadow-sm" placeholder="風火變更或註記">
                 </td>
                 <td class="p-2 text-center">
-                    <button type="button" onclick="deleteGridRow(this)" class="text-red-500 hover:text-red-400 font-serif font-bold text-sm md:text-base p-1">❌</button>
+                    <button type="button" data-delete-grid-row class="text-red-500 hover:text-red-400 font-serif font-bold text-sm md:text-base p-1">❌</button>
                 </td>
             `;
+            tr.querySelector('.grid-time').value = timeStr ?? '';
+            tr.querySelector('.grid-temp').value = tempVal ?? '';
+            tr.querySelector('.grid-note').value = noteVal ?? '';
+            const deleteButton = tr.querySelector('[data-delete-grid-row]');
+            deleteButton.addEventListener('click', () => deleteGridRow(deleteButton));
             gridBody.appendChild(tr);
             recalculateGrid();
         }
@@ -1247,7 +1244,9 @@
                 sourceWrap.append('來源：');
                 research.sources.slice(0, 3).forEach((source, index) => {
                     const link = document.createElement('a');
-                    link.href = source.url;
+                    const sourceURL = SafeDOM.safeURL(source?.url);
+                    if (!sourceURL) return;
+                    link.href = sourceURL;
                     link.target = '_blank';
                     link.rel = 'noopener noreferrer';
                     link.className = 'underline hover:text-[#8d6e4f]';
@@ -1365,6 +1364,9 @@
             panel.classList.add('hidden');
 
             const diag = await AI.generateRORDiagnosis({
+                variety: document.getElementById('form-variety')?.value || '',
+                fcTime: document.getElementById('form-fc-time')?.value || '',
+                dropTime: document.getElementById('form-drop-time')?.value || '',
                 rorPoints, dtr, lossRatio: loss, beanName, roastLevel,
                 origin, process, machine, roastDate
             });

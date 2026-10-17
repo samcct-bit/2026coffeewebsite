@@ -75,6 +75,7 @@
             background: #c49a6c;
         }
     </style>
+    <script src="./js/safe_dom.js"></script>
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
 
@@ -245,7 +246,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260902-flavor-note-limit-v1"></script>
+    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -256,7 +257,6 @@
             try {
                 const isValid = await window.GansingKimAI.verifyPasswordSecure(input);
                 if (isValid) {
-                    sessionStorage.setItem("roast_db_auth", "true");
                     // 方案 B：中繼層代理，不再需要注入金鑰
                     document.getElementById("password-overlay").style.display = "none";
                 } else {
@@ -270,10 +270,7 @@
                 if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
-        if (sessionStorage.getItem("roast_db_auth") === "true") {
-            document.write('<style>#password-overlay { display: none !important; }</style>');
-            // 已驗證
-        }
+        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess());
     </script>
 
     <!-- 1. 頂部導航 -->
@@ -4456,40 +4453,8 @@
                     fetchedRecords.push(data);
                 });
 
-                if (fetchedRecords.length === 0) {
-                    console.log("[+] 資料庫為空，開始寫入 13 筆本機預載紀錄作為種子資料...");
-                    // 將 13 筆本地預載紀錄以正確格式推上 Firestore
-                    for (let rec of roastingDatabase) {
-                        const seedData = { ...rec };
-                        seedData.rorDatapointsJson = JSON.stringify(rec.rorDatapoints);
-                        seedData.timelineActionsJson = JSON.stringify(rec.timelineActions);
-                        delete seedData.rorDatapoints;
-                        delete seedData.timelineActions;
-                        
-                        await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
-                    }
-                    console.log("[+] 雲端種子資料寫入完成。");
-                } else {
-                    // 只補登雲端尚不存在的本機預載紀錄；既有紀錄可能已被使用者編輯，不能整筆覆寫。
-                    const existingMap = new Map(fetchedRecords.map(r => [r.id, r]));
-                    for (let rec of roastingDatabase) {
-                        const existing = existingMap.get(rec.id);
-                        if (!existing) {
-                            try {
-                                const seedData = { ...rec };
-                                seedData.rorDatapointsJson = JSON.stringify(rec.rorDatapoints);
-                                seedData.timelineActionsJson = JSON.stringify(rec.timelineActions);
-                                delete seedData.rorDatapoints;
-                                delete seedData.timelineActions;
-                                await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
-                                fetchedRecords.unshift({ ...rec });
-                            } catch (e) {
-                                console.warn("[-] 補登本機預載紀錄至雲端失敗:", rec.id, e);
-                            }
-                        }
-                    }
-                    roastingDatabase = fetchedRecords;
-                }
+                // 頁面載入只讀：種子資料匯入必須由已登入管理員明確操作。
+                roastingDatabase = fetchedRecords;
 
                 if (statusBadge) {
                     statusBadge.innerText = "🟢 雲端已連線 (my-teaching-tools-01)";
@@ -4524,41 +4489,48 @@
             roastingDatabase.forEach(rec => {
                 const card = document.createElement("div");
                 card.className = `glass-card p-4 rounded-xl cursor-pointer transition-all border ${selectedRecord && selectedRecord.id === rec.id ? 'border-brass-gold bg-brass-gold/5' : 'border-white/5 hover:border-brass-gold/30'}`;
-                card.onclick = () => showRecordDetail(rec.id);
+                card.addEventListener('click', () => showRecordDetail(rec.id));
                 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-1.5">
-                        <span class="text-[9px] text-brass-gold tracking-widest font-serif">${rec.origin || '未分類'} · ${rec.roastLevel || '未知焙度'}</span>
-                        <span class="text-[9px] text-gray-500 font-mono">${rec.roastDate || ''}</span>
+                        <span class="text-[9px] text-brass-gold tracking-widest font-serif">${SafeDOM.escapeHTML(rec.origin || '未分類')} · ${SafeDOM.escapeHTML(rec.roastLevel || '未知焙度')}</span>
+                        <span class="text-[9px] text-gray-500 font-mono">${SafeDOM.escapeHTML(rec.roastDate || '')}</span>
                     </div>
-                    <h4 class="text-white font-serif font-bold text-sm tracking-wide line-clamp-1 mb-2">${rec.beanName || '(未命名紀錄)'}</h4>
+                    <h4 class="text-white font-serif font-bold text-sm tracking-wide line-clamp-1 mb-2">${SafeDOM.escapeHTML(rec.beanName || '(未命名紀錄)')}</h4>
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-serif border-t border-white/5 pt-2">
-                        <span>設備: ${rec.machine || '-'}</span>
-                        <span class="text-refined-gold font-bold">DTR: ${rec.dtrRatio || '-'}</span>
+                        <span>設備: ${SafeDOM.escapeHTML(rec.machine || '-')}</span>
+                        <span class="text-refined-gold font-bold">DTR: ${SafeDOM.escapeHTML(rec.dtrRatio || '-')}</span>
                     </div>
                     <!-- 卡片快捷操作按鈕組 -->
                     <div class="mt-3 pt-2 border-t border-white/5 flex flex-wrap justify-end gap-1.5">
-                        <button onclick="event.stopPropagation(); openBeanPage('${rec.id}')" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-2.5 py-1 rounded-lg text-[10px] font-serif transition-all flex items-center gap-1 shadow">
+                        <button data-record-action="openBeanPage" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-brass-gold text-obsidian hover:bg-refined-gold font-bold px-2.5 py-1 rounded-lg text-[10px] font-serif transition-all flex items-center gap-1 shadow">
                             📖 豆款專頁
                         </button>
-                        <button onclick="event.stopPropagation(); copyBeanToLive('${rec.id}')" title="複製此豆基本資料進行連續烘焙" class="bg-emerald-500/10 hover:bg-emerald-500 hover:text-obsidian text-emerald-400 px-2 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-emerald-500/30 shadow">
+                        <button data-record-action="copyBeanToLive" data-record-id="${SafeDOM.escapeHTML(rec.id)}" title="複製此豆基本資料進行連續烘焙" class="bg-emerald-500/10 hover:bg-emerald-500 hover:text-obsidian text-emerald-400 px-2 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-emerald-500/30 shadow">
                             📋 續烘
                         </button>
-                        <button onclick="event.stopPropagation(); openLiveControl('${rec.id}')" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
+                        <button data-record-action="openLiveControl" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
                             🔥 實況台備註
                         </button>
-                        <button onclick="event.stopPropagation(); reanalyzeRecordAndUpdateHome('${rec.id}')" data-reanalyze-id="${rec.id}" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-violet-500/30 shadow" title="重新分析並更新首頁單品頁">
+                        <button data-record-action="reanalyzeRecordAndUpdateHome" data-record-id="${SafeDOM.escapeHTML(rec.id)}" data-reanalyze-id="${SafeDOM.escapeHTML(rec.id)}" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-violet-500/30 shadow" title="重新分析並更新首頁單品頁">
                             🤖 AI 更新首頁
                         </button>
-                        <button onclick="event.stopPropagation(); openEditModal('${rec.id}')" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian text-brass-gold px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-brass-gold/30 shadow">
+                        <button data-record-action="openEditModal" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian text-brass-gold px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-brass-gold/30 shadow">
                             ✏️ 編輯
                         </button>
-                        <button onclick="event.stopPropagation(); deleteRecordById('${rec.id}')" class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-red-500/30 shadow">
+                        <button data-record-action="deleteRecordById" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-red-500/30 shadow">
                             🗑️ 刪除
                         </button>
                     </div>
                 `;
                 
+                const actions = { openBeanPage, copyBeanToLive, openLiveControl, reanalyzeRecordAndUpdateHome, openEditModal, deleteRecordById };
+                card.querySelectorAll('[data-record-action]').forEach(button => {
+                    button.addEventListener('click', event => {
+                        event.stopPropagation();
+                        actions[button.dataset.recordAction](button.dataset.recordId);
+                    });
+                });
                 list.appendChild(card);
             });
         }
@@ -4589,11 +4561,11 @@
                 step.className = "bg-black/30 rounded-xl p-3 border border-white/5 space-y-1";
                 step.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="bg-brass-gold text-obsidian text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">${act.time}</span>
-                        <span class="text-refined-gold font-mono font-bold text-[11px]">${act.temp}°C</span>
+                        <span class="bg-brass-gold text-obsidian text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">${SafeDOM.escapeHTML(act.time)}</span>
+                        <span class="text-refined-gold font-mono font-bold text-[11px]">${SafeDOM.escapeHTML(act.temp)}°C</span>
                     </div>
-                    <div class="text-[10px] text-white font-medium tracking-wide">${act.burner} ${act.damper ? '| 💨 ' + act.damper : ''}</div>
-                    <div class="text-[9px] text-gray-500 font-serif leading-relaxed mt-1">${act.note}</div>
+                    <div class="text-[10px] text-white font-medium tracking-wide">${SafeDOM.escapeHTML(act.burner)} ${SafeDOM.escapeHTML(act.damper ? '| 💨 ' + act.damper : '')}</div>
+                    <div class="text-[9px] text-gray-500 font-serif leading-relaxed mt-1">${SafeDOM.escapeHTML(act.note)}</div>
                 `;
                 timelineContainer.appendChild(step);
             });
@@ -4971,7 +4943,9 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 sourceWrap.append('來源：');
                 research.sources.slice(0, 3).forEach((source, index) => {
                     const link = document.createElement('a');
-                    link.href = source.url;
+                    const sourceURL = SafeDOM.safeURL(source?.url);
+                    if (!sourceURL) return;
+                    link.href = sourceURL;
                     link.target = '_blank';
                     link.rel = 'noopener noreferrer';
                     link.className = 'underline ml-2 hover:text-brass-gold';
@@ -5119,17 +5093,12 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
 
             // ── 方案 A：透過 Cloudflare Worker 代理刪除（繞過 Firestore 前端規則） ──
             try {
-                const token = sessionStorage.getItem("roast_db_token");
-                if (!token) {
-                    alert("⚠️ 錯誤：尚未登入或 Token 遺失，無法執行刪除。");
-                    return;
-                }
                 const workerEndpoint = window.GansingKimAI ? window.GansingKimAI.endpoint || "https://gsk-groq-proxy.gansingkim.workers.dev" : "https://gsk-groq-proxy.gansingkim.workers.dev";
                 
-                const response = await fetch(`${workerEndpoint}/delete-record`, {
+                const response = await window.GansingKimAI.authenticatedFetch(`${workerEndpoint}/delete-record`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: token, documentId: deletedId })
+                    body: JSON.stringify({ documentId: deletedId })
                 });
 
                 if (!response.ok) {
@@ -5140,7 +5109,8 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 console.log(`[+] 成功透過 Worker 刪除 Firestore 紀錄: ${deletedId}`);
             } catch (err) {
                 console.error("[-] 從 Firestore 刪除失敗:", err);
-                alert("⚠️ 雲端刪除失敗，但將暫時從本地列表移除（重整後會恢復）。錯誤：" + err.message);
+                alert("⚠️ 雲端刪除失敗，紀錄已保留。請確認登入狀態後重試。");
+                return;
             }
             // 從本地記憶體列表中移除
             roastingDatabase = roastingDatabase.filter(r => r.id !== deletedId);
@@ -5169,14 +5139,14 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
         function openLiveControl(id) {
             const targetId = id || (selectedRecord ? selectedRecord.id : null);
             if (targetId) {
-                window.location.href = `./roast_live.html?id=${targetId}`;
+                window.location.href = `./roast_live.html?id=${encodeURIComponent(targetId)}`;
             }
         }
 
         function openBeanPage(id) {
             const targetId = id || (selectedRecord ? selectedRecord.id : null);
             if (targetId) {
-                window.location.href = `./bean.html?id=${targetId}`;
+                window.location.href = `./bean.html?id=${encodeURIComponent(targetId)}`;
             } else {
                 window.location.href = `./bean.html`;
             }
@@ -5222,6 +5192,9 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 const dtr = String(record.dtrRatio || '').replace('%', '');
                 const lossRatio = String(record.lossRatio || '').replace('%', '');
                 const diagnosis = await AI.generateRORDiagnosis({
+                    variety: record.variety || '',
+                    fcTime: record.fcTime || '',
+                    dropTime: record.dropTime || '',
                     rorPoints,
                     dtr,
                     lossRatio,
@@ -5274,7 +5247,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                     referenceConflicts: flavor.referenceConflicts || [],
                     aiRorDiagnosis: diagnosis,
                     aiAnalyzedAt: new Date().toISOString(),
-                    aiAnalysisVersion: 'web-calibrated-v6',
+                    aiAnalysisVersion: 'evidence-review-v7',
                     rorQualityScore: qualityScore,
                     rorDatapoints: rorPoints,
                     timelineActions

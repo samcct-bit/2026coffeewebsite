@@ -1,0 +1,7 @@
+{
+  "name": "coffee-admin-proxy",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test test/*.test.js" },
+  "dependencies": { "jose": "6.2.12" }
+}

@@ -107,8 +107,9 @@
         }
     </style>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20260902-flavor-note-limit-v1"></script>
+    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
 
+    <script src="./js/safe_dom.js"></script>
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
 
@@ -762,7 +763,7 @@
                         <!-- 首行類別標籤與特選徽章 -->
                         <div class="flex items-center justify-between mb-4">
                             <span class="bg-brass-gold/10 border border-brass-gold/20 text-brass-gold text-[10px] tracking-widest px-2.5 py-1 rounded-full font-serif font-medium">
-                                ${bean.origin} · ${bean.roast}
+                                ${SafeDOM.escapeHTML(bean.origin)} · ${SafeDOM.escapeHTML(bean.roast)}
                             </span>
                             ${bean.featured ? `
                                 <span class="text-refined-gold flex items-center gap-1 text-[10px] tracking-widest font-outfit font-semibold uppercase">
@@ -774,13 +775,13 @@
 
                         <!-- 咖啡品名 -->
                         <div class="mb-4">
-                            <a href="${bean.url}" class="block group/title">
+                            <a href="${SafeDOM.escapeHTML(SafeDOM.safeURL(bean.url, window.location.href) || '#')}" class="block group/title">
                                 <h4 class="text-white font-serif font-bold text-xl md:text-2xl tracking-wider leading-tight hover:text-brass-gold transition-colors duration-300">
-                                    ${bean.name}
+                                    ${SafeDOM.escapeHTML(bean.name)}
                                 </h4>
                             </a>
                             <p class="text-gray-500 font-serif text-[11px] tracking-wider uppercase mt-1">
-                                ${bean.englishName}
+                                ${SafeDOM.escapeHTML(bean.englishName)}
                             </p>
                         </div>
 
@@ -788,15 +789,15 @@
                         <div class="grid grid-cols-3 gap-2 py-3 border-y border-white/5 text-[10px] md:text-xs tracking-widest text-gray-400 font-serif mb-6">
                             <div>
                                 <span class="block text-gray-600 mb-0.5">處理法</span>
-                                <span class="text-white font-medium truncate block">${bean.process}</span>
+                                <span class="text-white font-medium truncate block">${SafeDOM.escapeHTML(bean.process)}</span>
                             </div>
                             <div>
                                 <span class="block text-gray-600 mb-0.5">海拔</span>
-                                <span class="text-white font-medium truncate block">${bean.altitude}</span>
+                                <span class="text-white font-medium truncate block">${SafeDOM.escapeHTML(bean.altitude)}</span>
                             </div>
                             <div>
                                 <span class="block text-gray-600 mb-0.5">品種</span>
-                                <span class="text-white font-medium truncate block">${bean.variety}</span>
+                                <span class="text-white font-medium truncate block">${SafeDOM.escapeHTML(bean.variety)}</span>
                             </div>
                         </div>
 
@@ -804,22 +805,22 @@
                         <div class="space-y-3 font-serif mb-8 flex-grow">
                             <div class="flex items-start gap-3">
                                 <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">初韻</span>
-                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[0]}</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[0])}</span>
                             </div>
                             <div class="flex items-start gap-3">
                                 <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">中調</span>
-                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[1]}</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[1])}</span>
                             </div>
                             <div class="flex items-start gap-3">
                                 <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">尾韻</span>
-                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${bean.flavors[2]}</span>
+                                <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[2])}</span>
                             </div>
                         </div>
 
                         <!-- 卡片底端沖煮連結按鈕 -->
                         <div class="pt-2 border-t border-white/5">
                             <a 
-                                href="${bean.url}" 
+                                href="${SafeDOM.escapeHTML(SafeDOM.safeURL(bean.url, window.location.href) || '#')}"
                                 class="w-full flex items-center justify-center gap-2 bg-charcoal hover:bg-brass-gold text-white hover:text-obsidian py-3 px-4 rounded-xl border border-white/10 hover:border-brass-gold text-xs font-serif tracking-[0.2em] uppercase font-bold transition-all duration-300"
                             >
                                 品飲與沖煮指南
