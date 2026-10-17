@@ -1,4 +1,4 @@
-import { HttpError, readJSON, checkPassword, mintFirebaseToken, verifyFirebaseToken, rateLimit, documentId, aiRequest } from './security.js';
+import { HttpError, readJSON, checkPassword, firebaseSigningKey, mintFirebaseToken, verifyFirebaseToken, rateLimit, documentId, aiRequest } from './security.js';
 
 const ORIGINS = ['https://gansingkim.com', 'https://samcct-bit.github.io', 'https://2026coffeewebsite.vercel.app'];
 
@@ -24,8 +24,10 @@ export function createWorker(resolveKey) {
                 if (path === '/verify-password') {
                     await rateLimit(env.LOGIN_RATE_LIMITER, `coffee-login:${ip}`);
                     const body = await readJSON(request, 2048);
+                    // Fail with a configuration error instead of misreporting an unusable auth service as a wrong password.
+                    const signingKey = await firebaseSigningKey(env);
                     if (!await checkPassword(body.password, env)) throw new HttpError(401, 'Invalid credentials');
-                    return reply({ success: true, firebaseCustomToken: await mintFirebaseToken(env) });
+                    return reply({ success: true, firebaseCustomToken: await mintFirebaseToken(env, signingKey) });
                 }
                 // 所有付費及破壞性操作先驗證 Firebase ID token，不能只相信 Origin。
                 const authorization = request.headers.get('Authorization') || '';

@@ -5,6 +5,8 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const { chromium } = require('C:/Users/samcc/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const root = process.cwd();
+const base = process.argv[2] || 'http://127.0.0.1:5500';
+assert.ok(['http://127.0.0.1:5500', 'https://2026coffeewebsite.vercel.app'].includes(base));
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.json': 'application/json' };
 const server = http.createServer(async (req, res) => {
     try {
@@ -29,7 +31,7 @@ const server = http.createServer(async (req, res) => {
             const errors = [];
             const onError = e => errors.push(e.message);
             page.on('pageerror', onError);
-            await page.goto(`http://127.0.0.1:5500${route}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            await page.goto(`${base}${route}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
             await page.waitForFunction(() => typeof window.GansingKimAI?.authenticatedFetch === 'function');
             const status = await Promise.race([page.evaluate(async () => {
                 const overlay = document.getElementById('password-overlay');

@@ -44,10 +44,27 @@ export async function checkPassword(password, env) {
     return timingSafeEqual(hash, expected);
 }
 
-export async function mintFirebaseToken(env) {
-    if (!env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) throw new HttpError(503, 'Authentication not configured');
+export async function firebaseSigningKey(env) {
+    if (typeof env.FIREBASE_CLIENT_EMAIL !== 'string' || !env.FIREBASE_CLIENT_EMAIL.trim() ||
+        typeof env.FIREBASE_PRIVATE_KEY !== 'string' || !env.FIREBASE_PRIVATE_KEY.trim()) {
+        throw new HttpError(503, 'Authentication not configured');
+    }
+    try {
+        // Dashboard secrets may contain JSON-quoted PEM or escaped CRLF.
+        let pem = env.FIREBASE_PRIVATE_KEY.trim();
+        if (pem.startsWith('"')) pem = JSON.parse(pem);
+        if (typeof pem !== 'string') throw new Error();
+        pem = pem.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim();
+        return await importPKCS8(pem, 'RS256');
+    } catch {
+        console.error('coffee_auth_signing_key_invalid');
+        throw new HttpError(503, 'Authentication signing key is invalid');
+    }
+}
+
+export async function mintFirebaseToken(env, signingKey) {
     const now = Math.floor(Date.now() / 1000);
-    const key = await importPKCS8(env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), 'RS256');
+    const key = signingKey || await firebaseSigningKey(env);
     return new SignJWT({ uid: ADMIN_UID, claims: { coffeeAdmin: true, coffeeSessionExpiresAt: now + SESSION_SECONDS } })
         .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
         .setIssuer(env.FIREBASE_CLIENT_EMAIL).setSubject(env.FIREBASE_CLIENT_EMAIL)

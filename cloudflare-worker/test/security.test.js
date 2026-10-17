@@ -53,6 +53,20 @@ test('login rate limiting and missing configuration fail closed', async () => {
     await assert.rejects(mintFirebaseToken({}), { status: 503 });
     await assert.rejects(rateLimit({ limit: async () => { throw new Error(); } }, 'key'), { status: 503 });
 });
+
+test('PEM configuration accepts supported quoting and rejects invalid keys without disclosure', async () => {
+    for (const privateKey of [JSON.stringify(env.FIREBASE_PRIVATE_KEY), env.FIREBASE_PRIVATE_KEY.replace(/\n/g, '\\r\\n')]) {
+        const { payload } = await jwtVerify(await mintFirebaseToken({ ...env, FIREBASE_PRIVATE_KEY: privateKey }), publicKey);
+        assert.equal(payload.uid, 'coffee-site-admin');
+    }
+    for (const privateKey of ['', 'not-a-private-key']) {
+        const response = await worker.fetch(request('/verify-password', { password: 'wrong' }), { ...env, FIREBASE_PRIVATE_KEY: privateKey });
+        assert.equal(response.status, 503);
+        const data = await response.json();
+        assert.ok(['Authentication not configured', 'Authentication signing key is invalid'].includes(data.error));
+        assert.equal(JSON.stringify(data).includes('not-a-private-key'), false);
+    }
+});
 test('anonymous and non-admin calls cannot reach paid AI or deletion', async () => {
     for (const path of ['/', '/delete-record']) {
         assert.equal((await worker.fetch(request(path, {}), env)).status, 401);

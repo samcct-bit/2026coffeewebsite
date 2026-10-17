@@ -2,7 +2,7 @@
 
 ## 狀態
 
-安全修正已通過本機測試，Worker 待發布版本已上傳，尚未切換正式流量或發布正式規則。正式規則仍有未登入可新增／修改 coffee_roasts 的風險；不能將本機測試通過視為正式站已受到保護。
+2026-10-17 台灣時間 22:19 已完成第一階段正式上線與權限驗證。網站原始碼提交 `58e00b3`，Vercel 部署 `dpl_9oCifoFV8EUgeFpPtiQ8qRBTu8bg`；後續登入設定修復及 Worker 變更另記於下方。Firestore 規則已正式發布，匿名寫入漏洞已關閉；正式管理員新增、修改、刪除與公開讀取均實測通過。
 
 使用者已確認 Firebase 專案為 `my-teaching-tools-01`。同專案的 summer_homework_2026 權限已保留，不更動教學資料。
 
@@ -20,15 +20,26 @@
 
 ## 已檢查與尚待檢查
 
-- 本機 Node 測試：AI 證據與安全 DOM 14 項、Worker 身分驗證與介面 8 項。
+- 本機 Node 測試：AI 證據與安全 DOM 14 項、Worker 身分驗證與介面 9 項；加上離線規則 8 組，共 31 項。
 - Wrangler dry-run 建置成功，未上傳。
 - 只查詢正式 Worker Secret 名稱：必要名稱已存在，未讀取或證明內容有效。
 - 發現一個 Secret 名稱疑似 API 金鑰，未複製到文件。應在供應商端撤銷／換發，更新正確 Secret，確認運作後再移除錯誤命名項目。
 - 已使用官方 Temurin Java 21 可攜環境及 Firestore Emulator，在 `demo-coffee-security` 離線專案通過 8 組權限整合測試：公開讀取、匿名拒寫、一般帳號拒寫、角色／UID／期限檢查、合法管理員完整生命週期、資料欄位驗證、其他集合拒絕、教學集合權限保留。官方 Rules API 語法驗證亦通過。
 - 四個頁面（首頁、資料庫、即時烘焙、莫札特批次頁）以獨立無登入 Edge 測試通過，Firebase 模組可載入，後台保持登入鎖定，沒有 pageerror。測試等待 DOM／模組就緒，不等待 Firestore 長連線停止。
-- Worker 待發布版本 `148292c4-603c-41ce-bd62-ac53c81e9af6`，預覽 URL `https://148292c4-gsk-groq-proxy.gansingkim.workers.dev`。實際預覽回應：匿名 AI 401、匿名刪除 401、空密碼 400、正式網域 CORS preflight 204。正式版本仍未切換。
+- Worker 版本 `148292c4-603c-41ce-bd62-ac53c81e9af6`，預覽 URL `https://148292c4-gsk-groq-proxy.gansingkim.workers.dev`。實際預覽回應：匿名 AI 401、匿名刪除 401、空密碼 400、正式網域 CORS preflight 204；此版本已切換 100% 正式流量，正式匿名 AI 亦確認回覆 401。
+- Vercel 部署 `https://2026coffeewebsite-1r05p2mqs-sam-vegan.vercel.app` 已使用官方 CLI 通過 6 個主要檔案雜湊核對、安全標頭檢查與 5 個私密路徑 404 檢查，再升級到正式網域。正式首頁回覆 200，已載入 security-v8；登入模組 200，環境檔與刪除管理腳本 404。
 - Vercel 連接器對 sam-vegan scope 回覆 403，已改用 CLI；使用者完成 device login，已核對並連結 `sam-vegan/2026coffeewebsite`，ID 為 `prj_QoNw9s6DUiJt4wsfq795a9af2scG`。CLI 自動產生的 `.env.local` 已由忽略規則排除，不可提交或部署。
-- 尚未完成真實 Firebase custom-token 交換與瀏覽器登入、過期、儲存、刪除端到端驗證。
+- 使用既有服務帳戶產生與網站相同的 custom token，完成真實 Firebase ID-token 交換與正式 Worker 簽章／管理員角色驗證。Token 僅保留在測試程序記憶體，程序已退出。這項後端驗證不等同於使用者已完成瀏覽器密碼登入；仍請使用者以剛設定的新密碼登入確認。
+
+## 2026-10-17 密碼重設與正式驗證結果
+
+- 使用者明確同意重設後，已於本機遮罩視窗自行設定新密碼，成功更新 PASSWORD_HASH。第一次顯示失敗實際發生在後續登入簽章，並非密碼寫入失敗；明文密碼未寫入檔案或對話。
+- 根因：既有 FIREBASE_PRIVATE_KEY 無法載入。已加入常見 PEM 引號／換行格式相容與不含機密的錯誤訊息，通過新增測試後發布。
+- 從既有本機專案憑證確認 project_id 為 my-teaching-tools-01，並比對 Google 公開憑證，確認私鑰可解析且對應有效公開金鑰，才修復三個 Firebase Worker 設定。沒有建立新服務帳戶或新金鑰，也未再次變更 PASSWORD_HASH。
+- 修復後正式 Worker 版本為 `ba051181-409f-408c-a5d6-1f2c45781460`（100% 流量）；程式修正版本為 `2dd66030-1ce8-413d-b316-1fbe2386d19a`，之後僅更新 Firebase Secrets。
+- 初次部署工具回報成功後，重新讀取規則仍是舊版；已用官方 CLI 明確發布 `firestore:rules`，看到 released 訊息後再讀回確認新規則，才執行正式測試。教學集合權限保留。
+- 正式專用測試文件驗證：匿名新增 403、管理員新增 200、公開讀取 200、匿名修改 403、匿名刪除 403、管理員修改 200、Worker 管理員刪除 200、刪除後讀取 404。
+- 測試文件已刪除，未修改既有烘焙紀錄；不需要恢復。
 
 ## 上線順序與放行條件
 
