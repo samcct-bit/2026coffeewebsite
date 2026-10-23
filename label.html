@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>金成淬｜正式標籤工具 · 80 × 50 mm</title>
+<link rel="stylesheet" href="./css/label.css">
+<script src="./js/vendor/qrcode-1.4.4.js" defer></script>
+<script type="module" src="./js/label_tool.js"></script>
+</head>
+<body class="print-blocked">
+<div id="password-overlay" role="dialog" aria-modal="true" aria-labelledby="login-title">
+ <form id="login-form"><h1 id="login-title">標籤工具管理員登入</h1><p>使用咖啡網站原有的管理密碼；不會更改豆款資料。</p>
+ <label for="password-input">管理密碼</label><input id="password-input" type="password" autocomplete="current-password" required>
+ <button type="submit">登入</button><p id="login-status" role="status">正在載入登入模組；若長時間沒有反應，請檢查網路。</p></form>
+</div>
+<main id="tool" inert>
+ <header class="toolbar"><div><p class="eyebrow">GAN-SÎNG-KIM · LABEL STUDIO</p><h1>把空間留給豆款與風味</h1><p>80 × 50 mm 白底標籤 · QR 獨立側欄</p></div><a href="./roast_db.html">返回烘焙後台</a></header>
+ <div class="workspace">
+ <section class="controls" aria-label="標籤設定">
+ <h2>01 選擇公開批次</h2>
+ <label for="batch-search">搜尋豆名或批次 ID</label><input id="batch-search" type="search" placeholder="輸入豆名或批次">
+ <label for="batch-select">已發布批次（不讀取草稿）</label><select id="batch-select"><option value="">請先登入</option></select>
+ <button id="reload" type="button">重新載入公開資料</button><p id="source-status" role="status"></p>
+ <h2>02 標籤文字</h2><p class="hint">以下調整只影響本張標籤，不會寫回首頁或草稿。資料不符時請先回後台發布修訂。</p>
+ <div id="fields"></div><button id="reset" type="button">恢復此批公開文字</button>
+ <label for="dpi">標籤機解析度</label><select id="dpi"><option value="203">203 dpi</option><option value="300">300 dpi</option></select>
+ <label for="quantity">列印張數（每頁一張）</label><input id="quantity" type="number" min="1" max="50" value="1" step="1">
+ <h2>03 確認與列印</h2>
+ <label class="check"><input id="reviewed" type="checkbox">我已核對批次、標籤文字與風味依據</label>
+ <label class="check"><input id="calibrated" type="checkbox">我會選 80 × 50 mm、100% 實際大小、零邊界並關閉頁首頁尾</label>
+ <div class="actions"><button id="print" type="button" disabled>列印標籤</button><button id="download" type="button" disabled>下載本次標籤快照</button></div>
+ <p id="validation" role="status"></p>
+ </section>
+ <section class="preview-panel" aria-label="列印預覽">
+ <div class="preview-heading"><h2>實際比例預覽</h2><span>80 × 50 mm</span></div>
+ <div class="preview-scroll"><div id="preview"></div></div>
+ <p class="hint">畫面大小受螢幕縮放影響；印前會重新核對公開版本。QR 開啟此批次目前的豆款頁，並非固定歷史版本。</p>
+ <p id="qr-status" class="hint"></p>
+ <p class="hint">QR 保留四個模組淨空，依解析度使用整數點陣；仍須實機試印與掃碼。列印無法回報紙張是否成功輸出。這張正面識別標籤不等於完整商品標示。</p>
+ <a id="public-link" hidden target="_blank" rel="noopener noreferrer">開啟此批豆款頁</a>
+ <div id="edit-warning" class="warning" hidden>標籤文字與網站不同，請確認修訂未改變原有風味證據。修改清單會記在下載快照中。</div>
+ </section>
+ </div>
+</main>
+<div id="print-root" aria-hidden="true"></div>
+<p id="print-block-message">請登入管理員，完成檢查後使用工具內的「列印標籤」。</p>
+</body>
+</html>

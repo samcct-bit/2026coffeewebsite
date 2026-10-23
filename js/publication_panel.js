@@ -125,6 +125,9 @@ export function renderPublicationPanel(container, record, { store, changed, edit
         const link = element('a', '檢視公開版', 'px-3 py-2 text-sm underline text-gray-200');
         link.href = './bean.html?id=' + encodeURIComponent(record.id);
         link.target = '_blank'; link.rel = 'noopener noreferrer'; actions.append(link);
+        const labelLink = element('a', '製作此批標籤', 'px-3 py-2 text-sm underline text-gray-200');
+        labelLink.href = './label.html?id=' + encodeURIComponent(record.id);
+        labelLink.target = '_blank'; labelLink.rel = 'noopener noreferrer'; actions.append(labelLink);
     }
     container.append(actions);
 }
