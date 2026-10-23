@@ -65,7 +65,7 @@ const BRAND_SYSTEM_PROMPT = `你是「金成淬」精品咖啡品牌的首席品
 // ──────────────────────────────────────────────
 const CACHE_PREFIX = '_gskai_cache_';
 const CACHE_TTL_MS = 72 * 60 * 60 * 1000; // 72 小時 TTL（改用 localStorage 跨分頁保留）
-const CACHE_KEY_VERSION = 'evidence-review-v7';
+const CACHE_KEY_VERSION = 'publication-draft-v9';
 const RESEARCH_CACHE_PREFIX = '_gskai_green_research_';
 const RESEARCH_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const RESEARCH_SCHEMA_VERSION = 'green-reference-v1';
@@ -860,7 +860,7 @@ ${recentFlavorExamples.length ? `${hasVerifiedReference ? '近期其他批次描
             referenceConflicts: greenBeanResearch.conflicts
         };
         const groundedResult = _groundFlavorResult(result, fallback, greenBeanResearch);
-        const constrainedResult = _fitFlavorNotes(groundedResult);
+        const constrainedResult = { ..._fitFlavorNotes(groundedResult), generationStatus: 'ai' };
         // ── 寫入快取 ──
         _writeCache(cacheKey, constrainedResult);
         console.log(`[AI Cache WRITE] ${name} · ${origin}`);
@@ -869,7 +869,8 @@ ${recentFlavorExamples.length ? `${hasVerifiedReference ? '近期其他批次描
 
     } catch (err) {
         console.error("[AI Engine] Groq API 呼叫失敗:", err);
-        return _fitFlavorNotes(_buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch }));
+        return { ..._fitFlavorNotes(_buildFlavorFallback({ ...beanData, name, origin, process, roastLevel, roastDate, rorPoints: normalizedRorPoints, greenBeanResearch })),
+            generationStatus: 'fallback', generationWarning: 'AI 服務未完成，內容為離線參考草稿，請人工核對後再決定是否發布。' };
     }
 }
 

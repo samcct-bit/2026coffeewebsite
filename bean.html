@@ -31,6 +31,7 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
 .attr-row:last-child{border-bottom:none}
 .hover-glow:hover{box-shadow:0 0 20px rgba(196,154,108,.15),0 8px 30px rgba(0,0,0,.4);border-color:rgba(196,154,108,.25)!important}
     </style>
+    <script src="./js/safe_dom.js"></script>
 </head>
 <body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
 
@@ -56,7 +57,8 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 pb-24 flex-grow w-full">
+    <p id="publication-empty" role="status" class="hidden text-center text-gray-300 px-4 py-12">此豆款尚未發布或找不到，請返回首頁查看已發布豆單。</p>
+    <main id="bean-detail" class="max-w-6xl mx-auto px-4 sm:px-6 pb-24 flex-grow w-full hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
             <section class="fade-in is-visible lg:sticky lg:top-8">
@@ -95,18 +97,19 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
                                     </svg>
                                     <div class="absolute inset-0 flex flex-col items-center justify-center">
                                         <span class="text-xl font-serif font-bold text-brass-gold leading-none" id="score-value">-</span>
-                                        <span class="text-[8px] text-gray-500 font-outfit tracking-widest uppercase mt-1">SCA</span>
+                                        <span id="score-label" class="text-[8px] text-gray-500 font-outfit tracking-widest uppercase mt-1">SCA</span>
                                     </div>
                                 </div>
                                 <div>
                                     <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit mb-1">Cupping Score · 杯測分數</p>
-                                    <p class="text-sm text-gray-400 font-serif leading-relaxed">由 SCA 國際杯測標準評分，反映此批次烘焙的綜合品質表現。</p>
+                                    <p id="score-description" class="text-sm text-gray-400 font-serif leading-relaxed">由 SCA 國際杯測標準評分，反映此批次烘焙的綜合品質表現。</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-4 pt-1" style="border-top:1px solid rgba(196,154,108,.15)">
                             <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit">Flavor Profile · 風味輪廓</p>
+                            <p id="sensory-basis" class="hidden text-xs text-brass-gold"></p>
                             <div class="space-y-4">
                                 <div>
                                     <div class="flex items-center justify-between">
@@ -214,7 +217,7 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, getDoc, getDocs, doc, collection, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { getFirestore, getDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
         import { classicBeansDatabase } from './js/classic_beans.js';
         
         const firebaseConfig = {apiKey:"AIza"+"SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",authDomain:"my-teaching-tools-01.firebaseapp.com",projectId:"my-teaching-tools-01",storageBucket:"my-teaching-tools-01.firebasestorage.app",messagingSenderId:"552535919921",appId:"1:552535919921:web:95b4c1288edbae9572b410"};
@@ -224,29 +227,36 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
             ...classicBeansDatabase,
             {id:"roast_chopin_0629",beanName:"哥斯大黎加 音樂家系列 蕭邦",origin:"哥斯大黎加 塔拉珠",machine:"盧貝斯1kg全熱風",roastDate:"2026-06-29",roastLevel:"中淺焙",lossRatio:"11.6%",dtrRatio:"4.2%",flavorTop:"狂野玫瑰、香瓜幽香",flavorMid:"熟甜香瓜、紅酒交響",flavorBase:"絲滑奶油、楓糖甘甜",storyCopy:"來自哥斯大黎加塔拉珠高海拔雲霧產區，這款古典音樂家系列的「蕭邦」，採用極致精細的雙重厭氧蜜處理法。",brewTemp:"89°C - 91°C",brewMethod:"中偏粗研磨 / V60 濾杯 / 四六法",brewGuideNote:"建議以 89°C 溫和萃取，前段發揮玫瑰與香瓜香氣，中段帶出奶油與楓糖甘醇。"}
         ];
-        function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+        function escHtml(s){return SafeDOM.escapeHTML(s)}
         document.addEventListener("DOMContentLoaded",async()=>{
             const urlParams=new URLSearchParams(window.location.search);
             const beanId=urlParams.get('id');
             let record=null;
             if(beanId){
                 try{const ds=await getDoc(doc(db,"coffee_roasts",beanId));if(ds.exists()){record={...ds.data(),id:ds.id}}}catch(e){console.warn(e)}
-                if(!record||beanId==='roast_003'||beanId==='mozart'){
-                    try{const qs=await getDocs(query(collection(db,"coffee_roasts"),orderBy("roastDate","desc")));qs.forEach(d=>{if(record)return;const n=d.data().beanName||'';if((beanId.includes('003')||beanId.includes('mozart'))&&(n.includes('莫札特')||n.includes('Mozart')))record={...d.data(),id:d.id};})}catch(e){console.warn(e)}
-                }
-                if(!record)record=fallbackDatabase.find(r=>r.id===beanId);
+                if(!record)record=fallbackDatabase.find(r=>r.id===(beanId==='roast_003'?'mozart':beanId));
             }
-            if(!record)record=fallbackDatabase[0];
+            if(!record){
+                document.title='豆款尚未發布或找不到 · 金成淬';
+                document.getElementById('header-bean-title').textContent='豆款尚未發布或找不到';
+                document.getElementById('header-bean-subtitle').textContent='請返回首頁查看已發布豆單';
+                document.getElementById('publication-empty').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('bean-detail').classList.remove('hidden');
             renderBeanDetail(record);
             const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');e.target.querySelectorAll('.flavor-bar-fill').forEach(b=>setTimeout(()=>b.classList.add('animate'),200))}}),{threshold:.1});
             document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
             setTimeout(()=>document.querySelectorAll('.flavor-bar-fill').forEach(b=>b.classList.add('animate')),400);
         });
         function renderBeanDetail(rec){
+            rec = {...rec};
+            const managed = Number.isInteger(rec.publicationRevision) && rec.publicationRevision >= 1;
             const bName=rec.beanName||'';
             document.title=`${bName} · 金成淬精品咖啡 | 職人烘焙履歷`;
             const md=document.querySelector('meta[name="description"]');
             if(md&&rec.flavorTop)md.content=`${bName}｜${rec.flavorTop}、${rec.flavorMid}、${rec.flavorBase}。金成淬精品咖啡。`;
+            if (!managed) {
             if(rec.roastDate==="2026-07-22"||rec.machine==="Tank-200")rec.machine="盧貝斯1kg全熱風";
             const hasFreshAI=Boolean(rec.aiAnalyzedAt||rec.aiAnalysisVersion);
             const isGenericStory=!rec.storyCopy||(!hasFreshAI&&rec.storyCopy.includes("微批次精品豆"));
@@ -255,6 +265,20 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
             else if(bName.includes("莫札特")||bName.includes("Mozart")){rec.machine=rec.machine||"盧貝斯1kg全熱風";rec.process=rec.process||"葡萄乾蜜處理";rec.altitude=rec.altitude||"1950m";rec.variety=rec.variety||"卡杜拉 (Caturra)";if(isGenericFlavor){rec.flavorTop="清雅白玫瑰、青蘋果清香";rec.flavorMid="柑橘汁感、蜂蜜層次甜韻";rec.flavorBase="榛果回甘、薄荷葉晨露清涼";}if(isGenericStory){rec.storyCopy="在哥斯大黎加 1950 公尺的雲霧縈繞中，卡杜拉品種的果實緩慢熟透。葡萄乾蜜處理讓果肉的甜感深深滲入生豆，成就了這款莫札特獨特而細膩的靈魂。\n我們以精準的淺焙工藝，賦予這支豆子最明亮的展現。尾韻則是迷人的榛果回甘與薄荷葉般的晨露清涼。";}rec.brewTemp=rec.brewTemp||"88°C - 91°C";rec.brewMethod=rec.brewMethod||"中偏粗研磨 / V60 濾杯";rec.brewGuideNote=rec.brewGuideNote||"建議以此溫段萃取，能完美釋放白玫瑰花香與青蘋果的清脆酸質，3 分鐘內完成萃取保留細膩尾韻。";}
             else if(bName.includes("瑪格麗特")||bName.includes("草莓")){rec.process=rec.process||"草莓厭氧蜜處理";rec.altitude=rec.altitude||"1750m";rec.variety=rec.variety||"Castillo / Pink Bourbon";if(isGenericFlavor){rec.flavorTop="百合幽香、鮮摘草莓與草莓軟糖";rec.flavorMid="濃郁草莓水蜜桃汁、蜜糖交響";rec.flavorBase="紅糖甜感、細緻可可尾韻悠長";}}
             else{rec.process=rec.process||"精選微批次處理";rec.altitude=rec.altitude||"1700m - 2000m";rec.variety=rec.variety||"阿拉比卡原生種";}
+            }
+            if (managed) {
+                // 發布快照是內容依據，不以豆名或通用文案補寫。
+                for (const key of ['flavorTop','flavorMid','flavorBase','storyCopy','brewTemp','brewMethod','brewGuideNote']) {
+                    if (typeof rec[key] !== 'string' || !rec[key].trim()) rec[key] = '未提供';
+                }
+                document.getElementById('story-quote').textContent = '';
+                document.getElementById('score-label').textContent = '杯測';
+                document.getElementById('score-description').textContent = '本批次提供的杯測分數。';
+                const basis = {reference: '風味參考・待杯測', cupped: '本批杯測確認'}[rec.publicationReview?.sensoryBasis];
+                const badge = document.getElementById('sensory-basis');
+                badge.textContent = basis || '';
+                badge.classList.toggle('hidden', !basis);
+            }
             document.title=`${rec.beanName} | 金成淬職人精選`;
             document.getElementById("breadcrumb-name").textContent=rec.beanName;
             document.getElementById("header-bean-title").innerText=rec.beanName;
@@ -286,11 +310,11 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
             if(rec.dashboardUrl) {
                 btnRor.classList.add("hidden");
                 btnDash.classList.remove("hidden");
-                btnDash.href = rec.dashboardUrl;
+                btnDash.href = SafeDOM.safeURL(rec.dashboardUrl, window.location.href) || '#';
             } else {
                 btnRor.classList.remove("hidden");
                 btnDash.classList.add("hidden");
-                btnRor.href = `./roast_db.html?id=${rec.id}`;
+                btnRor.href = `./roast_db.html?id=${encodeURIComponent(rec.id)}`;
             }
 
         }

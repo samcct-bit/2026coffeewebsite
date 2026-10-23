@@ -107,7 +107,7 @@
         }
     </style>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
+    <script src="./js/ai_engine.js?v=20261017-publication-v9"></script>
 
     <script src="./js/safe_dom.js"></script>
 </head>
@@ -394,7 +394,7 @@
     <!-- 6. 核心 JS 控制庫與 Cloud Firestore 雲端同步 -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
@@ -678,6 +678,27 @@
                 .toLowerCase();
         }
 
+        function isManagedPublication(data) {
+            return Number.isInteger(data.publicationRevision) && data.publicationRevision >= 1;
+        }
+
+        function comparePublicBatches(a, b) {
+            const am = isManagedPublication(a.data), bm = isManagedPublication(b.data);
+            if (am !== bm) return am ? -1 : 1;
+            if (am) {
+                // Firestore Timestamp 的奈秒也參與排序；不以 AI 評分打破發布時間順序。
+                const at = a.data.publishedAt, bt = b.data.publishedAt;
+                return (bt?.seconds || 0) - (at?.seconds || 0)
+                    || (bt?.nanoseconds || 0) - (at?.nanoseconds || 0)
+                    || b.id.localeCompare(a.id);
+            }
+            return b.rorQualityScore - a.rorQualityScore
+                || Number(b.isOptimized) - Number(a.isOptimized)
+                || b.cuppingScore - a.cuppingScore
+                || b.roastDate.localeCompare(a.roastDate)
+                || b.id.localeCompare(a.id);
+        }
+
         // 腳本啟動時立即對基礎資料庫進行豆名去重，防止首頁加載時數字閃爍
         const initSeen = new Set();
         coffeeDatabase = coffeeDatabase.filter(b => {
@@ -802,6 +823,7 @@
                         </div>
 
                         <!-- 風味三段演繹 (視覺時間軸) -->
+                        ${bean.sensoryBasis ? `<p class="text-brass-gold text-xs mb-3">${SafeDOM.escapeHTML(bean.sensoryBasis)}</p>` : ''}
                         <div class="space-y-3 font-serif mb-8 flex-grow">
                             <div class="flex items-start gap-3">
                                 <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">初韻</span>
@@ -944,7 +966,8 @@
 
             // 從 Cloud Firestore 動態抓取最新烘焙紀錄並合併顯示
             try {
-                const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
+                // 發布時間是新快照的排序依據，也納入未填烘焙日的發布紀錄。
+                const q = collection(db, "coffee_roasts");
                 const querySnapshot = await getDocs(q);
                 // 按「產區 + 處理法 + 豆名」進行分組，篩選出最新且同日最佳 ROR 曲線之代表批次
                 const groupedMap = new Map();
@@ -1008,29 +1031,24 @@
                 });
 
                 const cloudRecords = [];
-                groupedMap.forEach((batchList) => {
-                    // 同一豆款多批次排序：1. ROR 品質分數；2. 優化標記；3. 杯測分數；4. 日期。
-                    batchList.sort((a, b) => {
-                        if (a.rorQualityScore !== b.rorQualityScore) {
-                            return b.rorQualityScore - a.rorQualityScore;
-                        }
-                        if (a.isOptimized !== b.isOptimized) {
-                            return a.isOptimized ? -1 : 1;
-                        }
-                        if (a.cuppingScore !== b.cuppingScore) {
-                            return b.cuppingScore - a.cuppingScore;
-                        }
-                        if (a.roastDate !== b.roastDate) {
-                            return b.roastDate.localeCompare(a.roastDate);
-                        }
-                        // 所有條件相同時，比較 id，保留最新建立的批次。
-                        return b.id.localeCompare(a.id);
-                    });
+                // 同名新發布快照可取代產區／處理法寫法不同的舊批次。
+                const managedNames = new Set([...groupedMap.values()].flat()
+                    .filter(r => isManagedPublication(r.data)).map(r => normalizeHomepageBeanName(r.cleanNameKey)));
+                const publicationGroups = new Map();
+                groupedMap.forEach((list, key) => {
+                    const name = normalizeHomepageBeanName(list[0].cleanNameKey);
+                    const mergedKey = managedNames.has(name) ? `published:${name}` : key;
+                    publicationGroups.set(mergedKey, [...(publicationGroups.get(mergedKey) || []), ...list]);
+                });
+                publicationGroups.forEach((batchList) => {
+                    // 新發布優先並依發布時間排序；舊版維持 ROR 等既有排序。
+                    batchList.sort(comparePublicBatches);
 
                     const best = batchList[0];
                     const data = best.data;
                     const bName = best.bName;
                     const recId = best.id;
+                    const managed = isManagedPublication(data);
 
                     // 自動補充物理屬性 (處理法/海拔/品種)
                     let process = data.process;
@@ -1046,7 +1064,14 @@
                     const isGenericTop = !top || (!hasFreshAI && (top.includes("高雅花香") || top.includes("初摘")));
                     const isGenericProcess = !process || process.includes("微批次") || process.includes("精選");
 
-                    if (bName.includes("蕭邦") || bName.includes("Chopin")) {
+                    if (managed) {
+                        process = process || '未提供';
+                        altitude = altitude || '未提供';
+                        variety = variety || '未提供';
+                        top = top?.trim() ? top : '未提供';
+                        mid = mid?.trim() ? mid : '未提供';
+                        base = base?.trim() ? base : '未提供';
+                    } else if (bName.includes("蕭邦") || bName.includes("Chopin")) {
                         process = process || "雙重厭氧蜜處理";
                         altitude = altitude || "1850m";
                         variety = variety || "卡杜拉 / 卡杜艾";
@@ -1102,6 +1127,8 @@
 
                     cloudRecords.push({
                         id: recId,
+                        managed,
+                        sensoryBasis: managed ? ({reference: '風味參考・待杯測', cupped: '本批杯測確認'}[data.publicationReview?.sensoryBasis] || '') : '',
                         name: best.cleanNameKey,
                         englishName: `${data.origin || '精選產區'} · ${data.machine || '職人烘焙'}`,
                         roast: data.roastLevel || "淺焙",
@@ -1112,7 +1139,7 @@
                         roastDate: data.roastDate || "",
                         rorQualityScore: best.rorQualityScore,
                         flavors: [top, mid, base],
-                        url: `./bean.html?id=${recId}`,
+                        url: `./bean.html?id=${encodeURIComponent(recId)}`,
                         featured: true
                     });
                 });
@@ -1125,6 +1152,11 @@
                             return cleanLocalKey.includes(cleanCloudKey) || cleanCloudKey.includes(cleanLocalKey) || (localBean.id === cloudBean.id);
                         });
                         if (target) {
+                            if (target.managed && !cloudBean.managed) return;
+                            if (cloudBean.managed) {
+                                Object.assign(target, cloudBean);
+                                return;
+                            }
                             target.url = cloudBean.url;
                             if (cloudBean.roastDate) target.roastDate = cloudBean.roastDate;
                             if (cloudBean.process && !cloudBean.process.includes("微批次")) target.process = cloudBean.process;

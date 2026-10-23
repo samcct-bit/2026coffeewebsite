@@ -110,7 +110,7 @@
         </div>
     </div>
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
+    <script src="./js/ai_engine.js?v=20261017-publication-v9"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -135,7 +135,10 @@
                 if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
-        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess(setupAutoAITrigger));
+        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess(() => {
+            setupAutoAITrigger();
+            window.loadPrivateRoastAfterLogin?.();
+        }));
 
         // ══════════════════════════════════════════════
         // 方案 B：自動觸發 AI 風味生成（Debounce 4 秒，避免輸入未完成就付費搜尋）
@@ -172,6 +175,8 @@
 
             // 精準搜尋至少需要豆名、產區與處理法。
             if (!beanVal || !originVal || !processVal) return;
+            // 人工或既有批次風味不得被自動觸發的 AI 覆蓋。
+            if (['form-flavor-top', 'form-flavor-mid', 'form-flavor-base'].some(id => document.getElementById(id)?.value.trim())) return;
 
             // 顯示「AI 即將自動生成」提示
             showAutoAIHint(true);
@@ -458,7 +463,7 @@
                             id="submit-btn"
                             class="w-full bg-[#8d6e4f] hover:bg-[#c49a6c] text-white font-serif font-bold text-sm tracking-widest py-4 px-6 rounded-xl uppercase transition-colors shadow-md"
                         >
-                            💾 儲存並同步至雲端資料庫
+                            💾 儲存草稿（審核後發布）
                         </button>
                     </div>
 
@@ -503,23 +508,15 @@
 
     <!-- Firebase SDK & 核心邏輯 -->
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, setDoc, getDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { publicationStore } from './js/publication_store.js';
 
-        const firebaseConfig = {
-            apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
-            authDomain: "my-teaching-tools-01.firebaseapp.com",
-            projectId: "my-teaching-tools-01",
-            storageBucket: "my-teaching-tools-01.firebasestorage.app",
-            messagingSenderId: "552535919921",
-            appId: "1:552535919921:web:95b4c1288edbae9572b410"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Firebase 與管理員驗證統一由 publication_store 共用設定初始化。
 
         let rorChartInstance = null;
         let editingRecordId = null;
+        let editingWorkspace = null;
+        let loadedPrivateRecord = null;
+        let pendingAIResult = null;
         let latestFlavorResearch = null;
 
         // 安全設定 Select 下拉選單的值
@@ -666,11 +663,11 @@
         // 載入指定烘焙紀錄進實況台供編輯
         async function loadRecordForEdit(editId) {
             try {
-                const docRef = doc(db, "coffee_roasts", editId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
+                try { await (await import('./js/admin_auth.js')).getAdminToken(); } catch { return; }
+                const data = await publicationStore.read(editId);
+                if (data) {
+                    editingWorkspace = { ...data._workspace };
+                    loadedPrivateRecord = data;
                     
                     const titleEl = document.querySelector("#form-container h3");
                     if (titleEl) {
@@ -678,7 +675,7 @@
                     }
                     const submitBtn = document.getElementById("submit-btn");
                     if (submitBtn) {
-                        submitBtn.innerText = "💾 儲存修改至雲端資料庫";
+                        submitBtn.innerText = "💾 儲存修改為草稿";
                     }
 
                     document.getElementById("form-bean").value = data.beanName || "";
@@ -1158,6 +1155,7 @@
             }
 
             const newRecord = {
+                ...loadedPrivateRecord,
                 id: saveId,
                 beanName: beanName,
                 origin: origin,
@@ -1196,10 +1194,14 @@
             };
 
             try {
-                // 直接儲存至 Firestore
-                await setDoc(doc(db, "coffee_roasts", saveId), newRecord);
-                alert("🟢 烘焙紀錄成功更新至雲端！將為您跳轉回烘焙日誌資料庫。");
-                window.location.href = "./roast_db.html";
+                if (editingRecordId && !editingWorkspace) throw new Error('尚未成功載入原紀錄，請重新登入並載入後再儲存');
+                if (pendingAIResult) {
+                    newRecord.aiGenerationStatus = pendingAIResult.generationStatus || 'unknown';
+                    newRecord.aiGenerationWarning = pendingAIResult.generationWarning || '';
+                }
+                await publicationStore.save(saveId, newRecord, editingWorkspace || publicationStore.newContext(), pendingAIResult ? 'ai' : 'roast');
+                alert("草稿已儲存，公開內容未變更。接下來請比對並審核發布。");
+                window.location.href = "./roast_db.html?id=" + encodeURIComponent(saveId);
             } catch (err) {
                 console.error("[-] 寫入雲端資料庫失敗:", err);
                 alert("🔴 雲端寫入失敗！請檢查網路連線或稍後再試。" + err.message);
@@ -1264,11 +1266,14 @@
 
         async function autoGenerateGemSensory() {
             const btn = document.getElementById('ai-flavor-btn');
+            if (btn?.disabled) return;
             const AI = window.GansingKimAI;
             if (!AI) {
                 alert('AI 引擎載入中，請稍後再試。');
                 return;
             }
+            if (['form-flavor-top', 'form-flavor-mid', 'form-flavor-base'].some(id => document.getElementById(id)?.value.trim())
+                && !confirm('這會取代表單中的風味草稿，公開內容不變。確定產生新的 AI 草稿？')) return;
 
             // 先同步最新批次計算值，再把完整 ROR 曲線交給 AI。
             autoCalculate();
@@ -1305,17 +1310,25 @@
 
             // 顯示 Loading 狀態
             AI.showAILoading(btn, '🔎 校正生豆來源並分析烘焙...');
+            const snapshotFields = () => JSON.stringify(Array.from(document.querySelectorAll('#add-roast-form input, #add-roast-form select, #add-roast-form textarea')).map(input => [input.id, input.value]));
+            const before = snapshotFields();
 
             // 呼叫 Groq API
             const result = await AI.generateCoffeeFlavorAI(beanData);
+            if (before !== snapshotFields()) {
+                AI.hideAILoading(btn);
+                alert('生成期間表單已變更，本次結果未套用，以保留你的修改。');
+                return;
+            }
+            pendingAIResult = result;
             latestFlavorResearch = result.greenBeanResearch || null;
             renderFlavorResearchStatus(latestFlavorResearch);
 
             // 打字機效果依序填入欄位
-            await AI.typewriterFill('form-flavor-top', result.topNote, 20);
-            await AI.typewriterFill('form-flavor-mid', result.midNote, 20);
-            await AI.typewriterFill('form-flavor-base', result.baseNote, 20);
-            await AI.typewriterFill('form-story-copy', result.storyCopy, 12);
+            document.getElementById('form-flavor-top').value = result.topNote;
+            document.getElementById('form-flavor-mid').value = result.midNote;
+            document.getElementById('form-flavor-base').value = result.baseNote;
+            document.getElementById('form-story-copy').value = result.storyCopy;
 
             // 更新沖煮建議
             if (result.brewTip) {
@@ -1547,6 +1560,9 @@
 
         // 綁定全域函式至 window 以利 HTML 事件觸電
         window.renderMachineSOP = renderMachineSOP;
+        window.loadPrivateRoastAfterLogin = () => {
+            if (editingRecordId && !loadedPrivateRecord) loadRecordForEdit(editingRecordId);
+        };
         window.loadMozartTemplate = loadMozartTemplate;
         window.clearGrid = clearGrid;
         window.addGridRow = addGridRow;

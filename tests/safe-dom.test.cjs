@@ -95,7 +95,8 @@ test('six record actions pass hostile IDs literally via dataset and stop bubblin
 test('timeline escapes every imported action field', () => {
     const act = Object.fromEntries(['time', 'temp', 'burner', 'damper', 'note'].map(key => [key, attack]));
     const harness = run('roast_db.html', 'showRecordDetail', '        // 5.', {
-        roastingDatabase: [{ id: 'test', timelineActions: [act] }], selectedRecord: null, renderRecordsList() {}, drawRORChart() {}
+        roastingDatabase: [{ id: 'test', timelineActions: [act] }], selectedRecord: null, renderRecordsList() {}, drawRORChart() {},
+        renderPublicationPanel() {}, publicationStore: {}, workspaceChanged() {}, openEditModal() {}
     });
     harness.call('test');
     const html = harness.elements['detail-timeline'].children[0].innerHTML;

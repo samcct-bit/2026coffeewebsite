@@ -20,11 +20,89 @@ service cloud.firestore {
         && request.resource.data.roastDate is string
         && request.resource.data.roastDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
     }
+    function validDraft() {
+      return request.resource.data.payload is map
+        && request.resource.data.payload.keys().size() <= 100
+        && request.resource.data.payload.beanName is string
+        && request.resource.data.payload.beanName.size() > 0
+        && request.resource.data.payload.beanName.size() <= 240
+        && request.resource.data.payload.roastDate is string
+        && request.resource.data.payload.roastDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.status in ['draft', 'published']
+        && request.resource.data.draftVersion is string
+        && request.resource.data.draftVersion.size() >= 16
+        && request.resource.data.basePublishedRevision is int
+        && request.resource.data.basePublishedRevision >= 0
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    function validPublication(document, previousRevision) {
+      let candidate = request.resource.data;
+      let before = get(/databases/$(database)/documents/coffee_roast_drafts/$(document)).data;
+      let after = getAfter(/databases/$(database)/documents/coffee_roast_drafts/$(document)).data;
+      return candidate.keys().hasOnly([
+        'id', 'beanName', 'nameEn', 'origin', 'machine', 'roastDate', 'process', 'altitude', 'variety', 'cropYear',
+        'roastLevel', 'chargeMassG', 'dropMassG', 'chargeTemp', 'tpTemp', 'tpTime', 'fcTemp', 'fcTime',
+        'dropTemp', 'dropTime', 'dtrRatio', 'lossRatio', 'flavorTop', 'flavorMid', 'flavorBase', 'storyCopy',
+        'brewTemp', 'brewMethod', 'brewAiTip', 'brewGuideNote', 'cuppingScore', 'rorDatapointsJson',
+        'timelineActionsJson', 'rorQualityScore', 'imageUrl', 'image', 'beanImage', 'dashboardUrl',
+        'aiAnalyzedAt', 'aiAnalysisVersion',
+        'publicationRevision', 'publishedAt', 'publishedBy', 'sourceDraftVersion', 'publicationReview'
+      ])
+        && candidate.publicationRevision is int
+        && candidate.publicationRevision == previousRevision + 1
+        && candidate.publishedAt == request.time
+        && candidate.publishedBy == request.auth.uid
+        && candidate.id == document
+        && candidate.publicationReview.identityConfirmed == true
+        && candidate.publicationReview.flavorReviewed == true
+        && candidate.publicationReview.evidenceLimitationsAccepted == true
+        && candidate.publicationReview.keys().hasOnly([
+          'identityConfirmed', 'flavorReviewed', 'evidenceLimitationsAccepted', 'sensoryBasis', 'cuppingDate'
+        ])
+        && candidate.publicationReview.sensoryBasis in ['reference', 'cupped']
+        && (candidate.publicationReview.sensoryBasis != 'cupped'
+          || candidate.publicationReview.cuppingDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
+        && candidate.flavorTop is string && candidate.flavorTop.size() > 0 && candidate.flavorTop.size() <= 13
+        && candidate.flavorMid is string && candidate.flavorMid.size() > 0 && candidate.flavorMid.size() <= 13
+        && candidate.flavorBase is string && candidate.flavorBase.size() > 0 && candidate.flavorBase.size() <= 13
+        && before.status == 'draft'
+        && before.draftVersion == candidate.sourceDraftVersion
+        && before.basePublishedRevision == previousRevision
+        && candidate.beanName == before.payload.beanName
+        && candidate.roastDate == before.payload.roastDate
+        && candidate.flavorTop == before.payload.flavorTop
+        && candidate.flavorMid == before.payload.flavorMid
+        && candidate.flavorBase == before.payload.flavorBase
+        && candidate.get('storyCopy', '') == before.payload.get('storyCopy', '')
+        && (candidate.publicationReview.sensoryBasis == 'cupped' || candidate.get('cuppingScore', 0) == 0)
+        && after.status == 'published'
+        && after.lastPublishedVersion == candidate.sourceDraftVersion
+        && after.basePublishedRevision == candidate.publicationRevision
+        && after.review == candidate.publicationReview;
+    }
     match /coffee_roasts/{document} {
       // 任何人都可以讀取（公開豆單）
       allow read: if true;
-      allow create, update: if isCoffeeAdmin() && validRoast();
+      allow create: if isCoffeeAdmin() && validRoast() && validPublication(document, 0);
+      allow update: if isCoffeeAdmin() && validRoast()
+        && validPublication(document, resource.data.get('publicationRevision', 0));
       allow delete: if isCoffeeAdmin();
+    }
+    match /coffee_roast_drafts/{document} {
+      allow read, delete: if isCoffeeAdmin();
+      allow create, update: if isCoffeeAdmin() && validDraft();
+    }
+    match /coffee_publication_history/{document}/versions/{version} {
+      allow read: if isCoffeeAdmin();
+      allow create: if isCoffeeAdmin()
+        && request.resource.data.record is map
+        && request.resource.data.publicationRevision is int
+        && request.resource.data.record == get(/databases/$(database)/documents/coffee_roasts/$(document)).data
+        && request.resource.data.publicationRevision == get(/databases/$(database)/documents/coffee_roasts/$(document)).data.get('publicationRevision', 0)
+        && request.resource.data.archivedAt == request.time
+        && request.resource.data.archivedBy == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // 保留 2026-10-17 讀取到的既有教學專案權限，不影響其他網站。

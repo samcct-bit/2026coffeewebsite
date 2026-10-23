@@ -11,7 +11,8 @@ function request(route, extra = []) {
         { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, timeout: 45000, stdio: ['ignore', 'pipe', 'pipe'] });
 }
 const hash = text => createHash('sha256').update(text).digest('hex');
-for (const filename of ['index.html', 'roast_db.html', 'roast_live.html', 'js/admin_auth.js', 'js/ai_engine.js', 'js/safe_dom.js']) {
+for (const filename of ['index.html', 'bean.html', 'roast_db.html', 'roast_live.html', 'js/admin_auth.js', 'js/ai_engine.js', 'js/safe_dom.js',
+    'js/publication_model.js', 'js/publication_panel.js', 'js/publication_service.js', 'js/publication_store.js']) {
     const body = request(`/${filename}`);
     assert.equal(hash(body), hash(readFileSync(filename)), `Deployment content mismatch: ${filename}`);
     console.log(`PASS deployed content: ${filename}`);

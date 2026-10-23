@@ -45,12 +45,12 @@ test('管理員缺少角色、期限過期、期限偽長或登入時間在未�
         await assertFails(setDoc(coffee(env.authenticatedContext('coffee-site-admin', claims).firestore()), roast));
     }
 });
-test('合法管理員可新增、修改、刪除專用測試文件', async () => {
+test('合法管理員不能使用舊版直接寫入路徑，但仍可刪除', async () => {
     const db = env.authenticatedContext('coffee-site-admin', adminClaims).firestore();
     const ref = doc(db, 'coffee_roasts/admin-lifecycle');
-    await assertSucceeds(setDoc(ref, roast));
-    await assertSucceeds(updateDoc(ref, { flavor: '可可、焦糖' }));
-    await assertSucceeds(deleteDoc(ref));
+    await assertFails(setDoc(ref, roast));
+    await assertFails(updateDoc(coffee(db), { flavor: '可可、焦糖' }));
+    await assertSucceeds(deleteDoc(coffee(db)));
 });
 test('管理員仍須提供有效名稱、日期與合理欄位數', async () => {
     const db = env.authenticatedContext('coffee-site-admin', adminClaims).firestore();

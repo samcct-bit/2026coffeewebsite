@@ -238,7 +238,7 @@
                         取消
                     </button>
                     <button type="submit" class="px-6 py-2.5 rounded-xl bg-brass-gold hover:bg-refined-gold text-obsidian font-bold transition-all shadow-lg">
-                        💾 儲存修改
+                        💾 儲存草稿（不直接發布）
                     </button>
                 </div>
             </form>
@@ -246,7 +246,7 @@
     </div>
 
     <!-- 引入共用 AI 引擎模組 -->
-    <script src="./js/ai_engine.js?v=20261017-security-v8"></script>
+    <script src="./js/ai_engine.js?v=20261017-publication-v9"></script>
     <script>
         // 密碼驗證（SHA-256 Hash 比對，移除明文密碼）
         async function verifyPassword(event) {
@@ -270,7 +270,7 @@
                 if (btn) { btn.disabled = false; btn.textContent = '驗證進入'; }
             }
         }
-        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess());
+        document.addEventListener('DOMContentLoaded', () => window.GansingKimAI.restoreAdminAccess(() => window.refreshCoffeeWorkspace?.()));
     </script>
 
     <!-- 1. 頂部導航 -->
@@ -384,8 +384,8 @@
                         <button onclick="openLiveControl()" title="前往實況台修改風火配置與備註" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
                             🔥 實況台修改風火備註
                         </button>
-                        <button onclick="reanalyzeRecordAndUpdateHome()" data-reanalyze-id="" title="重新分析此批次並更新首頁代表豆款與標籤" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white border border-violet-500/30 text-violet-300 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
-                            🤖 AI 重新分析並更新首頁單品頁
+                        <button onclick="reanalyzeRecordAndUpdateHome()" data-reanalyze-id="" title="重新分析此批次並建立待審核草稿，不會直接更新公開網站" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white border border-violet-500/30 text-violet-300 px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
+                            🤖 AI 分析並建立草稿
                         </button>
                         <button onclick="openEditModal()" title="編輯此筆數據" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian border border-brass-gold/30 text-brass-gold px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 shadow">
                             ✏️ 編輯
@@ -395,6 +395,8 @@
                         </button>
                     </div>
                 </div>
+
+                <section id="publication-panel" class="rounded-2xl p-4 mb-6 border border-brass-gold/25 bg-black/30" aria-label="草稿審核與發布"></section>
 
                 <!-- 雙軸 ROR 圖表容器 -->
                 <div class="relative w-full h-[380px] bg-black/45 rounded-2xl p-4 border border-white/5 mb-6">
@@ -455,20 +457,10 @@
         // 1. 初始化資料庫（預載 3 款高畫質 ROR 數據，對應精品豆與烘豆機建議）
         
         // --- Firebase Cloud Firestore SDK 導入與初始化 ---
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getFirestore, collection, getDocs, getDoc, setDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { publicationStore } from './js/publication_store.js';
+        import { renderPublicationPanel } from './js/publication_panel.js';
 
-        const firebaseConfig = {
-            apiKey: "AIza" + "SyC48oAqalT77SPpYVtCupYfV5hd6_ZrD2I",
-            authDomain: "my-teaching-tools-01.firebaseapp.com",
-            projectId: "my-teaching-tools-01",
-            storageBucket: "my-teaching-tools-01.firebasestorage.app",
-            messagingSenderId: "552535919921",
-            appId: "1:552535919921:web:95b4c1288edbae9572b410"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Firebase 與管理員驗證統一由 publication_store 共用設定初始化。
         // -------------------------------------------------
         
     let roastingDatabase = [
@@ -4420,12 +4412,16 @@
         },
     ];
 
-        let selectedRecord = roastingDatabase[0];
+        roastingDatabase = [];
+        let selectedRecord = null;
         let rorChartInstance = null;
         let pendingEditResearchIdentity = '';
+        let editWorkspaceContext = null;
+        let editingRecordSnapshot = null;
+        let editGeneratedAI = false;
 
         // 2. 初始化渲染頁面
-        document.addEventListener("DOMContentLoaded", async () => {
+        async function refreshCoffeeWorkspace(preferredId) {
             // 更新網頁上的雲端連線狀態燈號
             const statusBadge = document.getElementById("cloud-status");
             if (statusBadge) {
@@ -4435,23 +4431,7 @@
 
             try {
                 // 從 Cloud Firestore 取得全部烘焙批次，並依日期遞減排序
-                const q = query(collection(db, "coffee_roasts"), orderBy("roastDate", "desc"));
-                const querySnapshot = await getDocs(q);
-                
-                let fetchedRecords = [];
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    // 以 Firestore 文件 ID 作為批次 ID，確保網址參數能精準定位紀錄
-                    data.id = docSnap.id;
-                    // 將資料庫內的 ROR / Timeline JSON 字串還原為陣列
-                    if (data.rorDatapointsJson) {
-                        data.rorDatapoints = JSON.parse(data.rorDatapointsJson);
-                    }
-                    if (data.timelineActionsJson) {
-                        data.timelineActions = JSON.parse(data.timelineActionsJson);
-                    }
-                    fetchedRecords.push(data);
-                });
+                const fetchedRecords = await publicationStore.list();
 
                 // 頁面載入只讀：種子資料匯入必須由已登入管理員明確操作。
                 roastingDatabase = fetchedRecords;
@@ -4463,23 +4443,33 @@
             } catch (err) {
                 console.error("[-] Cloud Firestore 連線失敗: ", err);
                 if (statusBadge) {
-                    statusBadge.innerText = "🔴 雲端連線失敗 (本機離線模式)";
+                    statusBadge.innerText = "請先登入；連線失敗時不會覆寫資料";
                     statusBadge.className = "bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] tracking-widest px-2.5 py-1 rounded-full font-serif";
                 }
+                return;
             }
             
             // 過濾：只保留有 ROR 數據觀測點的紀錄，避免雜亂的歷史討論紀錄出現在列表
-            roastingDatabase = roastingDatabase.filter(rec => rec.rorDatapoints && rec.rorDatapoints.length > 0);
-
             renderRecordsList();
             if (roastingDatabase.length > 0) {
-                const requestedId = new URLSearchParams(window.location.search).get("id");
+                const requestedId = preferredId || selectedRecord?.id || new URLSearchParams(window.location.search).get("id");
                 const initialRecord = requestedId
                     ? roastingDatabase.find(record => record.id === requestedId)
                     : null;
                 showRecordDetail((initialRecord || roastingDatabase[0]).id);
+            } else {
+                selectedRecord = null;
+                document.getElementById('publication-panel').replaceChildren();
+                document.getElementById('detail-bean-name').textContent = '尚無烘焙紀錄';
+                if (rorChartInstance) { rorChartInstance.destroy(); rorChartInstance = null; }
             }
-        });
+        }
+        window.refreshCoffeeWorkspace = refreshCoffeeWorkspace;
+        refreshCoffeeWorkspace();
+        async function workspaceChanged(record, message) {
+            await refreshCoffeeWorkspace(record?.id);
+            alert(message);
+        }
 
         // 3. 渲染歷史列表
         function renderRecordsList() {
@@ -4497,6 +4487,7 @@
                         <span class="text-[9px] text-gray-500 font-mono">${SafeDOM.escapeHTML(rec.roastDate || '')}</span>
                     </div>
                     <h4 class="text-white font-serif font-bold text-sm tracking-wide line-clamp-1 mb-2">${SafeDOM.escapeHTML(rec.beanName || '(未命名紀錄)')}</h4>
+                    <p class="text-[10px] mb-2 text-amber-200">${rec._workspace?.hasDraft ? '待審核草稿' : '已發布'}</p>
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-serif border-t border-white/5 pt-2">
                         <span>設備: ${SafeDOM.escapeHTML(rec.machine || '-')}</span>
                         <span class="text-refined-gold font-bold">DTR: ${SafeDOM.escapeHTML(rec.dtrRatio || '-')}</span>
@@ -4512,8 +4503,8 @@
                         <button data-record-action="openLiveControl" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-amber-500/10 hover:bg-amber-500 hover:text-obsidian text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-amber-500/30 shadow">
                             🔥 實況台備註
                         </button>
-                        <button data-record-action="reanalyzeRecordAndUpdateHome" data-record-id="${SafeDOM.escapeHTML(rec.id)}" data-reanalyze-id="${SafeDOM.escapeHTML(rec.id)}" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-violet-500/30 shadow" title="重新分析並更新首頁單品頁">
-                            🤖 AI 更新首頁
+                        <button data-record-action="reanalyzeRecordAndUpdateHome" data-record-id="${SafeDOM.escapeHTML(rec.id)}" data-reanalyze-id="${SafeDOM.escapeHTML(rec.id)}" class="js-reanalyze-record bg-violet-500/10 hover:bg-violet-500 hover:text-white text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-violet-500/30 shadow" title="AI 分析另存草稿，審核發布後才更新公開網站">
+                            🤖 AI 建立草稿
                         </button>
                         <button data-record-action="openEditModal" data-record-id="${SafeDOM.escapeHTML(rec.id)}" class="bg-brass-gold/10 hover:bg-brass-gold hover:text-obsidian text-brass-gold px-2.5 py-1 rounded-lg text-[10px] font-serif font-bold transition-all flex items-center gap-1 border border-brass-gold/30 shadow">
                             ✏️ 編輯
@@ -4541,8 +4532,11 @@
             if (!rec) return;
             
             selectedRecord = rec;
+            renderPublicationPanel(document.getElementById('publication-panel'), rec, {
+                store: publicationStore, changed: workspaceChanged, edit: openEditModal
+            });
             document.querySelectorAll('.js-reanalyze-record').forEach(button => {
-                if (!button.dataset.reanalyzeId) button.dataset.reanalyzeId = rec.id;
+                if (!button.dataset.recordAction) button.dataset.reanalyzeId = rec.id;
             });
             renderRecordsList(); // 重新整理列表高亮
 
@@ -4828,11 +4822,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (Array.isArray(imported)) {
-                        roastingDatabase = imported;
-                        renderRecordsList();
-                        if (roastingDatabase.length > 0) showRecordDetail(roastingDatabase[0].id);
-                        
-                        alert("格式正確，前端載入成功！開始自動同步至雲端資料庫，請稍候...");
+                        if (!confirm('匯入內容只會另存為待審核草稿，不會直接更動公開版。相同 ID 的既有草稿會被取代，確定繼續？')) return;
                         
                         let successCount = 0;
                         for (let rec of imported) {
@@ -4842,14 +4832,15 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                                 seedData.timelineActionsJson = JSON.stringify(rec.timelineActions || []);
                                 delete seedData.rorDatapoints;
                                 delete seedData.timelineActions;
-                                await setDoc(doc(db, "coffee_roasts", rec.id), seedData);
+                                const current = await publicationStore.read(rec.id);
+                                await publicationStore.save(rec.id, seedData, current?._workspace || publicationStore.newContext(), 'import');
                                 successCount++;
                             } catch (err) {
                                 console.error("匯入單筆資料失敗:", rec.id, err);
                             }
                         }
-                        alert(`雲端匯入完成！成功同步 ${successCount} / ${imported.length} 筆烘焙曲線檔案。`);
-                        window.location.reload();
+                        await refreshCoffeeWorkspace();
+                        alert('草稿匯入完成：' + successCount + ' / ' + imported.length + ' 筆。公開內容未變更，請逐筆審核發布。');
                     } else {
                         alert("匯入失敗：JSON 格式不正確，必須是 JSON 陣列。");
                     }
@@ -4975,6 +4966,9 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             if (!rec) return;
             selectedRecord = rec;
             showRecordDetail(rec.id);
+            editingRecordSnapshot = { ...rec };
+            editWorkspaceContext = { ...rec._workspace };
+            editGeneratedAI = false;
 
             document.getElementById("edit-beanName").value = selectedRecord.beanName || "";
             document.getElementById("edit-origin").value = selectedRecord.origin || "";
@@ -5020,115 +5014,46 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
 
         async function saveRecordEdits(event) {
             event.preventDefault();
-            if (!selectedRecord) return;
-            const currentResearchIdentity = getEditResearchIdentity();
-
-            selectedRecord.beanName = document.getElementById("edit-beanName").value;
-            selectedRecord.origin = document.getElementById("edit-origin").value;
-            selectedRecord.roastLevel = document.getElementById("edit-roastLevel").value;
-            selectedRecord.machine = document.getElementById("edit-machine").value;
-            selectedRecord.roastDate = document.getElementById("edit-roastDate").value;
-            selectedRecord.process = document.getElementById("edit-process").value;
-            selectedRecord.altitude = document.getElementById("edit-altitude").value;
-            selectedRecord.variety = document.getElementById("edit-variety").value;
-            selectedRecord.cropYear = document.getElementById("edit-cropYear").value;
-            selectedRecord.greenBeanSourceUrl = document.getElementById("edit-sourceUrl").value;
-            selectedRecord.supplierCuppingNotes = document.getElementById("edit-supplierNotes").value;
-            if (pendingEditResearchIdentity !== currentResearchIdentity) {
-                selectedRecord.greenBeanResearch = null;
-                selectedRecord.referenceConfidence = 'none';
-                selectedRecord.referenceSources = [];
-                selectedRecord.referenceConflicts = ['生豆識別資料已變更，請重新執行 AI 校正'];
+            if (!editingRecordSnapshot || !editWorkspaceContext) return;
+            const edited = { ...editingRecordSnapshot };
+            const fields = ['beanName', 'origin', 'roastLevel', 'machine', 'roastDate', 'process', 'altitude',
+                'variety', 'cropYear', 'lossRatio', 'dtrRatio', 'flavorTop', 'flavorMid', 'flavorBase',
+                'storyCopy', 'brewTemp', 'brewMethod'];
+            fields.forEach(field => { edited[field] = document.getElementById('edit-' + field).value; });
+            edited.greenBeanSourceUrl = document.getElementById('edit-sourceUrl').value;
+            edited.supplierCuppingNotes = document.getElementById('edit-supplierNotes').value;
+            for (const field of ['cuppingScore', 'chargeMassG', 'dropMassG']) {
+                edited[field] = parseFloat(document.getElementById('edit-' + field).value) || 0;
             }
-            
-            const scoreVal = parseFloat(document.getElementById("edit-cuppingScore").value);
-            selectedRecord.cuppingScore = isNaN(scoreVal) ? 0 : scoreVal;
-            
-            const chargeVal = parseFloat(document.getElementById("edit-chargeMassG").value);
-            selectedRecord.chargeMassG = isNaN(chargeVal) ? 0 : chargeVal;
-            
-            const dropVal = parseFloat(document.getElementById("edit-dropMassG").value);
-            selectedRecord.dropMassG = isNaN(dropVal) ? 0 : dropVal;
-
-            selectedRecord.lossRatio = document.getElementById("edit-lossRatio").value;
-            selectedRecord.dtrRatio = document.getElementById("edit-dtrRatio").value;
-
-            selectedRecord.flavorTop = document.getElementById("edit-flavorTop").value;
-            selectedRecord.flavorMid = document.getElementById("edit-flavorMid").value;
-            selectedRecord.flavorBase = document.getElementById("edit-flavorBase").value;
-            selectedRecord.storyCopy = document.getElementById("edit-storyCopy").value;
-            selectedRecord.brewTemp = document.getElementById("edit-brewTemp").value;
-            selectedRecord.brewMethod = document.getElementById("edit-brewMethod").value;
-
-            // 儲存至 Cloud Firestore
+            if (pendingEditResearchIdentity !== getEditResearchIdentity()) {
+                edited.greenBeanResearch = null;
+                edited.referenceConfidence = 'none';
+                edited.referenceSources = [];
+                edited.referenceConflicts = ['生豆識別資料已變更，請重新執行 AI 校正'];
+            }
+            const button = event.target.querySelector('button[type="submit"]');
+            if (button) button.disabled = true;
             try {
-                const dataToSave = { ...selectedRecord };
-                if (dataToSave.rorDatapoints) {
-                    dataToSave.rorDatapointsJson = JSON.stringify(dataToSave.rorDatapoints);
-                    delete dataToSave.rorDatapoints;
-                }
-                if (dataToSave.timelineActions) {
-                    dataToSave.timelineActionsJson = JSON.stringify(dataToSave.timelineActions);
-                    delete dataToSave.timelineActions;
-                }
-                await setDoc(doc(db, "coffee_roasts", selectedRecord.id), dataToSave);
-                alert("✅ 烘焙紀錄更新成功！已同步儲存至雲端。");
-            } catch (err) {
-                console.error("[-] 儲存至 Firestore 失敗:", err);
-                alert("⚠️ 本地更新成功，但雲端同步失敗（請檢查網路連線）。");
+                const saved = await publicationStore.save(edited.id, edited, editWorkspaceContext, editGeneratedAI ? 'ai' : 'manual');
+                closeEditModal();
+                await workspaceChanged(saved, '草稿已儲存。公開網站保持不變，請在審核面板確認後發布。');
+            } catch (error) {
+                alert('無法確認草稿儲存結果：' + error.message + '\n編輯內容仍保留在表單中，請重新載入確認雲端版本。');
+            } finally {
+                if (button) button.disabled = false;
             }
-
-            closeEditModal();
-            showRecordDetail(selectedRecord.id);
-            renderRecordsList();
         }
 
         async function deleteRecordById(targetId) {
             const rec = targetId ? roastingDatabase.find(r => r.id === targetId) : selectedRecord;
             if (!rec) return;
-            const confirmDelete = confirm(`確定要刪除「${rec.beanName || '此筆'}」烘焙紀錄嗎？此動作將從雲端與本地永久刪除且無法復原！`);
-            if (!confirmDelete) return;
-
-            const deletedId = rec.id;
-
-            // ── 方案 A：透過 Cloudflare Worker 代理刪除（繞過 Firestore 前端規則） ──
+            if (!confirm('確定移除「' + (rec.beanName || '此筆') + '」及其草稿？公開版會下架，既有發布歷史仍保留在管理員區。')) return;
             try {
-                const workerEndpoint = window.GansingKimAI ? window.GansingKimAI.endpoint || "https://gsk-groq-proxy.gansingkim.workers.dev" : "https://gsk-groq-proxy.gansingkim.workers.dev";
-                
-                const response = await window.GansingKimAI.authenticatedFetch(`${workerEndpoint}/delete-record`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ documentId: deletedId })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Worker 回應錯誤: ${response.status} - ${errorText}`);
-                }
-                
-                console.log(`[+] 成功透過 Worker 刪除 Firestore 紀錄: ${deletedId}`);
-            } catch (err) {
-                console.error("[-] 從 Firestore 刪除失敗:", err);
-                alert("⚠️ 雲端刪除失敗，紀錄已保留。請確認登入狀態後重試。");
-                return;
-            }
-            // 從本地記憶體列表中移除
-            roastingDatabase = roastingDatabase.filter(r => r.id !== deletedId);
-
-            alert("🗑️ 烘焙紀錄已成功刪除！");
-
-            if (roastingDatabase.length > 0) {
-                showRecordDetail(roastingDatabase[0].id);
-            } else {
-                selectedRecord = null;
-                renderRecordsList();
-                document.getElementById("detail-bean-name").innerText = "尚無烘焙紀錄";
-                document.getElementById("detail-origin-roast").innerText = "-";
-                document.getElementById("detail-machine-date").innerText = "-";
-                document.getElementById("detail-dtr").innerText = "-";
-                document.getElementById("detail-loss").innerText = "-";
-                document.getElementById("detail-timeline").innerHTML = "<p class='text-gray-500 text-xs font-serif col-span-4 text-center py-4'>目前資料庫中沒有烘焙紀錄。</p>";
-                if (rorChartInstance) rorChartInstance.destroy();
+                await publicationStore.remove(rec.id, rec._workspace);
+                await refreshCoffeeWorkspace();
+                alert('紀錄與草稿已移除，公開版已下架。');
+            } catch (error) {
+                alert('刪除失敗，紀錄已保留：' + error.message);
             }
         }
 
@@ -5145,6 +5070,12 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
 
         function openBeanPage(id) {
             const targetId = id || (selectedRecord ? selectedRecord.id : null);
+            const target = typeof roastingDatabase !== 'undefined' ? roastingDatabase.find(record => record.id === targetId) : null;
+            if (target?._workspace && !target._workspace.publishedExists) {
+                document.getElementById('publication-panel').scrollIntoView({ behavior: 'smooth' });
+                alert('這筆紀錄仍是私有草稿，請先在審核面板確認並發布。');
+                return;
+            }
             if (targetId) {
                 window.location.href = `./bean.html?id=${encodeURIComponent(targetId)}`;
             } else {
@@ -5163,7 +5094,7 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             }
         }
 
-        // 歷史批次一鍵重跑：ROR 診斷 → 風味文案 → 寫回原紀錄 → 首頁重新依品質選批次。
+        // 歷史批次重跑只儲存私有 AI 草稿，人工審核發布後才更新公開版。
         async function reanalyzeRecordAndUpdateHome(targetId) {
             const recordId = targetId || (selectedRecord ? selectedRecord.id : null);
             const AI = window.GansingKimAI;
@@ -5181,10 +5112,9 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             });
 
             try {
-                const snapshot = await getDoc(doc(db, 'coffee_roasts', recordId));
-                if (!snapshot.exists()) throw new Error('找不到這筆烘焙紀錄');
-
-                const record = { ...snapshot.data(), id: snapshot.id };
+                const record = await publicationStore.read(recordId);
+                if (!record) throw new Error('找不到這筆烘焙紀錄');
+                if (record._workspace.hasDraft && !confirm('已有待審核草稿。繼續會以新的 AI 草稿取代它，公開版不變。確定繼續？')) return;
                 const rorPoints = parseArrayField(record.rorDatapoints, parseArrayField(record.rorDatapointsJson));
                 const timelineActions = parseArrayField(record.timelineActions, parseArrayField(record.timelineActionsJson));
                 if (rorPoints.length < 2) throw new Error('本批次缺少足夠的 ROR 觀測點，無法分析');
@@ -5248,6 +5178,8 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                     aiRorDiagnosis: diagnosis,
                     aiAnalyzedAt: new Date().toISOString(),
                     aiAnalysisVersion: 'evidence-review-v7',
+                    aiGenerationStatus: flavor.generationStatus || 'unknown',
+                    aiGenerationWarning: flavor.generationWarning || '',
                     rorQualityScore: qualityScore,
                     rorDatapoints: rorPoints,
                     timelineActions
@@ -5258,20 +5190,14 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 delete dataToSave.rorDatapoints;
                 delete dataToSave.timelineActions;
 
-                await setDoc(doc(db, 'coffee_roasts', recordId), dataToSave);
-
-                const localIndex = roastingDatabase.findIndex(record => record.id === recordId);
-                if (localIndex >= 0) roastingDatabase[localIndex] = updatedRecord;
-                selectedRecord = updatedRecord;
-                renderRecordsList();
-                showRecordDetail(recordId);
-                alert(`✅ ${record.beanName || '本批次'} 已完成 AI 重新分析並儲存。\nROR 品質分數：${qualityScore}/100\n首頁重新載入後將自動選出最佳批次。`);
+                const saved = await publicationStore.save(recordId, dataToSave, record._workspace, 'ai');
+                await workspaceChanged(saved, 'AI 草稿已儲存，公開內容未變更。請先比對並完成審核，再按發布。');
             } catch (error) {
                 console.error('[-] 歷史批次 AI 重新分析失敗:', error);
                 alert(`🔴 AI 重新分析失敗：${error.message}`);
             } finally {
                 buttons.forEach((button, index) => {
-                    button.innerHTML = originalTexts[index] || '🤖 AI 重新分析並更新首頁單品頁';
+                    button.innerHTML = originalTexts[index] || '🤖 AI 分析並建立草稿';
                     button.disabled = false;
                 });
             }
@@ -5284,15 +5210,15 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
             const AI = window.GansingKimAI;
             if (!AI) { alert('AI 引擎載入中，請稍後再試。'); return; }
 
-            const editIdentityMatchesStored = selectedRecord &&
-                (document.getElementById('edit-beanName')?.value || '') === (selectedRecord.beanName || '') &&
-                (document.getElementById('edit-origin')?.value || '') === (selectedRecord.origin || '') &&
-                (document.getElementById('edit-process')?.value || '') === (selectedRecord.process || '') &&
-                (document.getElementById('edit-altitude')?.value || '') === (selectedRecord.altitude || '') &&
-                (document.getElementById('edit-variety')?.value || '') === (selectedRecord.variety || '') &&
-                (document.getElementById('edit-cropYear')?.value || '') === (selectedRecord.cropYear || '') &&
-                (document.getElementById('edit-sourceUrl')?.value || '') === (selectedRecord.greenBeanSourceUrl || '') &&
-                (document.getElementById('edit-supplierNotes')?.value || '') === (selectedRecord.supplierCuppingNotes || '');
+            const editIdentityMatchesStored = editingRecordSnapshot &&
+                (document.getElementById('edit-beanName')?.value || '') === (editingRecordSnapshot.beanName || '') &&
+                (document.getElementById('edit-origin')?.value || '') === (editingRecordSnapshot.origin || '') &&
+                (document.getElementById('edit-process')?.value || '') === (editingRecordSnapshot.process || '') &&
+                (document.getElementById('edit-altitude')?.value || '') === (editingRecordSnapshot.altitude || '') &&
+                (document.getElementById('edit-variety')?.value || '') === (editingRecordSnapshot.variety || '') &&
+                (document.getElementById('edit-cropYear')?.value || '') === (editingRecordSnapshot.cropYear || '') &&
+                (document.getElementById('edit-sourceUrl')?.value || '') === (editingRecordSnapshot.greenBeanSourceUrl || '') &&
+                (document.getElementById('edit-supplierNotes')?.value || '') === (editingRecordSnapshot.supplierCuppingNotes || '');
 
             const beanData = {
                 name:       document.getElementById('edit-beanName')?.value || '',
@@ -5304,32 +5230,44 @@ ${poetry.tasting || `${rec.beanName}，風味細膩而層次分明，職人烘�
                 cropYear:   document.getElementById('edit-cropYear')?.value || '',
                 greenBeanSourceUrl: document.getElementById('edit-sourceUrl')?.value || '',
                 supplierCuppingNotes: document.getElementById('edit-supplierNotes')?.value || '',
-                greenBeanResearch: editIdentityMatchesStored ? (selectedRecord?.greenBeanResearch || null) : null,
+                greenBeanResearch: editIdentityMatchesStored ? (editingRecordSnapshot?.greenBeanResearch || null) : null,
                 dtr:        document.getElementById('edit-dtrRatio')?.value || '',
                 lossRatio:  document.getElementById('edit-lossRatio')?.value || '',
-                machine:    selectedRecord?.machine || '',
-                roastDate:  selectedRecord?.roastDate || '',
-                batchId:    selectedRecord?.id || '',
-                chargeMassG: selectedRecord?.chargeMassG || '',
-                dropMassG:   selectedRecord?.dropMassG || '',
-                chargeTemp:  selectedRecord?.chargeTemp || '',
-                fcTemp:      selectedRecord?.fcTemp || '',
-                dropTemp:    selectedRecord?.dropTemp || '',
-                tpTime:      selectedRecord?.tpTime || '',
-                fcTime:      selectedRecord?.fcTime || '',
-                dropTime:    selectedRecord?.dropTime || '',
-                    rorPoints:   selectedRecord?.rorDatapoints || [],
+                machine:    editingRecordSnapshot?.machine || '',
+                roastDate:  editingRecordSnapshot?.roastDate || '',
+                batchId:    editingRecordSnapshot?.id || '',
+                chargeMassG: editingRecordSnapshot?.chargeMassG || '',
+                dropMassG:   editingRecordSnapshot?.dropMassG || '',
+                chargeTemp:  editingRecordSnapshot?.chargeTemp || '',
+                fcTemp:      editingRecordSnapshot?.fcTemp || '',
+                dropTemp:    editingRecordSnapshot?.dropTemp || '',
+                tpTime:      editingRecordSnapshot?.tpTime || '',
+                fcTime:      editingRecordSnapshot?.fcTime || '',
+                dropTime:    editingRecordSnapshot?.dropTime || '',
+                    rorPoints:   editingRecordSnapshot?.rorDatapoints || [],
                     bypassCache: true
             };
 
             AI.showAILoading(btn, '🔎 校正生豆來源並分析烘焙...');
 
+            const targetSnapshot = editingRecordSnapshot;
+            const inputIdentity = getEditResearchIdentity();
+            const contentBefore = ['edit-flavorTop', 'edit-flavorMid', 'edit-flavorBase', 'edit-storyCopy'].map(id => document.getElementById(id).value).join('\u0000');
             const result = await AI.generateCoffeeFlavorAI(beanData);
-            if (selectedRecord) {
-                selectedRecord.greenBeanResearch = result.greenBeanResearch || null;
-                selectedRecord.referenceConfidence = result.referenceConfidence || 'none';
-                selectedRecord.referenceSources = result.referenceSources || [];
-                selectedRecord.referenceConflicts = result.referenceConflicts || [];
+            const contentAfter = ['edit-flavorTop', 'edit-flavorMid', 'edit-flavorBase', 'edit-storyCopy'].map(id => document.getElementById(id).value).join('\u0000');
+            if (editingRecordSnapshot !== targetSnapshot || inputIdentity !== getEditResearchIdentity() || contentBefore !== contentAfter) {
+                AI.hideAILoading(btn);
+                alert('生成期間表單已變更，為保留你的修改，本次 AI 結果未套用。');
+                return;
+            }
+            editGeneratedAI = true;
+            if (editingRecordSnapshot) {
+                editingRecordSnapshot.greenBeanResearch = result.greenBeanResearch || null;
+                editingRecordSnapshot.aiGenerationStatus = result.generationStatus || 'unknown';
+                editingRecordSnapshot.aiGenerationWarning = result.generationWarning || '';
+                editingRecordSnapshot.referenceConfidence = result.referenceConfidence || 'none';
+                editingRecordSnapshot.referenceSources = result.referenceSources || [];
+                editingRecordSnapshot.referenceConflicts = result.referenceConflicts || [];
                 pendingEditResearchIdentity = getEditResearchIdentity();
             }
             renderEditResearchStatus(result.greenBeanResearch || null);
