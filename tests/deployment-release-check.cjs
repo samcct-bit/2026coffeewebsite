@@ -14,7 +14,8 @@ function request(route, extra = []) {
 const hash = text => createHash('sha256').update(String(text).replace(/\r\n/g, '\n')).digest('hex');
 for (const filename of ['index.html', 'bean.html', 'roast_db.html', 'roast_live.html', 'js/admin_auth.js', 'js/ai_engine.js', 'js/safe_dom.js',
     'js/publication_model.js', 'js/publication_panel.js', 'js/publication_service.js', 'js/publication_store.js',
-    'label.html', 'css/label.css', 'js/label_model.js', 'js/label_tool.js', 'js/vendor/qrcode-1.4.4.js']) {
+    'label.html', 'css/label.css', 'js/label_model.js', 'js/label_tool.js', 'js/label_png.js',
+    'js/vendor/qrcode-1.4.4.js', 'js/vendor/html-to-image-1.11.13.js']) {
     const body = request(`/${filename}`);
     assert.equal(hash(body), hash(readFileSync(filename)), `Deployment content mismatch: ${filename}`);
     console.log(`PASS deployed content: ${filename}`);

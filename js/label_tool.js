@@ -2,6 +2,7 @@ import { db } from './firebase_config.js';
 import { getAdminToken, login, mountAdminUI } from './admin_auth.js';
 import { collection, doc, getDocs, getDocFromServer } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { LABEL_FIELDS, beanUrl, labelDefaults, labelProblems, qrGeometry, fingerprint, labelSnapshot } from './label_model.js';
+import { renderLabelPng } from './label_png.js';
 
 const $ = id => document.getElementById(id);
 let records = [], record = null, sourceHash = '', values = {}, generation = 0, loadVersion = 0, busy = false, armedUntil = 0, operationMessage = '';
@@ -91,7 +92,7 @@ function validate() {
     }
     if (!authorized()) problems.push('請先登入管理員');
     if (!$('reviewed').checked || !$('calibrated').checked) problems.push('請完成兩項印前確認');
-    $('print').disabled = $('download').disabled = busy || problems.length > 0;
+    $('print').disabled = $('download').disabled = $('download-png').disabled = busy || problems.length > 0;
     $('validation').textContent = [operationMessage, problems.length ? problems.join('\n') : '檢查通過；實際試印確認後再大量列印。'].filter(Boolean).join('\n');
     $('validation').className = problems.length || operationMessage ? 'invalid' : '';
     return problems.length === 0;
@@ -161,7 +162,7 @@ async function action(callback) {
     if (busy) return;
     try {
         if (!validate()) return;
-        busy = true; operationMessage = ''; $('print').disabled = $('download').disabled = true;
+        busy = true; operationMessage = ''; $('print').disabled = $('download').disabled = $('download-png').disabled = true;
         await callback(await verifyFresh());
     } catch (error) { operationMessage = error.message || '操作失敗，未修改資料'; }
     finally { busy = false; validate(); }
@@ -174,11 +175,21 @@ $('print').addEventListener('click', () => action(async () => {
     for (let i = 0; i < Number($('quantity').value); i++) root.append($('preview').querySelector('.label').cloneNode(true));
     armedUntil = Date.now() + 30000; document.body.classList.remove('print-blocked'); window.print();
 }));
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const anchor = el('a'); anchor.href = url; anchor.download = filename;
+    anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 $('download').addEventListener('click', () => action(async current => {
     const snapshot = labelSnapshot(current, values, sourceHash, Number($('dpi').value));
-    const url = URL.createObjectURL(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }));
-    const anchor = el('a'); anchor.href = url; anchor.download = `label-${current.id}-v${current.publicationRevision || 0}.json`;
-    anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadBlob(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }), `label-${current.id}-v${current.publicationRevision || 0}.json`);
+}));
+$('download-png').addEventListener('click', () => action(async current => {
+    const version = generation, dpi = Number($('dpi').value);
+    const blob = await renderLabelPng($('preview').querySelector('.label'), dpi, qrCode(current.id));
+    await getAdminToken();
+    if (version !== generation || !validate() || !authorized()) throw new Error('設定或登入狀態已變更，PNG 未下載，請重新確認');
+    downloadBlob(blob, `label-${current.id}-v${current.publicationRevision || 0}-${dpi}dpi.png`);
 }));
 $('batch-select').addEventListener('change', () => select($('batch-select').value));
 $('batch-search').addEventListener('input', () => filterOptions());

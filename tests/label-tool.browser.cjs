@@ -66,6 +66,70 @@ async function approve(page) { await page.locator('#reviewed').check(); await pa
         }
         assert.equal(await page.locator('.label-qr path').getAttribute('d'), expectedPath);
         assert.equal(await page.locator('.label-qr').getAttribute('viewBox'), `0 0 ${expectedQr.getModuleCount() + 8} ${expectedQr.getModuleCount() + 8}`);
+        for (const dpi of [203, 300]) {
+            await page.locator('#dpi').selectOption(String(dpi)); await approve(page);
+            const pngEvent = page.waitForEvent('download'); await page.locator('#download-png').click();
+            const pngDownload = await pngEvent;
+            assert.match(pngDownload.suggestedFilename(), new RegExp(`-${dpi}dpi\\.png$`));
+            const output = await fs.readFile(await pngDownload.path());
+            const width = Math.round(80 / 25.4 * dpi), height = Math.round(50 / 25.4 * dpi);
+            assert.equal(output.readUInt32BE(16), width); assert.equal(output.readUInt32BE(20), height);
+            let physical;
+            for (let offset = 8; offset < output.length;) {
+                const length = output.readUInt32BE(offset);
+                if (output.toString('ascii', offset + 4, offset + 8) === 'pHYs') physical = output.readUInt32BE(offset + 8);
+                offset += length + 12;
+            }
+            assert.equal(physical, Math.round(dpi / .0254));
+            const pixels = await page.evaluate(async ({ base64, dpi, width, height }) => {
+                const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
+                const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0); image.close();
+                const data = ctx.getImageData(0, 0, width, height).data;
+                const label = document.querySelector('.label').getBoundingClientRect(), qr = document.querySelector('.label-qr').getBoundingClientRect();
+                const code = window.qrcode(0, 'M'); code.addData(document.getElementById('public-link').href, 'Byte'); code.make();
+                const modules = code.getModuleCount(), dots = Math.floor(22 / 25.4 * dpi / (modules + 8));
+                const x = Math.round((qr.left - label.left) / label.width * width), y = Math.round((qr.top - label.top) / label.height * height);
+                const at = (px, py) => [...data.subarray((py * width + px) * 4, (py * width + px) * 4 + 4)];
+                let mismatch = 0;
+                for (let row = -4; row < modules + 4; row++) for (let col = -4; col < modules + 4; col++) {
+                    const expected = row >= 0 && col >= 0 && row < modules && col < modules && code.isDark(row, col) ? 0 : 255;
+                    const rgba = at(x + (col + 4) * dots + Math.floor(dots / 2), y + (row + 4) * dots + Math.floor(dots / 2));
+                    if (rgba.slice(0, 3).some(v => v !== expected) || rgba[3] !== 255) mismatch++;
+                }
+                const ink = selector => {
+                    const r = document.querySelector(selector).getBoundingClientRect(); let count = 0;
+                    const left = Math.max(0, Math.floor((r.left - label.left) / label.width * width));
+                    const right = Math.min(width, Math.ceil((r.right - label.left) / label.width * width));
+                    const top = Math.max(0, Math.floor((r.top - label.top) / label.height * height));
+                    const bottom = Math.min(height, Math.ceil((r.bottom - label.top) / label.height * height));
+                    for (let py = top; py < bottom; py++) for (let px = left; px < right; px++) if (at(px, py)[0] < 180) count++;
+                    return count;
+                };
+                return { mismatch, corner: at(0, 0), logoInk: ink('.label-logo'), titleInk: ink('.label-title'), notesInk: ink('.label-notes') };
+            }, { base64: output.toString('base64'), dpi, width, height });
+            assert.equal(pixels.mismatch, 0); assert.deepEqual(pixels.corner, [255, 255, 255, 255]);
+            assert.ok(pixels.logoInk > 100 && pixels.titleInk > 100 && pixels.notesInk > 100, 'PNG text/logo must not be blank');
+            await pngDownload.saveAs(`scratch/label-export-${dpi}dpi.png`);
+        }
+        let lateDownloads = 0;
+        const countLate = () => lateDownloads++;
+        page.on('download', countLate);
+        await page.evaluate(() => {
+            window.originalToCanvas = window.htmlToImage.toCanvas;
+            window.htmlToImage.toCanvas = async (...args) => {
+                window.pngStarted = true;
+                const canvas = await window.originalToCanvas(...args);
+                await new Promise(resolve => setTimeout(resolve, 250)); return canvas;
+            };
+        });
+        await page.locator('#download-png').click(); await page.waitForFunction(() => window.pngStarted);
+        await page.locator('#field-title').fill('輸出時修改文字'); await approve(page);
+        await page.waitForFunction(() => document.getElementById('validation').textContent.includes('PNG 未下載'));
+        assert.equal(lateDownloads, 0); page.off('download', countLate);
+        await page.evaluate(() => window.htmlToImage.toCanvas = window.originalToCanvas);
+        await page.locator('#reset').click(); await approve(page);
         await page.locator('#quantity').fill('2'); await approve(page); await page.locator('#print').click();
         assert.equal(await page.evaluate(() => window.printCalls), 1); assert.equal(await page.evaluate(() => window.printPages), 2);
         await page.emulateMedia({ media: 'print' });
@@ -77,6 +141,7 @@ async function approve(page) { await page.locator('#reviewed').check(); await pa
         await page.waitForFunction(() => !document.getElementById('print').disabled);
         await page.locator('#field-flavorTop').fill('一二三四五六、七八九十甲乙丙'); await approve(page);
         assert.equal(await page.locator('#print').isDisabled(), true); assert.match(await page.locator('#validation').textContent(), /13/);
+        assert.equal(await page.locator('#download-png').isDisabled(), true);
         await page.locator('#reset').click(); await page.locator('#field-english').fill('A'.repeat(160)); await approve(page);
         await page.waitForFunction(() => document.getElementById('validation').textContent.includes('超出版面'));
         assert.equal(await page.locator('#print').isDisabled(), true);
@@ -106,6 +171,6 @@ async function approve(page) { await page.locator('#reviewed').check(); await pa
         await denied.goto('http://127.0.0.1:5502/label.html?id=' + fixture.id);
         assert.equal(await denied.locator('#print').isDisabled(), true); assert.deepEqual(await denied.evaluate(() => window.labelReads), []);
         await denied.close(); await unknown.close();
-        console.log('PASS label browser: published-only source; batch binding; 80x50 geometry; QR sidebar; snapshot; 2 pages; 13-char boundary; overflow; XSS; stale publication; in-flight edits; mobile; auth/print guard; zero page errors.');
+        console.log('PASS label browser: published-only source; 203/300 dpi PNG size/density/content/pixel-perfect QR; PNG edit race blocked; JSON; 80x50 print; overflow; XSS; stale publication; mobile; auth guards; zero page errors.');
     } finally { if (browser) await browser.close(); await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

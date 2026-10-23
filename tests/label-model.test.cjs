@@ -2,11 +2,17 @@ const { test, before } = require('node:test');
 const assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
+const { readFileSync } = require('node:fs');
 const qrcode = require('../js/vendor/qrcode-1.4.4.js');
 let model;
 const record = { id: 'roast_1785567096800', beanName: '白岩莊園', nameEn: 'Java Natural', roastDate: '2026-08-01',
     roastLevel: '淺焙', flavorTop: '茉莉、藍莓', flavorMid: '蜂蜜、果汁感', flavorBase: '可可、回甘', publicationRevision: 2 };
 before(async () => { model = await import(pathToFileURL(path.resolve('js/label_model.js')).href); });
+test('homepage and admin have visible label links; per-batch link stays encoded and published-only', () => {
+    for (const file of ['index.html', 'roast_db.html']) assert.match(readFileSync(file, 'utf8'), /href="\.\/label\.html"/);
+    const panel = readFileSync('js/publication_panel.js', 'utf8');
+    assert.ok(panel.indexOf("labelLink.href = './label.html?id=' + encodeURIComponent(record.id)") > panel.indexOf('if (context.publishedExists)'));
+});
 test('QR target is the exact batch on the canonical origin, never an imported URL', () => {
     assert.equal(model.beanUrl(record.id), 'https://2026coffeewebsite.vercel.app/bean.html?id=roast_1785567096800');
     for (const id of ['../other', '" onclick="x', 'https://evil.test', '']) assert.throws(() => model.beanUrl(id));

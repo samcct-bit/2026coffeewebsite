@@ -52,8 +52,12 @@ async function main() {
         const { fingerprint } = await import(pathToFileURL(path.resolve('js/label_model.js')).href);
         assert.equal(snapshot.publicSnapshotSha256, await fingerprint(snapshot.publicRecord));
         assert.match(download.suggestedFilename(), /^label-.*-v\d+\.json$/);
+        const pngEvent = page.waitForEvent('download'); await page.locator('#download-png').click();
+        const pngDownload = await pngEvent, png = readFileSync(await pngDownload.path());
+        assert.equal(png.readUInt32BE(16), 945); assert.equal(png.readUInt32BE(20), 591);
+        assert.match(pngDownload.suggestedFilename(), /-300dpi\.png$/);
         assert.deepEqual(errors, []); assert.deepEqual(writes, []);
-        console.log('PASS production label: anonymous blocked; actual Firebase admin login; published batch read; unchanged label text; fresh-version check; JSON downloaded; batch/revision/QR/digest verified; zero database writes or page errors.');
+        console.log('PASS production label: anonymous blocked; actual Firebase admin login; published batch read; unchanged label text; fresh-version check; JSON and 300dpi PNG downloaded; batch/revision/QR/digest verified; zero database writes or page errors.');
     } finally { await browser.close(); }
 }
 main().catch(() => { console.error('FAIL production label download verification; credentials and source data intentionally omitted.'); process.exitCode = 1; });

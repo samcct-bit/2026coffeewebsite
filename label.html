@@ -5,6 +5,7 @@
 <title>金成淬｜正式標籤工具 · 80 × 50 mm</title>
 <link rel="stylesheet" href="./css/label.css">
 <script src="./js/vendor/qrcode-1.4.4.js" defer></script>
+<script src="./js/vendor/html-to-image-1.11.13.js" defer></script>
 <script type="module" src="./js/label_tool.js"></script>
 </head>
 <body class="print-blocked">
@@ -28,7 +29,8 @@
  <h2>03 確認與列印</h2>
  <label class="check"><input id="reviewed" type="checkbox">我已核對批次、標籤文字與風味依據</label>
  <label class="check"><input id="calibrated" type="checkbox">我會選 80 × 50 mm、100% 實際大小、零邊界並關閉頁首頁尾</label>
- <div class="actions"><button id="print" type="button" disabled>列印標籤</button><button id="download" type="button" disabled>下載本次標籤快照</button></div>
+ <div class="actions"><button id="print" type="button" disabled>列印標籤</button><button id="download-png" type="button" disabled>下載 PNG 圖檔</button><button id="download" type="button" disabled>下載 JSON 資料快照</button></div>
+ <p class="hint">PNG 為單張白底標籤，依所選解析度輸出：203 dpi 約 639 × 400 px；300 dpi 約 945 × 591 px。PNG 可直接交給標籤列印軟體；JSON 用於保留資料，不是圖片。匯入時仍須確認 80 × 50 mm、100% 大小。</p>
  <p id="validation" role="status"></p>
  </section>
  <section class="preview-panel" aria-label="列印預覽">
