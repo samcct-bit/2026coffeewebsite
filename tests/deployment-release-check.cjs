@@ -10,7 +10,8 @@ function request(route, extra = []) {
     return execFileSync(process.execPath, [cli, 'curl', route, '--deployment', deployment, '--scope', 'sam-vegan', '--', '--silent', '--show-error', ...extra],
         { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, timeout: 45000, stdio: ['ignore', 'pipe', 'pipe'] });
 }
-const hash = text => createHash('sha256').update(text).digest('hex');
+// Git checkouts use LF while a Windows CLI upload can retain CRLF; compare source content, not checkout EOLs.
+const hash = text => createHash('sha256').update(String(text).replace(/\r\n/g, '\n')).digest('hex');
 for (const filename of ['index.html', 'bean.html', 'roast_db.html', 'roast_live.html', 'js/admin_auth.js', 'js/ai_engine.js', 'js/safe_dom.js',
     'js/publication_model.js', 'js/publication_panel.js', 'js/publication_service.js', 'js/publication_store.js']) {
     const body = request(`/${filename}`);
