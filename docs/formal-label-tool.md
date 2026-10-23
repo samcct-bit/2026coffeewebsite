@@ -1,6 +1,8 @@
 # 正式標籤工具：QR 獨立側欄版
 
-## PNG 與入口增補（本機完成，尚未部署）
+## PNG 與入口增補（已正式部署）
+
+2026-10-23 已依使用者授權上線；功能提交 `cfef867`，人工放行版本 `dpl_HigoBLMGt7oKJ32rB4erWSvbGLLH`（`2026coffeewebsite-rnt203l87-sam-vegan.vercel.app`）已升級至正式網址。18 個公開程式檔案內容一致，安全標頭及 5 個私有路徑排除通過；正式瀏覽器已以真實 Firebase 管理員登入，選現有公開批次，在不修改標籤文字下成功下載 JSON 與 300 dpi PNG（945 × 591 px），沒有頁面錯誤或資料庫寫入。Firestore 規則、Worker、管理密碼與既有豆款均未改動。來源推送後 Git 自動部署的網站程式內容相同。
 
 首頁主要操作區新增「標籤工具（管理員）」；烘焙後台頂部新增「標籤工具」。原有「製作此批標籤」仍保留於選定公開批次的審核面板。新入口不開放匿名操作權限。
 
@@ -10,7 +12,7 @@ PNG 為單張白底、不包含工具介面或預覽陰影；203 dpi 為 639 × 
 
 PNG 使用固定版 [html-to-image 1.11.13](https://unpkg.com/html-to-image@1.11.13/dist/html-to-image.js)，MIT 授權文字隨程式保存；沒有外部執行期轉圖服務。參考 [Canvas PNG 的預設 96 dpi 說明](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob)。依賴程式儲存於本機公開資產，不把豆款資料或圖片上傳第三方。
 
-本機 29 項單元／前端安全測試（含新增入口測試）通過；瀏覽器已下載兩種解析度 PNG，核對 PNG 尺寸、pHYs、白底、中文／Logo 非空白、QR 模組與淨空逐格黑白像素，以及轉圖時修改設定的阻擋。假資料輸出為 `scratch/label-export-203dpi.png`、`scratch/label-export-300dpi.png`，僅作示意。正式站的 PNG 下載測試已備妥，須下一輪發布後執行，不能把既有 JSON 版驗證當成新 PNG 版已上線。
+本機 29 項單元／前端安全測試（含新增入口測試）通過；瀏覽器已下載兩種解析度 PNG，核對 PNG 尺寸、pHYs、白底、中文／Logo 非空白、QR 模組與淨空逐格黑白像素，以及轉圖時修改設定的阻擋。假資料輸出為 `scratch/label-export-203dpi.png`、`scratch/label-export-300dpi.png`，僅作示意。正式站 JSON 與 PNG 實際下載已另行驗證通過；實體印表機與手機掃碼仍待使用者試印驗收。
 
 ## 既有正式版（JSON）的上線記錄
 
