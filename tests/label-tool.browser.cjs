@@ -156,6 +156,12 @@ async function approve(page) { await page.locator('#reviewed').check(); await pa
         await page.evaluate(() => window.freshDelay = 250); await approve(page); await page.locator('#print').click();
         await page.locator('#field-title').fill('等待時人工修改'); await approve(page); await page.waitForTimeout(350);
         assert.equal(await page.evaluate(() => window.printCalls), 1);
+        await page.evaluate(() => {
+            Object.assign(window.labelRecords[0], { sensoryProfile: { method: 'solo', status: 'repeated', dates: ['2026-10-20', '2026-10-22'], flavor: '柑橘', mouthfeel: '滑順', aftertaste: '紅茶' }, publicationReview: { sensoryBasis: 'cupped' } });
+        });
+        await page.locator('#reload').click(); await page.waitForFunction(() => document.querySelector('.label-flavor')?.textContent === '柑橘');
+        assert.deepEqual(await page.locator('.label-caption').allTextContents(), ['風味', '口感', '餘韻']);
+        assert.match(await page.locator('.label-basis').textContent(), /單人複測/);
         await page.setViewportSize({ width: 390, height: 844 });
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
         await page.screenshot({ path: 'scratch/label-tool-mobile.png', fullPage: true });

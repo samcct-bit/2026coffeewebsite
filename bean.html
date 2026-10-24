@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
     <title>金成淬精品咖啡誌 | 熟豆履歷與職人手沖指南</title>
-    <meta name="description" content="金成淬職人精選精品熟豆，SCA 專業烘焙履歷、風味輪廓與職人手沖指南。">
+    <meta name="description" content="查看金成淬各批次咖啡的產地資訊、風味紀錄、烘焙履歷與沖煮參考。">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,8 +32,10 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
 .hover-glow:hover{box-shadow:0 0 20px rgba(196,154,108,.15),0 8px 30px rgba(0,0,0,.4);border-color:rgba(196,154,108,.25)!important}
     </style>
     <script src="./js/safe_dom.js"></script>
+    <link rel="stylesheet" href="./css/public-site.css?v=20261023">
 </head>
-<body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
+<body class="public-site public-bean text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian min-h-screen flex flex-col">
+    <a class="skip-link" href="#bean-detail">跳至豆款資料</a>
 
     <nav class="w-full px-6 py-4 flex items-center gap-2 text-xs text-gray-500 font-outfit border-b border-white/5 fade-in is-visible">
         <a href="./index.html" class="hover:text-brass-gold transition-colors flex items-center gap-1">
@@ -97,17 +99,17 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
                                     </svg>
                                     <div class="absolute inset-0 flex flex-col items-center justify-center">
                                         <span class="text-xl font-serif font-bold text-brass-gold leading-none" id="score-value">-</span>
-                                        <span id="score-label" class="text-[8px] text-gray-500 font-outfit tracking-widest uppercase mt-1">SCA</span>
+                                        <span id="score-label" class="text-[8px] text-gray-500 font-outfit tracking-widest uppercase mt-1">紀錄分數</span>
                                     </div>
                                 </div>
                                 <div>
                                     <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit mb-1">Cupping Score · 杯測分數</p>
-                                    <p id="score-description" class="text-sm text-gray-400 font-serif leading-relaxed">由 SCA 國際杯測標準評分，反映此批次烘焙的綜合品質表現。</p>
+                                    <p id="score-description" class="text-sm text-gray-400 font-serif leading-relaxed">依既有資料提供的分數，不代表 SCA 認證或獨立品質保證。</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4 pt-1" style="border-top:1px solid rgba(196,154,108,.15)">
+                        <div id="legacy-flavor-profile" class="space-y-4 pt-1" style="border-top:1px solid rgba(196,154,108,.15)">
                             <p class="text-[9px] tracking-[0.3em] text-brass-gold/70 uppercase font-outfit">Flavor Profile · 風味輪廓</p>
                             <p id="sensory-basis" class="hidden text-xs text-brass-gold"></p>
                             <div class="space-y-4">
@@ -139,14 +141,25 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
             </section>
 
             <div class="space-y-10">
+                <section id="solo-sensory-profile" class="hidden solo-sensory glass-panel" aria-labelledby="solo-sensory-title">
+                    <p class="section-eyebrow">SENSORY NOTES · 本批感官紀錄</p>
+                    <h3 id="solo-sensory-title">本批單人實測</h3>
+                    <dl>
+                        <div><dt>風味</dt><dd id="solo-flavor"></dd></div>
+                        <div><dt>口感</dt><dd id="solo-mouthfeel"></dd></div>
+                        <div><dt>餘韻</dt><dd id="solo-aftertaste"></dd></div>
+                    </dl>
+                    <p id="solo-dates" class="sensory-context"></p>
+                    <p class="sensory-context">本批單人品飲紀錄，不代表多人共識或 SCA 認證。</p>
+                </section>
                 <section class="fade-in is-visible space-y-6">
                     <div class="flex items-center gap-4">
                         <div class="h-px bg-gradient-to-r from-brass-gold/50 to-transparent flex-1"></div>
-                        <h3 class="text-lg md:text-xl text-brass-gold tracking-[0.2em] font-serif font-medium whitespace-nowrap">時光的流轉 · 禪意的淬煉</h3>
+                        <h3 class="text-lg md:text-xl text-brass-gold tracking-[0.2em] font-serif font-medium whitespace-nowrap">關於這款咖啡</h3>
                         <div class="h-px bg-gradient-to-l from-brass-gold/50 to-transparent flex-1"></div>
                     </div>
                     <div class="space-y-5 text-sm md:text-base leading-loose tracking-[0.12em] text-gray-300 font-serif text-justify" id="story-content">
-                        <p>經由「金成淬」SCA 專業烘焙師監製控溫，將風土微氣候濃縮的高糖分與獨特發酵層次在火山岩盤熱傳導中極致釋放。</p>
+                        <p>尚未提供這款咖啡的介紹。</p>
                     </div>
                     <blockquote class="border-l-2 border-brass-gold/40 pl-5 py-1">
                         <p class="text-base md:text-lg text-brass-gold/90 font-serif font-light italic" id="story-quote">「華麗而不失靜謐，濃郁卻保有澄澈。這是一杯能讓靈魂隨之共鳴的液體藝術。」</p>
@@ -166,7 +179,7 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-serif font-bold text-white tracking-widest">職人手沖沖煮指南</h3>
-                                    <p class="text-brass-gold/70 font-serif text-[10px] mt-0.5 tracking-widest uppercase">SCA Professional Brewing Recommendation</p>
+                                    <p class="text-brass-gold/70 font-serif text-[10px] mt-0.5 tracking-widest uppercase">Brewing reference · 依器材與口味調整</p>
                                 </div>
                             </div>
                             <div class="space-y-6">
@@ -174,7 +187,7 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
                                     <div class="shrink-0"><span class="bg-brass-gold text-obsidian text-[9px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-widest font-outfit block text-center">Temp</span></div>
                                     <div class="flex-1">
                                         <p class="text-2xl font-serif text-brass-gold leading-none mb-2" id="brew-temp">88°C - 90°C</p>
-                                        <p class="text-gray-400 leading-relaxed text-xs font-serif">建議使用較溫和的水溫萃取，保留豆款最精緻的高雅花香與果汁感受。</p>
+                                        <p class="text-gray-400 leading-relaxed text-xs font-serif">以紀錄參數作為起點，再依水質、研磨與實際飲用感受調整。</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-5" style="border-top:1px solid rgba(255,255,255,.05);padding-top:1.5rem">
@@ -251,6 +264,19 @@ body{background-color:#0c0c0e;background-image:radial-gradient(circle at 50% 0%,
         });
         function renderBeanDetail(rec){
             rec = {...rec};
+            const sensory = rec.sensoryProfile;
+            const soloPanel = document.getElementById('solo-sensory-profile');
+            soloPanel.classList.add('hidden');
+            document.getElementById('legacy-flavor-profile').classList.remove('hidden');
+            if (rec.publicationReview?.sensoryBasis === 'cupped' && sensory?.method === 'solo' && ['single', 'repeated'].includes(sensory.status)
+                && ['flavor', 'mouthfeel', 'aftertaste'].every(key => typeof sensory[key] === 'string' && sensory[key].trim() && [...sensory[key]].length <= 13)) {
+                document.getElementById('solo-sensory-title').textContent = sensory.status === 'repeated' ? '本批單人複測' : '本批單人實測';
+                for (const key of ['flavor', 'mouthfeel', 'aftertaste']) document.getElementById('solo-' + key).textContent = sensory[key];
+                const dates = Array.isArray(sensory.dates) ? sensory.dates.filter(date => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)).slice(0, 2) : [];
+                document.getElementById('solo-dates').textContent = dates.length ? '品飲日期：' + dates.join('、') : '';
+                soloPanel.classList.remove('hidden');
+                document.getElementById('legacy-flavor-profile').classList.add('hidden');
+            }
             const managed = Number.isInteger(rec.publicationRevision) && rec.publicationRevision >= 1;
             const bName=rec.beanName||'';
             document.title=`${bName} · 金成淬精品咖啡 | 職人烘焙履歷`;

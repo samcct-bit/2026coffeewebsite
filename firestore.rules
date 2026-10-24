@@ -46,7 +46,7 @@ service cloud.firestore {
         'dropTemp', 'dropTime', 'dtrRatio', 'lossRatio', 'flavorTop', 'flavorMid', 'flavorBase', 'storyCopy',
         'brewTemp', 'brewMethod', 'brewAiTip', 'brewGuideNote', 'cuppingScore', 'rorDatapointsJson',
         'timelineActionsJson', 'rorQualityScore', 'imageUrl', 'image', 'beanImage', 'dashboardUrl',
-        'aiAnalyzedAt', 'aiAnalysisVersion',
+        'aiAnalyzedAt', 'aiAnalysisVersion', 'sensoryProfile',
         'publicationRevision', 'publishedAt', 'publishedBy', 'sourceDraftVersion', 'publicationReview'
       ])
         && candidate.publicationRevision is int
@@ -61,6 +61,8 @@ service cloud.firestore {
           'identityConfirmed', 'flavorReviewed', 'evidenceLimitationsAccepted', 'sensoryBasis', 'cuppingDate'
         ])
         && candidate.publicationReview.sensoryBasis in ['reference', 'cupped']
+        && (candidate.publicationReview.sensoryBasis != 'cupped' || validCuppingEvidence(document, before.payload, candidate))
+        && (!candidate.keys().hasAny(['sensoryProfile']) || candidate.publicationReview.sensoryBasis == 'cupped')
         && (candidate.publicationReview.sensoryBasis != 'cupped'
           || candidate.publicationReview.cuppingDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
         && candidate.flavorTop is string && candidate.flavorTop.size() > 0 && candidate.flavorTop.size() <= 13
@@ -81,6 +83,73 @@ service cloud.firestore {
         && after.basePublishedRevision == candidate.publicationRevision
         && after.review == candidate.publicationReview;
     }
+    function cuppingRound(r, locked) {
+      // The service validates complete round semantics before locking/adopting. Keep rule evaluation bounded.
+      return r.flavor is string && r.mouthfeel is string && r.aftertaste is string;
+    }
+    function cuppingCup(c, locked) {
+      return c.keys().hasOnly(['concern', 'rounds']) && c.concern is string && c.concern.size() <= 500
+        && c.rounds is list && c.rounds.size() == 3
+        && cuppingRound(c.rounds[0], locked) && cuppingRound(c.rounds[1], locked) && cuppingRound(c.rounds[2], locked);
+    }
+    function validCuppingSession(batch) {
+      let s = request.resource.data;
+      let f = s.form;
+      let locked = s.status == 'locked';
+      return s.keys().hasOnly(['batchId', 'form', 'method', 'roastColor', 'roastFingerprint', 'roastSnapshot', 'referenceSnapshot',
+          'status', 'version', 'createdAt', 'updatedAt', 'updatedBy', 'lockedAt'])
+        && s.batchId == batch && s.method == 'solo' && s.roastColor == 'unmeasured'
+        && s.status in ['draft', 'locked'] && s.version is string && s.version.size() >= 16
+        && s.roastFingerprint is string && s.roastFingerprint.size() == 64 && s.roastSnapshot is map && s.referenceSnapshot is map
+        && s.updatedAt == request.time && s.updatedBy == request.auth.uid
+        && (locked ? s.lockedAt == request.time : s.lockedAt == null)
+        && f.keys().hasOnly(['date', 'greenLot', 'grinder', 'grindSetting', 'waterSource', 'doseG', 'vesselMl', 'waterTempC', 'referenceHidden', 'conditionsConfirmed', 'qualityNote', 'cups'])
+        && f.date is string && f.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && f.greenLot is string && f.greenLot.size() <= 500 && (!locked || f.greenLot.size() > 0)
+        && f.grinder is string && f.grinder.size() <= 500 && (!locked || f.grinder.size() > 0)
+        && f.grindSetting is string && f.grindSetting.size() <= 500 && (!locked || f.grindSetting.size() > 0)
+        && f.waterSource is string && f.waterSource.size() <= 500 && (!locked || f.waterSource.size() > 0)
+        && f.qualityNote is string && f.qualityNote.size() <= 500
+        && f.doseG is number && f.doseG >= 1 && f.doseG <= 100
+        && f.vesselMl is number && f.vesselMl >= 50 && f.vesselMl <= 1000
+        && f.waterTempC is number && f.waterTempC >= 1 && f.waterTempC <= 100
+        && f.referenceHidden is bool && f.conditionsConfirmed is bool && (!locked || f.conditionsConfirmed)
+        && f.cups is list && f.cups.size() == 3
+        && cuppingCup(f.cups[0], locked) && cuppingCup(f.cups[1], locked) && cuppingCup(f.cups[2], locked);
+    }
+    function sameRoast(s, p) {
+      return s.batchId == p.id
+        && s.roastSnapshot.beanName == p.beanName && s.roastSnapshot.roastDate == p.roastDate
+        && s.roastSnapshot.machine == p.get('machine', null)
+        && s.roastSnapshot.origin == p.get('origin', null) && s.roastSnapshot.process == p.get('process', null)
+        && s.roastSnapshot.variety == p.get('variety', null) && s.roastSnapshot.greenLotId == p.get('greenLotId', null)
+        && s.roastSnapshot.chargeMassG == p.get('chargeMassG', null) && s.roastSnapshot.dropMassG == p.get('dropMassG', null)
+        && s.roastSnapshot.chargeTemp == p.get('chargeTemp', null)
+        && s.roastSnapshot.fcTime == p.get('fcTime', null) && s.roastSnapshot.dropTime == p.get('dropTime', null)
+        && s.roastSnapshot.rorDatapointsJson == p.get('rorDatapointsJson', '[]');
+    }
+    function validCuppingEvidence(batch, payload, candidate) {
+      let ids = payload.cuppingSessionIds;
+      let profile = candidate.sensoryProfile;
+      let first = get(/databases/$(database)/documents/coffee_roast_drafts/$(batch)/cupping_sessions/$(ids[0])).data;
+      let second = get(/databases/$(database)/documents/coffee_roast_drafts/$(batch)/cupping_sessions/$(ids[ids.size() - 1])).data;
+      return ids is list && ids.size() >= 1 && ids.size() <= 2
+        && first.status == 'locked' && second.status == 'locked' && sameRoast(first, payload)
+        && second.roastSnapshot == first.roastSnapshot && second.roastFingerprint == first.roastFingerprint
+        && profile == payload.sensoryProfile
+        && profile.keys().hasOnly(['method', 'status', 'dates', 'flavor', 'mouthfeel', 'aftertaste'])
+        && profile.method == 'solo' && profile.status == (ids.size() == 2 ? 'repeated' : 'single')
+        && profile.dates is list && profile.dates.size() == ids.size()
+        && profile.dates.hasAll([first.form.date, second.form.date])
+        && candidate.publicationReview.cuppingDate in profile.dates
+        && candidate.publicationReview.cuppingDate >= first.form.date && candidate.publicationReview.cuppingDate >= second.form.date
+        && profile.flavor == candidate.flavorTop && profile.mouthfeel == candidate.flavorMid && profile.aftertaste == candidate.flavorBase
+        && candidate.get('cuppingScore', 0) == 0
+        && (ids.size() == 1 || (ids[0] != ids[1] && first.form.date != second.form.date
+          && first.form.greenLot == second.form.greenLot && first.form.waterSource == second.form.waterSource
+          && first.form.grinder == second.form.grinder && first.form.grindSetting == second.form.grindSetting
+          && first.form.doseG == second.form.doseG && first.form.vesselMl == second.form.vesselMl));
+    }
     match /coffee_roasts/{document} {
       // 任何人都可以讀取（公開豆單）
       allow read: if true;
@@ -92,6 +161,17 @@ service cloud.firestore {
     match /coffee_roast_drafts/{document} {
       allow read, delete: if isCoffeeAdmin();
       allow create, update: if isCoffeeAdmin() && validDraft();
+    }
+    match /coffee_roast_drafts/{batch}/cupping_sessions/{session} {
+      allow read: if isCoffeeAdmin();
+      allow create: if isCoffeeAdmin() && validCuppingSession(batch) && request.resource.data.createdAt == request.time;
+      allow update: if isCoffeeAdmin() && resource.data.status == 'draft' && validCuppingSession(batch)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.roastFingerprint == resource.data.roastFingerprint
+        && request.resource.data.roastSnapshot == resource.data.roastSnapshot
+        && request.resource.data.referenceSnapshot == resource.data.referenceSnapshot
+        && request.resource.data.version != resource.data.version;
+      allow delete: if isCoffeeAdmin() && resource.data.status == 'draft';
     }
     match /coffee_publication_history/{document}/versions/{version} {
       allow read: if isCoffeeAdmin();

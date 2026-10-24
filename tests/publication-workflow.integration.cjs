@@ -99,11 +99,11 @@ test('未發布草稿可捨棄，不殘留公開紀錄', async () => {
     assert.equal(await service.discard(draft.id, draft._workspace), null);
     assert.equal((await getDoc(doc(publicDb, 'coffee_roasts', draft.id))).exists(), false);
 });
-test('已杯測標示必須有日期，管理員刪除仍可清理自己的測試資料', async () => {
+test('只填日期不能冒充新杯測依據，管理員可清理未發布草稿', async () => {
     let draft = await service.save('flow-cupped', roast, service.newContext(), 'manual');
     await assert.rejects(service.publish(draft.id, draft._workspace, { ...review, sensoryBasis: 'cupped' }), /杯測日期/);
-    draft = await service.publish(draft.id, draft._workspace, { ...review, sensoryBasis: 'cupped', cuppingDate: '2026-10-17' });
-    assert.equal((await getDoc(doc(publicDb, 'coffee_roasts', draft.id))).data().cuppingScore, 86);
+    await assert.rejects(service.publish(draft.id, draft._workspace, { ...review, sensoryBasis: 'cupped', cuppingDate: '2026-10-17' }), /杯測工具/);
+    // A date alone is no longer sufficient evidence; full solo evidence is covered in cupping-workflow.integration.cjs.
     await service.remove(draft.id, draft._workspace);
     assert.equal((await getDoc(doc(publicDb, 'coffee_roasts', draft.id))).exists(), false);
 });

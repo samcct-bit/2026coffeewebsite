@@ -59,7 +59,7 @@ function render() {
     copy.append(fitted('div', '處理：' + (values.process || '未提供'), 'label-meta'),
         fitted('div', '品種：' + (values.variety || '未提供') + (values.altitude ? '｜' + values.altitude : ''), 'label-meta'));
     const notes = el('section', undefined, 'label-notes');
-    for (const [key, caption] of [['flavorTop', '初韻'], ['flavorMid', '中調'], ['flavorBase', '尾韻']]) {
+    for (const [key, caption] of (record.sensoryProfile ? [['flavorTop', '風味'], ['flavorMid', '口感'], ['flavorBase', '餘韻']] : [['flavorTop', '初韻'], ['flavorMid', '中調'], ['flavorBase', '尾韻']])) {
         const row = el('div', undefined, 'label-row'); row.append(el('span', caption, 'label-caption'), fitted('span', values[key], 'label-flavor')); notes.append(row);
     }
     copy.append(notes); const side = el('aside', undefined, 'label-side');
@@ -74,7 +74,7 @@ function render() {
     left.append(fitted('div', values.roastLevel + '｜烘焙 ' + record.roastDate.replaceAll('-', '.'), 'label-date'));
     const right = el('div');
     right.append(fitted('div', '批次尾碼 ' + record.id.slice(-8) + ' · v' + (record.publicationRevision || 0), 'label-batch'));
-    right.append(fitted('div', record.publicationReview?.sensoryBasis === 'cupped' ? '風味依據：本批杯測確認' : '風味參考・待杯測', 'label-basis'));
+    right.append(fitted('div', record.sensoryProfile?.method === 'solo' ? (record.sensoryProfile.status === 'repeated' ? '風味依據：單人複測' : '風味依據：本批單人實測') : record.publicationReview?.sensoryBasis === 'cupped' ? '風味依據：本批杯測確認' : '風味參考・待杯測', 'label-basis'));
     foot.append(left, right); label.append(head, body, foot); preview.append(label);
     $('edit-warning').hidden = !LABEL_FIELDS.some(key => values[key] !== labelDefaults(record)[key]);
     $('public-link').hidden = false; $('public-link').href = beanUrl(record.id);
@@ -111,6 +111,7 @@ for (const key of LABEL_FIELDS) {
 function fillFields() {
     for (const key of LABEL_FIELDS) {
         const input = $('field-' + key); input.disabled = !record; input.value = values[key] || '';
+        input.previousElementSibling.firstChild.textContent = record?.sensoryProfile ? ({ flavorTop: '風味', flavorMid: '口感', flavorBase: '餘韻' }[key] || captions[key]) : captions[key];
         input.removeAttribute('aria-invalid');
         if (key.startsWith('flavor')) input.previousElementSibling.querySelector('span').textContent = Array.from(input.value).length + '/13';
     }

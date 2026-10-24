@@ -51,3 +51,8 @@ test('snapshot preserves batch, revision and local edits without changing source
     assert.equal(snapshot.qrTarget, model.beanUrl(record.id)); assert.equal(snapshot.label.roastDate, record.roastDate);
     assert.equal(JSON.stringify(record), original);
 });
+test('new independent sensory fields map to labels without relabeling legacy mid-note as mouthfeel', () => {
+    const profile = { method: 'solo', status: 'single', dates: ['2026-10-20'], flavor: '柑橘', mouthfeel: '滑順', aftertaste: '紅茶' };
+    assert.equal(model.labelDefaults({ ...record, sensoryProfile: profile }).flavorMid, '滑順');
+    assert.equal(model.labelDefaults(record).flavorMid, record.flavorMid);
+});

@@ -4,7 +4,7 @@ const FIELDS = [
     ['beanName', '豆名'], ['origin', '產區'], ['process', '處理法'], ['variety', '品種'],
     ['roastLevel', '焙度'], ['roastDate', '烘焙日'], ['flavorTop', '初韻'], ['flavorMid', '中調'],
     ['flavorBase', '尾韻'], ['storyCopy', '故事文案'], ['brewTemp', '沖煮水溫'], ['brewMethod', '沖煮方式'],
-    ['cuppingScore', '人工杯測分數']
+    ['cuppingScore', '人工杯測分數（單人描述不換算分數）']
 ];
 function element(tag, text, className = '') {
     const node = document.createElement(tag);
@@ -36,7 +36,7 @@ export function renderPublicationPanel(container, record, { store, changed, edit
         if (!value && !published && !field.startsWith('flavor')) continue;
         const row = element('tr');
         const changedValue = String(published ?? '') !== String(value ?? '');
-        let description = label;
+        let description = record.sensoryProfile ? ({ flavorTop: '風味', flavorMid: '口感', flavorBase: '餘韻' }[field] || label) : label;
         if (field.startsWith('flavor')) description += ' (' + Array.from(normalizeFlavor(value)).length + '/13)';
         row.append(element('th', description, 'p-2 text-left align-top border-b border-white/5'));
         for (const text of [context.publishedExists ? String(published ?? '未提供') : '尚未發布', String(value ?? '未提供')]) {
@@ -78,19 +78,27 @@ export function renderPublicationPanel(container, record, { store, changed, edit
     const basis = document.createElement('select');
     basis.dataset.reviewBasis = 'true';
     basis.className = 'bg-black/70 border border-white/20 rounded p-2';
-    for (const [value, label] of [['reference', '風味參考・待杯測'], ['cupped', '本批杯測確認（需日期）']]) {
-        const option = document.createElement('option'); option.value = value; option.textContent = label; basis.append(option);
+    for (const [value, label] of [['reference', '風味參考・待杯測'], ['cupped', '本批單人實測（須鎖定紀錄）']]) {
+        const option = document.createElement('option'); option.value = value; option.textContent = label;
+        option.disabled = value === 'cupped' ? !record.sensoryProfile : !!record.sensoryProfile; basis.append(option);
     }
+    if (record.sensoryProfile) basis.value = 'cupped';
     basis.disabled = !context.hasDraft;
     const date = document.createElement('input');
     date.type = 'date'; date.disabled = true; date.dataset.cuppingDate = 'true';
     date.className = 'bg-black/70 border border-white/20 rounded p-2 ml-2';
     date.setAttribute('aria-label', '本批杯測日期');
+    if (record.sensoryProfile) { date.value = Array.isArray(record.sensoryProfile.dates) ? [...record.sensoryProfile.dates].sort().at(-1) || '' : ''; date.readOnly = true; }
     basis.addEventListener('change', () => { date.disabled = basis.value !== 'cupped'; });
     form.append(basis, date); container.append(form);
     const message = element('p', '', 'text-sm text-amber-200 my-2');
     message.setAttribute('role', 'status'); container.append(message);
     const actions = element('div', undefined, 'flex flex-wrap gap-2');
+    const cuppingLink = element('a', '單人杯測與複測', 'px-3 py-2 text-sm underline text-gray-200');
+    cuppingLink.href = './cupping.html?id=' + encodeURIComponent(record.id); actions.append(cuppingLink);
+    if (record.sensoryProfile) {
+        container.append(element('p', `杯測依據：${record.sensoryProfile.status === 'repeated' ? '單人複測' : '本批單人實測'}；原始場次僅管理員可見。`, 'text-sm text-amber-200 my-2'));
+    }
     let busy = false;
     function button(label, action, disabled = false) {
         const node = element('button', label, 'px-3 py-2 rounded border border-brass-gold/40 text-sm text-brass-gold disabled:opacity-40');
@@ -104,6 +112,12 @@ export function renderPublicationPanel(container, record, { store, changed, edit
         actions.append(node);
     }
     button('編輯草稿', () => edit(record.id));
+    if (record.sensoryProfile) button('移除杯測摘要並重填參考描述', async () => {
+        if (!window.confirm('這會建立參考草稿、清空三段描述與杯測摘要；原始杯測紀錄仍保留，公開版不更動。確定繼續？')) return;
+        const next = { ...record, flavorTop: '', flavorMid: '', flavorBase: '', cuppingScore: 0 };
+        delete next.sensoryProfile; delete next.cuppingSessionIds;
+        await changed(await store.save(record.id, next, context, 'manual'), '已移除草稿杯測摘要，請重新填寫三段參考描述；原始杯測仍保留。');
+    });
     button('審核並發布', async () => {
         const checks = Object.fromEntries(Object.entries(review).map(([key, input]) => [key, input.checked]));
         checks.sensoryBasis = basis.value; checks.cuppingDate = date.value;

@@ -6,7 +6,7 @@
     <!-- Content-Security-Policy -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https: blob:; connect-src 'self' https: wss:; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
     <title>金成淬 · 職人精品咖啡誌 | ALCHEMY OF REFINEMENT</title>
-    <meta name="description" content="金成淬微批次精選，整合SCA咖啡專業杯測與職人美學，為您呈獻十三款頂級精品咖啡的風味履歷與沖煮指南。">
+    <meta name="description" content="探索金成淬微批次咖啡豆單，查看各批次的產地、風味紀錄、烘焙履歷與沖煮參考。">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -110,8 +110,10 @@
     <script src="./js/ai_engine.js?v=20261017-publication-v9"></script>
 
     <script src="./js/safe_dom.js"></script>
+    <link rel="stylesheet" href="./css/public-site.css?v=20261023">
 </head>
-<body class="text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
+<body class="public-site public-home text-ivory font-sans antialiased selection:bg-brass-gold selection:text-obsidian">
+    <a class="skip-link" href="#selection-portal">跳至精品豆單</a>
 
     <!-- 1. 頂部奢華 Hero 視覺區 -->
     <header class="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden px-4 py-16">
@@ -144,14 +146,15 @@
             </div>
             
             <p class="text-gray-400 font-serif text-sm md:text-base leading-relaxed tracking-wider max-w-xl mx-auto mt-4 drop-shadow-md">
-                融合 SCA 咖啡師的化學理智，與金成淬的匠人視覺美學。<br>
-                為您呈現 <span id="hero-bean-count" class="text-brass-gold font-bold">十五</span> 款微批次珍稀熟豆的深邃履歷。
+                從產地、烘焙到杯中風味，找到適合您的日常一杯。<br>
+                探索 <span id="hero-bean-count" class="text-brass-gold font-bold">十五</span> 款咖啡的批次履歷與沖煮參考。
             </p>
             
             <div class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 mt-8 z-20">
-                <a href="#portal" class="bg-brass-gold hover:bg-refined-gold text-obsidian px-6 py-3 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300">
+                <a href="#selection-portal" class="customer-cta bg-brass-gold hover:bg-refined-gold text-obsidian px-6 py-3 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300">
                     瀏覽精品豆單
                 </a>
+                <details class="admin-tools"><summary>工作室管理工具</summary><nav aria-label="管理員工具">
                 <a href="./roast_db.html" class="bg-charcoal hover:bg-brass-gold text-white hover:text-obsidian border border-white/10 hover:border-brass-gold px-6 py-3 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300">
                     📈 進入烘焙 ROR 資料庫
                 </a>
@@ -161,6 +164,8 @@
                 <a href="./label.html" class="bg-charcoal hover:bg-brass-gold text-white hover:text-obsidian border border-white/10 hover:border-brass-gold px-6 py-3 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300">
                     🏷️ 標籤工具（管理員）
                 </a>
+                <a href="./cupping.html" class="bg-charcoal hover:bg-brass-gold text-white hover:text-obsidian border border-white/10 hover:border-brass-gold px-6 py-3 rounded-xl text-xs font-serif font-bold tracking-[0.2em] uppercase transition-all duration-300">☕ 單人杯測與複測</a>
+                </nav></details>
             </div>
             
             <!-- 往下滾動提示 -->
@@ -190,10 +195,10 @@
                 </div>
                 <div class="w-full md:w-3/5 text-gray-300 text-sm md:text-base leading-loose tracking-widest font-serif text-justify">
                     <p class="mb-4">
-                        「金成淬」由 具有SCA Brewing 咖啡萃取(金杯理論)及SCA Roasting 咖啡烘焙中級國際認證的咖啡師監製，每一批次生豆皆經過高標準物理特徵篩選（焦糖化潛力與脫水率科學測算），再由極致烘焙曲線（RoR 精密控溫與 DTR 發展比控管）完美還原。
+                        我們以批次紀錄呈現咖啡的產地與烘焙資訊，讓選豆不只依靠名稱。曲線是理解烘焙的線索，杯中感受仍需要實際品飲確認。
                     </p>
                     <p>
-                        本專屬網站集合了 <span id="philosophy-bean-count" class="text-brass-gold font-bold">十五</span> 款匠心之作——從高溫發酵的哥斯大黎加「莫札特」葡萄乾蜜處理，到清新脫俗的「紫風鈴」日曬，每一頁皆提供完整的杯測履歷、物理身分及精準的手沖注水指引，敬邀共同品飲。
+                        目前收錄 <span id="philosophy-bean-count" class="text-brass-gold font-bold">十五</span> 款咖啡。請留意各批次的描述來源：「風味參考・待杯測」不等於實測結果；「本批杯測確認」依已發布紀錄標示，並不代表 SCA 認證。
                     </p>
                 </div>
             </div>
@@ -379,7 +384,7 @@
              <img src="./7204.webp" alt="金成淬 Logo" class="w-full h-full object-contain mix-blend-multiply contrast-125 grayscale invert">
         </div>
         <p class="text-white font-serif font-semibold tracking-[0.3em] mb-3 text-base">金成淬咖啡誌 · ALCHEMY OF REFINEMENT</p>
-        <p class="text-gray-500 text-[10px] tracking-[0.2em] font-light uppercase font-outfit">SCA EXPERT SELECTION & ARTISAN ROASTER</p>
+        <p class="text-gray-500 text-[10px] tracking-[0.2em] font-light uppercase font-outfit">SMALL BATCH COFFEE · ROAST & TASTE JOURNAL</p>
         
         <div class="w-12 h-px bg-brass-gold/20 my-6"></div>
         
@@ -827,17 +832,18 @@
 
                         <!-- 風味三段演繹 (視覺時間軸) -->
                         ${bean.sensoryBasis ? `<p class="text-brass-gold text-xs mb-3">${SafeDOM.escapeHTML(bean.sensoryBasis)}</p>` : ''}
+                        ${bean.soloStatus ? `<p class="solo-badge">${SafeDOM.escapeHTML(bean.soloStatus)}</p>` : ''}
                         <div class="space-y-3 font-serif mb-8 flex-grow">
                             <div class="flex items-start gap-3">
-                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">初韻</span>
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">${bean.soloStatus ? '風味' : '初韻'}</span>
                                 <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[0])}</span>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">中調</span>
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">${bean.soloStatus ? '口感' : '中調'}</span>
                                 <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[1])}</span>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">尾韻</span>
+                                <span class="text-brass-gold text-[10px] tracking-widest border border-brass-gold/30 px-1.5 py-0.5 shrink-0 rounded">${bean.soloStatus ? '餘韻' : '尾韻'}</span>
                                 <span class="text-gray-200 text-xs md:text-sm tracking-widest pt-0.5">${SafeDOM.escapeHTML(bean.flavors[2])}</span>
                             </div>
                         </div>
@@ -1128,10 +1134,15 @@
                         base = base || "清雅白花餘韻、黑糖甘甜悠長";
                     }
 
+                    const solo = managed && data.publicationReview?.sensoryBasis === 'cupped' && data.sensoryProfile?.method === 'solo'
+                        && ['single', 'repeated'].includes(data.sensoryProfile.status)
+                        && ['flavor', 'mouthfeel', 'aftertaste'].every(key => typeof data.sensoryProfile[key] === 'string' && data.sensoryProfile[key].trim() && [...data.sensoryProfile[key]].length <= 13)
+                        ? data.sensoryProfile : null;
                     cloudRecords.push({
                         id: recId,
                         managed,
                         sensoryBasis: managed ? ({reference: '風味參考・待杯測', cupped: '本批杯測確認'}[data.publicationReview?.sensoryBasis] || '') : '',
+                        soloStatus: solo ? ({single: '本批單人實測', repeated: '本批單人複測'}[solo.status] || '') : '',
                         name: best.cleanNameKey,
                         englishName: `${data.origin || '精選產區'} · ${data.machine || '職人烘焙'}`,
                         roast: data.roastLevel || "淺焙",
@@ -1141,7 +1152,7 @@
                         altitude: altitude,
                         roastDate: data.roastDate || "",
                         rorQualityScore: best.rorQualityScore,
-                        flavors: [top, mid, base],
+                        flavors: solo ? [solo.flavor, solo.mouthfeel, solo.aftertaste] : [top, mid, base],
                         url: `./bean.html?id=${encodeURIComponent(recId)}`,
                         featured: true
                     });

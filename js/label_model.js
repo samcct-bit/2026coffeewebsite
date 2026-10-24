@@ -9,7 +9,7 @@ export function beanUrl(id) {
 export function labelDefaults(record) {
     return { title: String(record.beanName || ''), english: String(record.nameEn || ''), process: String(record.process || ''),
         variety: String(record.variety || ''), altitude: String(record.altitude || ''), roastLevel: String(record.roastLevel || ''),
-        flavorTop: String(record.flavorTop || ''), flavorMid: String(record.flavorMid || ''), flavorBase: String(record.flavorBase || '') };
+        flavorTop: String(record.sensoryProfile?.flavor || record.flavorTop || ''), flavorMid: String(record.sensoryProfile?.mouthfeel || record.flavorMid || ''), flavorBase: String(record.sensoryProfile?.aftertaste || record.flavorBase || '') };
 }
 export function labelProblems(record, values, quantity) {
     const problems = [];

@@ -1,4 +1,5 @@
-import { preparePayload, buildPublicSnapshot, publishedRevision, workspaceRecord } from './publication_model.js';
+import { preparePayload, buildPublicSnapshot, publishedRevision, workspaceRecord, publicationProblems } from './publication_model.js';
+import { buildSensoryProfile } from './cupping_model.js';
 
 // SDK dependencies are injected so emulator tests exercise the same transactions as the browser.
 export function createPublicationService({ db, api, authenticate, uuid = () => crypto.randomUUID() }) {
@@ -56,6 +57,19 @@ export function createPublicationService({ db, api, authenticate, uuid = () => c
             checkVersion(published, draft, expected);
             if (!draft || draft.status !== 'draft') throw new Error('沒有待發布草稿');
             if (draft.basePublishedRevision !== publishedRevision(published)) throw new Error('公開版本已變更，請重新載入並比對草稿');
+            const problems = publicationProblems(draft.payload, review);
+            if (problems.length) throw new Error(problems.join('；'));
+            if (review?.sensoryBasis === 'cupped') {
+                const ids = draft.payload.cuppingSessionIds;
+                if (!Array.isArray(ids) || ids.length < 1 || ids.length > 2) throw new Error('缺少已鎖定杯測場次');
+                const sessions = await Promise.all(ids.map(async sessionId => {
+                    const snapshot = await tx.get(doc(db, 'coffee_roast_drafts', checkedId(id), 'cupping_sessions', checkedId(sessionId)));
+                    if (!snapshot.exists()) throw new Error('杯測證據不存在'); return { ...snapshot.data(), id: sessionId };
+                }));
+                const profile = await buildSensoryProfile({ ...draft.payload, id }, sessions, draft.payload.sensoryProfile);
+                if (['method', 'status', 'flavor', 'mouthfeel', 'aftertaste'].some(key => profile[key] !== draft.payload.sensoryProfile?.[key]) ||
+                    JSON.stringify(profile.dates) !== JSON.stringify(draft.payload.sensoryProfile?.dates)) throw new Error('杯測摘要與實測證據不符，請重新採用');
+            }
             const revision = publishedRevision(published) + 1;
             const snapshot = buildPublicSnapshot(draft.payload, review, {
                 id, publicationRevision: revision, publishedAt: serverTimestamp(), publishedBy: actor, sourceDraftVersion: draft.draftVersion
